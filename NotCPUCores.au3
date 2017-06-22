@@ -39,3 +39,9 @@ Func DisableServices($State)
 		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
 	EndIf
 EndFunc
+
+Func SetPerformancePowerPlan($State)
+	If $State Then
+		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE)
+	EndIf
+EndFunc
