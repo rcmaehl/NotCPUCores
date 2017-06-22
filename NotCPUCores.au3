@@ -1,4 +1,9 @@
 #RequireAdmin
+#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Compile_Both=y
+#AutoIt3Wrapper_UseX64=y
+#AutoIt3Wrapper_Change2CUI=y
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <WinAPI.au3>
 #include <Constants.au3>
@@ -9,15 +14,19 @@ If $CmdLine[0] > 1 Then
 		Case "OptimizeAll"
 			If Not $CmdLine[0] = 4 Then
 				ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+				Sleep(1000)
 				Exit 1
 			ElseIf Not ProcessExists($CmdLine[2]) Then
 				ConsoleWrite($CmdLine[2] & " is not currently running. Please run the program first" & @CRLF)
+				Sleep(1000)
 				Exit 1
-			ElseIf Not IsInt($CmdLine[3]) And Not IsInt($CmdLine[4]) Then
+			ElseIf Not IsInt(Number($CmdLine[3])) And Not IsInt(Number($CmdLine[4])) Then
 				ConsoleWrite("Invalid options set for CoreCount and CoreToRunOn" & @CRLF)
+				Sleep(1000)
 				Exit 1
-			ElseIf $CmdLine[3] < $CmdLine[4] Then
+			ElseIf Number($CmdLine[3]) < Number($CmdLine[4]) Then
 				ConsoleWrite("Core " & $CmdLine[4] & " does not exist on a " & $CmdLine[3] & " core system" & @CRLF)
+				Sleep(1000)
 				Exit 1
 			Else
 				OptimizeAll($CmdLine[2],$CmdLine[3],$CmdLine[4])
@@ -25,15 +34,19 @@ If $CmdLine[0] > 1 Then
 		Case "Optimize"
 			If Not $CmdLine[0] = 4 Then
 				ConsoleWrite("Optimize Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+				Sleep(1000)
 				Exit 1
 			ElseIf Not ProcessExists($CmdLine[2]) Then
 				ConsoleWrite($CmdLine[2] & " is not currently running. Please run the program first" & @CRLF)
+				Sleep(1000)
 				Exit 1
-			ElseIf Not IsInt($CmdLine[3]) And Not IsInt($CmdLine[4]) Then
+			ElseIf Not IsInt(Number($CmdLine[3])) And Not IsInt(Number($CmdLine[4])) Then
 				ConsoleWrite("Invalid options set for CoreCount and CoreToRunOn" & @CRLF)
+				Sleep(1000)
 				Exit 1
-			ElseIf $CmdLine[3] < $CmdLine[4] Then
+			ElseIf Number($CmdLine[3]) < Number($CmdLine[4]) Then
 				ConsoleWrite("Core " & $CmdLine[4] & " does not exist on a " & $CmdLine[3] & " core system" & @CRLF)
+				Sleep(1000)
 				Exit 1
 			Else
 				Optimize($CmdLine[2],$CmdLine[3],$CmdLine[4])
@@ -41,6 +54,7 @@ If $CmdLine[0] > 1 Then
 		Case "ToggleHPET"
 			If Not $CmdLine[0] = 2 Then
 				ConsoleWrite("ToggleHPET Requires True/False" & @CRLF)
+				Sleep(1000)
 				Exit 1
 			Else
 				ToggleHPET($CmdLine[2])
@@ -48,6 +62,7 @@ If $CmdLine[0] > 1 Then
 		Case "StopServices"
 			If Not $CmdLine[0] = 2 Then
 				ConsoleWrite("StopServices Requires True/False" & @CRLF)
+				Sleep(1000)
 				Exit 1
 			Else
 				StopServices($CmdLine[2])
@@ -55,6 +70,7 @@ If $CmdLine[0] > 1 Then
 		Case "SetPowerPlan"
 			If Not $CmdLine[0] = 2 Then
 				ConsoleWrite("SetPowerPlan Requires True/False" & @CRLF)
+				Sleep(1000)
 				Exit 1
 			Else
 				SetPowerPlan($CmdLine[2])
@@ -62,15 +78,18 @@ If $CmdLine[0] > 1 Then
 		Case "Restore"
 			If Not $CmdLine[0] = 2 Then
 				ConsoleWrite("Restore Requires CoreCount" & @CRLF)
+				Sleep(1000)
 				Exit 1
 			ElseIf Not IsInt($CmdLine[2]) Then
 				ConsoleWrite($CmdLine[2] & " is not a valid CoreCount" & @CRLF)
+				Sleep(1000)
 				Exit 1
 			Else
 				Restore($CmdLine[2])
 			EndIf
 		Case Else
 			ConsoleWrite($CmdLine[1] & " is not a valid command." & @CRLF)
+			Sleep(1000)
 			Exit 1
 	EndSwitch
 EndIf

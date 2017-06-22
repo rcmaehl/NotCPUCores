@@ -1,8 +1,4 @@
-$Cores = 16
-$AllCores = 0
+$Test1 = 16
+$test2 = "16"
 
-For $i = 0 To $Cores - 1
-	$AllCores += 2^$i
-Next
-
-ConsoleWrite($AllCores & @CRLF)
+MsgBox(0,"",IsInt($Test1) & " - " & IsInt($test2))
