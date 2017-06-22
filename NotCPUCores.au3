@@ -40,7 +40,7 @@ Func DisableServices($State)
 	EndIf
 EndFunc
 
-Func SetPerformancePowerPlan($State)
+Func SetPowerPlan($State)
 	If $State Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE)
 	EndIf
