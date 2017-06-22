@@ -80,7 +80,7 @@ If $CmdLine[0] > 1 Then
 				ConsoleWrite("Restore Requires CoreCount" & @CRLF)
 				Sleep(1000)
 				Exit 1
-			ElseIf Not IsInt($CmdLine[2]) Then
+			ElseIf Not IsInt(Number($CmdLine[2])) Then
 				ConsoleWrite($CmdLine[2] & " is not a valid CoreCount" & @CRLF)
 				Sleep(1000)
 				Exit 1
