@@ -1,0 +1,45 @@
+Optimize(Process,WhichCoreToSet)
+	Array1 = GetProcesses
+	Loop Through Array
+		If Loop Current = Process Then
+			SetPriority(Process,High)
+			SetAffinity(Process,WhichCoreToSet)
+		Else
+			SetAffinity(Loop Current,!WhichCoreToSet)
+		EndIf
+	EndLoop
+EndFunction
+
+Restore()
+	Array1 = GetProcesses
+	Loop Through Array
+		SetPriority(Loop Current,All Cores)
+	EndLoop
+	ServiceStart(wuauserv) ; Windows Update
+	ServiceStart(Wsearch) ; Manual File Searches
+	ServiceStart(Spooler) ; Print jobs
+	SetPowerPlan(Balanced)
+EndFunction
+
+ToggleHPET(State)
+	If State = True Then
+		Run("bcdedit /set useplatformclock true")
+	ElseIf State = False Then
+		Run("bcdedit /set useplatformclock false")
+	EndIf
+	Msg("You'll need to Restart your computer to apply this tweak")
+EndFunction
+
+DisableServices(State)
+	If State = True Then
+		ServiceStop(wuauserv) ; Windows Update
+		ServiceStop(Wsearch) ; Manual File Searches
+		ServiceStop(Spooler) ; Print jobs
+	EndIf
+EndFunction
+
+SetPerformancePowerPlan(State)
+	If State = True Then 
+		SetPowerPlan(Performance)
+	EndIf
+EndFunction
