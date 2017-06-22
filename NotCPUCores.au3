@@ -23,7 +23,7 @@ Func Optimize($Process,$Core)
 	Next
 EndFunc
 
-ToggleHPET($State)
+Func ToggleHPET($State)
 	If $State Then
 		Run("bcdedit /set useplatformclock true")
 	ElseIf Not $State Then
@@ -32,3 +32,10 @@ ToggleHPET($State)
 	MsgBox($MB_OK+$MB_ICONWARNING+$MB_TOPMOST, "HPET Tweaking requires Restart", "You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply")
 EndFunc
 
+Func DisableServices($State)
+	If $State Then
+		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'net start wsearch', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
+	EndIf
+EndFunc
