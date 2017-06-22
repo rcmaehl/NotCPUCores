@@ -1,20 +1,100 @@
 #RequireAdmin
 
 #include <WinAPI.au3>
+#include <Constants.au3>
 #include <AutoItConstants.au3>
 
-Func OptimizeAll($Process,$Core)
-	Optimize($Process, $Core)
+If $CmdLine[0] > 1 Then
+	Switch $CmdLine[1]
+		Case "OptimizeAll"
+			If Not $CmdLine[0] = 4 Then
+				ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+				Exit 1
+			ElseIf Not ProcessExists($CmdLine[2]) Then
+				ConsoleWrite($CmdLine[2] & " is not currently running. Please run the program first" & @CRLF)
+				Exit 1
+			ElseIf Not IsInt($CmdLine[3]) And Not IsInt($CmdLine[4]) Then
+				ConsoleWrite("Invalid options set for CoreCount and CoreToRunOn" & @CRLF)
+				Exit 1
+			ElseIf $CmdLine[3] < $CmdLine[4] Then
+				ConsoleWrite("Core " & $CmdLine[4] & " does not exist on a " & $CmdLine[3] & " core system" & @CRLF)
+				Exit 1
+			Else
+				OptimizeAll($CmdLine[2],$CmdLine[3],$CmdLine[4])
+			EndIf
+		Case "Optimize"
+			If Not $CmdLine[0] = 4 Then
+				ConsoleWrite("Optimize Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+				Exit 1
+			ElseIf Not ProcessExists($CmdLine[2]) Then
+				ConsoleWrite($CmdLine[2] & " is not currently running. Please run the program first" & @CRLF)
+				Exit 1
+			ElseIf Not IsInt($CmdLine[3]) And Not IsInt($CmdLine[4]) Then
+				ConsoleWrite("Invalid options set for CoreCount and CoreToRunOn" & @CRLF)
+				Exit 1
+			ElseIf $CmdLine[3] < $CmdLine[4] Then
+				ConsoleWrite("Core " & $CmdLine[4] & " does not exist on a " & $CmdLine[3] & " core system" & @CRLF)
+				Exit 1
+			Else
+				Optimize($CmdLine[2],$CmdLine[3],$CmdLine[4])
+			EndIf
+		Case "ToggleHPET"
+			If Not $CmdLine[0] = 2 Then
+				ConsoleWrite("ToggleHPET Requires True/False" & @CRLF)
+				Exit 1
+			Else
+				ToggleHPET($CmdLine[2])
+			EndIf
+		Case "StopServices"
+			If Not $CmdLine[0] = 2 Then
+				ConsoleWrite("StopServices Requires True/False" & @CRLF)
+				Exit 1
+			Else
+				StopServices($CmdLine[2])
+			EndIf
+		Case "SetPowerPlan"
+			If Not $CmdLine[0] = 2 Then
+				ConsoleWrite("SetPowerPlan Requires True/False" & @CRLF)
+				Exit 1
+			Else
+				SetPowerPlan($CmdLine[2])
+			EndIf
+		Case "Restore"
+			If Not $CmdLine[0] = 2 Then
+				ConsoleWrite("Restore Requires CoreCount" & @CRLF)
+				Exit 1
+			ElseIf Not IsInt($CmdLine[2]) Then
+				ConsoleWrite($CmdLine[2] & " is not a valid CoreCount" & @CRLF)
+				Exit 1
+			Else
+				Restore($CmdLine[2])
+			EndIf
+		Case Else
+			ConsoleWrite($CmdLine[1] & " is not a valid command." & @CRLF)
+			Exit 1
+	EndSwitch
+EndIf
+
+Func OptimizeAll($Process,$Cores,$Core)
+	Optimize($Process,$Cores,$Core)
 	StopServices(True)
 	SetPowerPlan(True)
+	While ProcessExists($Process)
+		Sleep(1000)
+	WEnd
+	Restore($Cores)
 EndFunc
 
-Func Optimize($Process,$Core)
+Func Optimize($Process,$Cores,$Core)
 	#cs
 		TO DO:
 			Allow setting processes to MULTIPLE CORES
 			Automatically determine core count, not really a big deal until the above is implimented
 	#ce
+	Local $AllCores = 0
+	For $i = 0 To $Cores - 1
+		$AllCores += 2^$i
+	Next
 	$Core = 2^$Core
 	$Processes = ProcessList()
 	For $Loop = 0 to $Processes[0][0] Step 1
@@ -24,7 +104,9 @@ Func Optimize($Process,$Core)
 			_WinAPI_SetProcessAffinityMask($hProcess, $Core)
 			_WinAPI_CloseHandle($hProcess)
 		Else
-			ConsoleWrite("TO DO: Automatically determine core count")
+			$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])
+			_WinAPI_SetProcessAffinityMask($hProcess, $AllCores-$Core)
+			_WinAPI_CloseHandle($hProcess)
 		EndIf
 	Next
 EndFunc
@@ -62,7 +144,17 @@ Func SetPowerPlan($State)
 	EndIf
 EndFunc
 
-Func Restore()
+Func Restore($Cores)
+	Local $AllCores = 0
+	For $i = 0 To $Cores - 1
+		$AllCores += 2^$i
+	Next
+	$Processes = ProcessList()
+	For $Loop = 0 to $Processes[0][0] Step 1
+		$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])
+		_WinAPI_SetProcessAffinityMask($hProcess, $AllCores)
+		_WinAPI_CloseHandle($hProcess)
+	Next
 	RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
 	RunWait(@ComSpec & " /c " & 'net start wsearch', "", @SW_HIDE)
 	RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
