@@ -22,3 +22,13 @@ Func Optimize($Process,$Core)
 		EndIf
 	Next
 EndFunc
+
+ToggleHPET($State)
+	If $State Then
+		Run("bcdedit /set useplatformclock true")
+	ElseIf Not $State Then
+		Run("bcdedit /set useplatformclock false")
+	EndIf
+	MsgBox($MB_OK+$MB_ICONWARNING+$MB_TOPMOST, "HPET Tweaking requires Restart", "You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply")
+EndFunc
+
