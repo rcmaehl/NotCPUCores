@@ -12,7 +12,7 @@
 If $CmdLine[0] > 1 Then
 	Switch $CmdLine[1]
 		Case "OptimizeAll"
-			If Not $CmdLine[0] = 4 Then
+			If $CmdLine[0] < 4 Then
 				ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
 				Sleep(1000)
 				Exit 1
@@ -32,7 +32,7 @@ If $CmdLine[0] > 1 Then
 				OptimizeAll($CmdLine[2],$CmdLine[3],$CmdLine[4])
 			EndIf
 		Case "Optimize"
-			If Not $CmdLine[0] = 4 Then
+			If $CmdLine[0] < 4 Then
 				ConsoleWrite("Optimize Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
 				Sleep(1000)
 				Exit 1
@@ -52,7 +52,7 @@ If $CmdLine[0] > 1 Then
 				Optimize($CmdLine[2],$CmdLine[3],$CmdLine[4])
 			EndIf
 		Case "ToggleHPET"
-			If Not $CmdLine[0] = 2 Then
+			If $CmdLine[0] < 2 Then
 				ConsoleWrite("ToggleHPET Requires True/False" & @CRLF)
 				Sleep(1000)
 				Exit 1
@@ -60,7 +60,7 @@ If $CmdLine[0] > 1 Then
 				ToggleHPET($CmdLine[2])
 			EndIf
 		Case "StopServices"
-			If Not $CmdLine[0] = 2 Then
+			If $CmdLine[0] < 2 Then
 				ConsoleWrite("StopServices Requires True/False" & @CRLF)
 				Sleep(1000)
 				Exit 1
@@ -68,7 +68,7 @@ If $CmdLine[0] > 1 Then
 				StopServices($CmdLine[2])
 			EndIf
 		Case "SetPowerPlan"
-			If Not $CmdLine[0] = 2 Then
+			If $CmdLine[0] < 2 Then
 				ConsoleWrite("SetPowerPlan Requires True/False" & @CRLF)
 				Sleep(1000)
 				Exit 1
@@ -76,7 +76,7 @@ If $CmdLine[0] > 1 Then
 				SetPowerPlan($CmdLine[2])
 			EndIf
 		Case "Restore"
-			If Not $CmdLine[0] = 2 Then
+			If $CmdLine[0] < 2 Then
 				ConsoleWrite("Restore Requires CoreCount" & @CRLF)
 				Sleep(1000)
 				Exit 1
@@ -92,6 +92,30 @@ If $CmdLine[0] > 1 Then
 			Sleep(1000)
 			Exit 1
 	EndSwitch
+Else
+	If $CmdLine[0] = 0 Then
+		ConsoleWrite("Available Commands: OptimizeAll Optimize ToggleHPET StopServices SetPowerPlan Restore" & @CRLF)
+	Else
+		Switch $CmdLine[1]
+			Case "OptimizeAll"
+				ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+			Case "Optimize"
+				ConsoleWrite("Optimize Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+				Sleep(5000)
+			Case "ToggleHPET"
+				ConsoleWrite("ToggleHPET Requires True/False" & @CRLF)
+			Case "StopServices"
+				ConsoleWrite("StopServices Requires True/False" & @CRLF)
+			Case "SetPowerPlan"
+				ConsoleWrite("SetPowerPlan Requires True/False" & @CRLF)
+			Case "Restore"
+				ConsoleWrite("Restore Requires CoreCount" & @CRLF)
+			Case Else
+				ConsoleWrite($CmdLine[1] & " is not a valid command." & @CRLF)
+		EndSwitch
+	EndIf
+	Sleep(5000)
+	Exit 0
 EndIf
 
 Func OptimizeAll($Process,$Cores,$Core)
@@ -128,6 +152,10 @@ Func Optimize($Process,$Cores,$Core)
 			_WinAPI_CloseHandle($hProcess)
 		EndIf
 	Next
+	While ProcessExists($Process)
+		Sleep(1000)
+	WEnd
+	Restore($Cores)
 EndFunc
 
 Func ToggleHPET($State)
@@ -146,11 +174,9 @@ Func StopServices($State)
 		ConsoleWrite("INVALID PARAMETER FOR STOPSERVICES" & @CRLF)
 	ElseIf $State Then
 		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE)
-		RunWait(@ComSpec & " /c " & 'net stop wsearch', "", @SW_HIDE)
 		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE)
 	ElseIf Not $State Then
 		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
-		RunWait(@ComSpec & " /c " & 'net start wsearch', "", @SW_HIDE)
 		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
 	EndIf
 EndFunc
@@ -175,6 +201,5 @@ Func Restore($Cores)
 		_WinAPI_CloseHandle($hProcess)
 	Next
 	RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
-	RunWait(@ComSpec & " /c " & 'net start wsearch', "", @SW_HIDE)
 	RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
 EndFunc
