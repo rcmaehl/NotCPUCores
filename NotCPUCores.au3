@@ -3,7 +3,13 @@
 #include <WinAPI.au3>
 #include <AutoItConstants.au3>
 
-Func Optimize($Process,$Core,$TotalCores)
+Func OptimizeAll($Process,$Core)
+	Optimize($Process, $Core)
+	StopServices(True)
+	SetPowerPlan(True)
+EndFunc
+
+Func Optimize($Process,$Core)
 	#cs
 		TO DO:
 			Allow setting processes to MULTIPLE CORES
@@ -24,7 +30,9 @@ Func Optimize($Process,$Core,$TotalCores)
 EndFunc
 
 Func ToggleHPET($State)
-	If $State Then
+	If Not IsBool($State) Then
+		ConsoleWrite("INVALID PARAMETER FOR TOGGLEHPET" & @CRLF)
+	ElseIf $State Then
 		Run("bcdedit /set useplatformclock true")
 	ElseIf Not $State Then
 		Run("bcdedit /set useplatformclock false")
@@ -33,15 +41,23 @@ Func ToggleHPET($State)
 EndFunc
 
 Func StopServices($State)
-	If $State Then
+	If Not IsBool($State) Then
+		ConsoleWrite("INVALID PARAMETER FOR STOPSERVICES" & @CRLF)
+	ElseIf $State Then
 		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE)
 		RunWait(@ComSpec & " /c " & 'net stop wsearch', "", @SW_HIDE)
 		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE)
+	ElseIf Not $State Then
+		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'net start wsearch', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
 	EndIf
 EndFunc
 
 Func SetPowerPlan($State)
-	If $State Then
+	If Not IsBool($State) Then
+		ConsoleWrite("INVALID PARAMETER FOR SETPOWERPLAN" & @CRLF)
+	ElseIf $State Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE)
 	EndIf
 EndFunc
