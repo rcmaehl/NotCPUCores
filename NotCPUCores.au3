@@ -3,7 +3,7 @@
 #include <WinAPI.au3>
 #include <AutoItConstants.au3>
 
-Func Optimize($Process,$Core)
+Func Optimize($Process,$Core,$TotalCores)
 	#cs
 		TO DO:
 			Allow setting processes to MULTIPLE CORES
@@ -32,11 +32,11 @@ Func ToggleHPET($State)
 	MsgBox($MB_OK+$MB_ICONWARNING+$MB_TOPMOST, "HPET Tweaking requires Restart", "You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply")
 EndFunc
 
-Func DisableServices($State)
+Func StopServices($State)
 	If $State Then
-		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
-		RunWait(@ComSpec & " /c " & 'net start wsearch', "", @SW_HIDE)
-		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'net stop wsearch', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE)
 	EndIf
 EndFunc
 
@@ -44,4 +44,10 @@ Func SetPowerPlan($State)
 	If $State Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE)
 	EndIf
+EndFunc
+
+Func Restore()
+	RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
+	RunWait(@ComSpec & " /c " & 'net start wsearch', "", @SW_HIDE)
+	RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
 EndFunc
