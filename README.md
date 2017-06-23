@@ -1,5 +1,5 @@
 # NotCPUCores
-The same, but better (aka not a scam)
+The same, but free. Download under Releases
 
 ## This program does the same optimizations as the scammy CPUCores. These include:
 
