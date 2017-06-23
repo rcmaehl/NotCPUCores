@@ -1,6 +1,7 @@
 # NotCPUCores
 The same, but better (aka not a scam)
 
+This program does the same optimizations as the scammy CPUCores, by Changing the Process Priority. The Cores it runs on, Stopping Unneeded Processes while the game is running, and Setting the Power Plan to Max.
 
 Project stages:
 
