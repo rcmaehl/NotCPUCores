@@ -1,6 +1,7 @@
-#RequireAdmin
 #NoTrayIcon
+#RequireAdmin
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Icon=..\..\..\..\..\..\Program Files (x86)\AutoIt3\Icons\MyAutoIt3_Yellow.ico
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=y
@@ -164,7 +165,8 @@ Func ModeSelect($CmdLine)
 		EndSwitch
 	Else
 		If $CmdLine[0] = 0 Then
-			Main()
+			ConsoleWrite("Available Commands: OptimizeAll Optimize ToggleHPET StopServices SetPowerPlan Restore" & @CRLF)
+			; Main()
 		Else
 			Switch $CmdLine[1]
 				Case "/?"
