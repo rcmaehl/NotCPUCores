@@ -189,14 +189,14 @@ Func Optimize($Process,$Cores,$Core)
 	ConsoleWrite("Optimizing " & $Process & "...")
 	For $Loop = 0 to $Processes[0][0] Step 1
 		If $Processes[$Loop][0] = $Process Then
-			ProcessSetPriority($Processes[$Loop][0],$PROCESS_HIGH)
-			$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])
-			_WinAPI_SetProcessAffinityMask($hProcess, $Core)
-			_WinAPI_CloseHandle($hProcess)
+			ProcessSetPriority($Processes[$Loop][0],$PROCESS_HIGH) ; Self Explanatory
+			$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1]) ; Select the Process
+			_WinAPI_SetProcessAffinityMask($hProcess, $Core) ; Set Affinity (which cores it's assigned to)
+			_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 		Else
-			$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])
-			_WinAPI_SetProcessAffinityMask($hProcess, $AllCores-$Core)
-			_WinAPI_CloseHandle($hProcess)
+			$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])  ; Select the Process
+			_WinAPI_SetProcessAffinityMask($hProcess, $AllCores-$Core)) ; Set Affinity (which cores it's assigned to)
+			_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 		EndIf
 	Next
 	ConsoleWrite("Done" & @CRLF)
@@ -213,20 +213,20 @@ EndFunc
 Func ToggleHPET($State)
 	If $State = "True" Then
 		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
-		Run("bcdedit /set useplatformclock true")
+		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
 	ElseIf $State = "False" Then
-		Run("bcdedit /set useplatformclock false")
+		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
 		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
 	EndIf
 EndFunc
 
 Func StopServices($State)
 	If $State = "True" Then
-		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE)
-		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
+		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE) ; Stop Printer Spooler
 	ElseIf $State = "False" Then
-		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
-		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE) ; Start Windows Update
+		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE) ; Start Printer Spooler
 	EndIf
 EndFunc
 
@@ -234,7 +234,7 @@ Func SetPowerPlan($State)
 	If $State = "True" Then
 		ConsoleWrite("INVALID PARAMETER FOR SETPOWERPLAN" & @CRLF)
 	ElseIf $State = "False" Then
-		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE)
+		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE) ; Set MINIMUM power saving, aka max performance
 	EndIf
 EndFunc
 
@@ -245,9 +245,9 @@ Func Restore($Cores)
 	Next
 	$Processes = ProcessList()
 	For $Loop = 0 to $Processes[0][0] Step 1
-		$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])
-		_WinAPI_SetProcessAffinityMask($hProcess, $AllCores)
-		_WinAPI_CloseHandle($hProcess)
+		$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])  ; Select the Process
+		_WinAPI_SetProcessAffinityMask($hProcess, $AllCores) ; Set Affinity (which cores it's assigned to)
+		_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 	Next
 	RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
 	RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
