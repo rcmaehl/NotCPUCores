@@ -13,9 +13,12 @@
 
 #include <WinAPI.au3>
 #include <Constants.au3>
+#include <EditConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <AutoItConstants.au3>
+#include <StaticConstants.au3>
 #include <WindowsConstants.au3>
+
 
 ModeSelect($CmdLine)
 
@@ -28,7 +31,23 @@ Func Main()
 
 	GUICtrlCreateTabItem("Optimize")
 
+	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER)
+	GUICtrlSetBkColor(-1, 0xF0F0F0)
+	GUICtrlCreateLabel("Process Name:", 10, 45, 80, 15)
+	Local $hTask = GUICtrlCreateInput("", 150, 45, 120, 20, $ES_UPPERCASE + $ES_RIGHT)
+
+	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER)
+	GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	GUICtrlCreateLabel("Core Count:", 10, 100, 80, 15)
+	Local $hCores = GUICtrlCreateInput("", 150, 100, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
+	GUICtrlSetLimit(-2,2)
+
+
 	GUICtrlCreateTabItem("Advanced")
+
+	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER)
+	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateTabItem("About")
 
@@ -204,7 +223,7 @@ Func Optimize($Process,$Cores,$Core)
 			_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 		Else
 			$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])  ; Select the Process
-			_WinAPI_SetProcessAffinityMask($hProcess, $AllCores-$Core)) ; Set Affinity (which cores it's assigned to)
+			_WinAPI_SetProcessAffinityMask($hProcess, $AllCores-$Core) ; Set Affinity (which cores it's assigned to)
 			_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 		EndIf
 	Next
