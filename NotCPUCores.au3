@@ -1,7 +1,6 @@
-#NoTrayIcon
 #RequireAdmin
+#NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=..\..\..\..\..\..\Program Files (x86)\AutoIt3\Icons\MyAutoIt3_Yellow.ico
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=y
@@ -52,7 +51,8 @@ Func Main()
 	Local $hCores = GUICtrlCreateInput("", 230, 150, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-2,2)
 
-	GUICtrlCreateButton("OPTIMIZE", 5, 295, 270, 20)
+	$hReset = GUICtrlCreateButton("RESET", 5, 275, 270, 20)
+	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 295, 270, 20)
 
 	GUICtrlCreateTabItem("Advanced")
 
@@ -165,8 +165,7 @@ Func ModeSelect($CmdLine)
 		EndSwitch
 	Else
 		If $CmdLine[0] = 0 Then
-			ConsoleWrite("Available Commands: OptimizeAll Optimize ToggleHPET StopServices SetPowerPlan Restore" & @CRLF)
-			; Main()
+			Main()
 		Else
 			Switch $CmdLine[1]
 				Case "/?"
