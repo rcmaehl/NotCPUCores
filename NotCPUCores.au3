@@ -1,4 +1,5 @@
 #RequireAdmin
+#NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
@@ -119,13 +120,9 @@ Else
 EndIf
 
 Func OptimizeAll($Process,$Cores,$Core)
+	StopServices("True")
+	SetPowerPlan("True")
 	Optimize($Process,$Cores,$Core)
-	StopServices(True)
-	SetPowerPlan(True)
-	While ProcessExists($Process)
-		Sleep(1000)
-	WEnd
-	Restore($Cores)
 EndFunc
 
 Func Optimize($Process,$Cores,$Core)
@@ -138,8 +135,9 @@ Func Optimize($Process,$Cores,$Core)
 	For $i = 0 To $Cores - 1
 		$AllCores += 2^$i
 	Next
-	$Core = 2^$Core
+	$Core = 2^($Core-1)
 	$Processes = ProcessList()
+	ConsoleWrite("Optimizing " & $Process & "...")
 	For $Loop = 0 to $Processes[0][0] Step 1
 		If $Processes[$Loop][0] = $Process Then
 			ProcessSetPriority($Processes[$Loop][0],$PROCESS_HIGH)
@@ -152,39 +150,41 @@ Func Optimize($Process,$Cores,$Core)
 			_WinAPI_CloseHandle($hProcess)
 		EndIf
 	Next
+	ConsoleWrite("Done" & @CRLF)
+	ConsoleWrite("Waiting for " & $Process & " to close...")
 	While ProcessExists($Process)
 		Sleep(1000)
 	WEnd
+	ConsoleWrite("Done!" & @CRLF)
+	ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF)
 	Restore($Cores)
+	ConsoleWrite("Done!" & @CRLF)
 EndFunc
 
 Func ToggleHPET($State)
-	If Not IsBool($State) Then
-		ConsoleWrite("INVALID PARAMETER FOR TOGGLEHPET" & @CRLF)
-	ElseIf $State Then
+	If $State = "True" Then
+		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
 		Run("bcdedit /set useplatformclock true")
-	ElseIf Not $State Then
+	ElseIf $State = "False" Then
 		Run("bcdedit /set useplatformclock false")
+		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
 	EndIf
-	MsgBox($MB_OK+$MB_ICONWARNING+$MB_TOPMOST, "HPET Tweaking requires Restart", "You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply")
 EndFunc
 
 Func StopServices($State)
-	If Not IsBool($State) Then
-		ConsoleWrite("INVALID PARAMETER FOR STOPSERVICES" & @CRLF)
-	ElseIf $State Then
+	If $State = "True" Then
 		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE)
 		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE)
-	ElseIf Not $State Then
+	ElseIf $State = "False" Then
 		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
 		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
 	EndIf
 EndFunc
 
 Func SetPowerPlan($State)
-	If Not IsBool($State) Then
+	If $State = "True" Then
 		ConsoleWrite("INVALID PARAMETER FOR SETPOWERPLAN" & @CRLF)
-	ElseIf $State Then
+	ElseIf $State = "False" Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE)
 	EndIf
 EndFunc
