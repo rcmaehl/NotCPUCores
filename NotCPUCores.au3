@@ -32,7 +32,16 @@ Func Main()
 
 	GUICtrlCreateTabItem("About")
 
-	GUICtrlCreateLabel(@CRLF & "NotCPUCores" & @TAB & "v" & $sVersion & @CRLF & "Developed by Robert Maehl", 30, 45, 220, 50, $SS_CENTER)
+	GUICtrlCreateLabel(@CRLF & "NotCPUCores" & @TAB & "v" & $sVersion & @CRLF & "Developed by Robert Maehl", 5, 35, 270, 50, $SS_CENTER)
+
+	GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	GUICtrlCreateLabel("What it does:" & @CRLF & @CRLF & "1. Find the Game Process" &  @CRLF & "2. Change Game Priority to High" & @CRLF & "3. Change Affinity to the Selected Core", 5, 95, 270, 90)
+
+	GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	GUICtrlCreateLabel("How To Do It Yourself:" & @CRLF & @CRLF & "1. Open Task Manager" & @CRLF & "2. Find the Game Process under Processes or Details" &  @CRLF & "3. Right Click, Set Priority, High" & @CRLF & "4. Right Click, Set Affinity, Uncheck Core 0", 5, 195, 270, 100)
+
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateTabItem("")
