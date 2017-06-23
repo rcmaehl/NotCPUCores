@@ -24,25 +24,34 @@ ModeSelect($CmdLine)
 
 Func Main()
 
-	Local $hGUI = GUICreate("NotCPUCores", 280, 350, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX), $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
+	Local $hGUI = GUICreate("NotCPUCores", 280, 320, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX), $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
 	Local $sVersion = "1.0.0.0"
 
-	GUICtrlCreateTab(0, 0, 280, 350, 0)
+	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
 	GUICtrlCreateTabItem("Optimize")
 
 	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 	GUICtrlCreateLabel("Process Name:", 10, 45, 80, 15)
-	Local $hTask = GUICtrlCreateInput("", 150, 45, 120, 20, $ES_UPPERCASE + $ES_RIGHT)
+	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT)
+	Local $hSearch = GUICtrlCreateButton("?", 250, 45, 20, 20)
 
 	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("Core Count:", 10, 100, 80, 15)
-	Local $hCores = GUICtrlCreateInput("", 150, 100, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
+	Local $hCores = GUICtrlCreateInput("", 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-2,2)
 
+	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 130, 270, 15, $SS_CENTER)
+	GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	GUICtrlCreateLabel("Core:", 10, 150, 80, 15)
+	Local $hCores = GUICtrlCreateInput("", 230, 150, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
+	GUICtrlSetLimit(-2,2)
+
+	GUICtrlCreateButton("OPTIMIZE", 5, 295, 270, 20)
 
 	GUICtrlCreateTabItem("Advanced")
 
