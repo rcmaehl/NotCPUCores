@@ -289,3 +289,20 @@ Func Restore($Cores)
 	RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
 	RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
 EndFunc
+
+Func _GetCoreCount()
+    Local $s_Text = ''
+    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+    If (IsObj($Obj_WMIService)) And (Not @error) Then
+        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
+
+        Local $Obj_Item
+        For $Obj_Item In $Col_Items
+            Local $s_Text = $Obj_Item.numberOfCores
+        Next
+
+        Return String($s_Text)
+    Else
+        Return 0
+    EndIf
+EndFunc
