@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Res_Comment=Compiled 6/23/2017 @ 11:13 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 6/23/2017 @ 15:30 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.0.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=No
@@ -40,8 +40,8 @@ Func Main()
 	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Core Count:", 10, 100, 80, 15)
-	Local $hCores = GUICtrlCreateInput("", 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
+	GUICtrlCreateLabel("Core Count (Automatically Detected):", 10, 100, 80, 15)
+	Local $hCores = GUICtrlCreateInput(_GetCoreCount(), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-2,2)
 
 	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 130, 270, 15, $SS_CENTER)
@@ -94,44 +94,44 @@ Func ModeSelect($CmdLine)
 	If $CmdLine[0] > 1 Then
 		Switch $CmdLine[1]
 			Case "OptimizeAll"
-				If $CmdLine[0] < 4 Then
-					ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+				If $CmdLine[0] < 3 Then
+					ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreToRunOn" & @CRLF)
 					Sleep(1000)
 					Exit 1
 				ElseIf Not ProcessExists($CmdLine[2]) Then
 					ConsoleWrite($CmdLine[2] & " is not currently running. Please run the program first" & @CRLF)
 					Sleep(1000)
 					Exit 1
-				ElseIf Not IsInt(Number($CmdLine[3])) And Not IsInt(Number($CmdLine[4])) Then
-					ConsoleWrite("Invalid options set for CoreCount and CoreToRunOn" & @CRLF)
+				ElseIf Not IsInt(Number(StringReplace($CmdLine[3],",", ""))) Then
+					ConsoleWrite("Invalid options set for CoreToRunOn" & @CRLF)
 					Sleep(1000)
 					Exit 1
-				ElseIf Number($CmdLine[3]) < Number($CmdLine[4]) Then
-					ConsoleWrite("Core " & $CmdLine[4] & " does not exist on a " & $CmdLine[3] & " core system" & @CRLF)
+				ElseIf Number($CmdLine[3]) > _GetCoreCount() Then
+					ConsoleWrite("Core " & $CmdLine[4] & " does not exist on a " & _GetCoreCount() & " core system" & @CRLF)
 					Sleep(1000)
 					Exit 1
 				Else
-					OptimizeAll($CmdLine[2],$CmdLine[3],$CmdLine[4])
+					OptimizeAll($CmdLine[2],$CmdLine[3])
 				EndIf
 			Case "Optimize"
-				If $CmdLine[0] < 4 Then
-					ConsoleWrite("Optimize Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+				If $CmdLine[0] < 3 Then
+					ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreToRunOn" & @CRLF)
 					Sleep(1000)
 					Exit 1
 				ElseIf Not ProcessExists($CmdLine[2]) Then
 					ConsoleWrite($CmdLine[2] & " is not currently running. Please run the program first" & @CRLF)
 					Sleep(1000)
 					Exit 1
-				ElseIf Not IsInt(Number($CmdLine[3])) And Not IsInt(Number($CmdLine[4])) Then
-					ConsoleWrite("Invalid options set for CoreCount and CoreToRunOn" & @CRLF)
+				ElseIf Not IsInt(Number(StringReplace($CmdLine[3],",", ""))) Then
+					ConsoleWrite("Invalid options set for CoreToRunOn" & @CRLF)
 					Sleep(1000)
 					Exit 1
-				ElseIf Number($CmdLine[3]) < Number($CmdLine[4]) Then
-					ConsoleWrite("Core " & $CmdLine[4] & " does not exist on a " & $CmdLine[3] & " core system" & @CRLF)
+				ElseIf Number($CmdLine[3]) > _GetCoreCount() Then
+					ConsoleWrite("Core " & $CmdLine[4] & " does not exist on a " & _GetCoreCount() & " core system" & @CRLF)
 					Sleep(1000)
 					Exit 1
 				Else
-					Optimize($CmdLine[2],$CmdLine[3],$CmdLine[4])
+					Optimize($CmdLine[2],$CmdLine[3])
 				EndIf
 			Case "ToggleHPET"
 				If $CmdLine[0] < 2 Then
@@ -157,18 +157,6 @@ Func ModeSelect($CmdLine)
 				Else
 					SetPowerPlan($CmdLine[2])
 				EndIf
-			Case "Restore"
-				If $CmdLine[0] < 2 Then
-					ConsoleWrite("Restore Requires CoreCount" & @CRLF)
-					Sleep(1000)
-					Exit 1
-				ElseIf Not IsInt(Number($CmdLine[2])) Then
-					ConsoleWrite($CmdLine[2] & " is not a valid CoreCount" & @CRLF)
-					Sleep(1000)
-					Exit 1
-				Else
-					Restore($CmdLine[2])
-				EndIf
 			Case Else
 				ConsoleWrite($CmdLine[1] & " is not a valid command." & @CRLF)
 				Sleep(1000)
@@ -184,9 +172,9 @@ Func ModeSelect($CmdLine)
 				Case "Help"
 					ConsoleWrite("Available Commands: OptimizeAll Optimize ToggleHPET StopServices SetPowerPlan Restore" & @CRLF)
 				Case "OptimizeAll"
-					ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+					ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreToRunOn" & @CRLF)
 				Case "Optimize"
-					ConsoleWrite("Optimize Requires ProcessName.exe CoreCount CoreToRunOn" & @CRLF)
+					ConsoleWrite("Optimize Requires ProcessName.exe CoreToRunOn" & @CRLF)
 					Sleep(5000)
 				Case "ToggleHPET"
 					ConsoleWrite("ToggleHPET Requires True/False" & @CRLF)
@@ -195,7 +183,7 @@ Func ModeSelect($CmdLine)
 				Case "SetPowerPlan"
 					ConsoleWrite("SetPowerPlan Requires True/False" & @CRLF)
 				Case "Restore"
-					ConsoleWrite("Restore Requires CoreCount" & @CRLF)
+					Restore(_GetCoreCount)
 				Case Else
 					ConsoleWrite($CmdLine[1] & " is not a valid command." & @CRLF)
 			EndSwitch
@@ -205,34 +193,37 @@ Func ModeSelect($CmdLine)
 	EndIf
 EndFunc
 
-Func OptimizeAll($Process,$Cores,$Core)
+Func OptimizeAll($Process,$Cores)
 	StopServices("True")
 	SetPowerPlan("True")
-	Optimize($Process,$Cores,$Core)
+	Optimize($Process,$Cores)
 EndFunc
 
-Func Optimize($Process,$Cores,$Core)
-	#cs
-		TO DO:
-			Allow setting processes to MULTIPLE CORES
-			Automatically determine core count, not really a big deal until the above is implimented
-	#ce
+Func Optimize($Process,$Cores = 1)
+	If StringInStr($Cores, ",") Then
+		Local $aCores = StringSplit($Cores, ",", $STR_NOCOUNT)
+		$Cores = 0
+		For $Loop = 0 To UBound($aCores) - 1 Step 1
+			$Cores += 2^($aCores[$Loop]-1)
+		Next
+	Else
+		$Cores = 2^($Cores-1)
+	EndIf
 	Local $AllCores = 0
-	For $i = 0 To $Cores - 1
+	For $i = 0 To _GetCoreCount() - 1
 		$AllCores += 2^$i
 	Next
-	$Core = 2^($Core-1)
 	$Processes = ProcessList()
 	ConsoleWrite("Optimizing " & $Process & "...")
 	For $Loop = 0 to $Processes[0][0] Step 1
 		If $Processes[$Loop][0] = $Process Then
 			ProcessSetPriority($Processes[$Loop][0],$PROCESS_HIGH) ; Self Explanatory
 			$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1]) ; Select the Process
-			_WinAPI_SetProcessAffinityMask($hProcess, $Core) ; Set Affinity (which cores it's assigned to)
+			_WinAPI_SetProcessAffinityMask($hProcess, $Cores) ; Set Affinity (which cores it's assigned to)
 			_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 		Else
 			$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])  ; Select the Process
-			_WinAPI_SetProcessAffinityMask($hProcess, $AllCores-$Core) ; Set Affinity (which cores it's assigned to)
+			_WinAPI_SetProcessAffinityMask($hProcess, $AllCores-$Cores) ; Set Affinity (which cores it's assigned to)
 			_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 		EndIf
 	Next
@@ -243,7 +234,7 @@ Func Optimize($Process,$Cores,$Core)
 	WEnd
 	ConsoleWrite("Done!" & @CRLF)
 	ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF)
-	Restore($Cores)
+	Restore(_GetCoreCount())
 	ConsoleWrite("Done!" & @CRLF)
 EndFunc
 
