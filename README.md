@@ -1,7 +1,7 @@
 # NotCPUCores
 The same, but free. Download under Releases
 
-## This program does the same optimizations as the scammy CPUCores. These include:
+## This program does the same optimizations as the non-free CPUCores. These include:
 
 * Changing the Process Priority
 * The Cores the game runs on
