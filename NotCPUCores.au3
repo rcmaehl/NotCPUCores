@@ -79,10 +79,13 @@ Func Main()
 	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	$hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
 
-;	GUICtrlCreateTabItem("One Time Tweaks")
+	GUICtrlCreateTabItem("One Time Tweaks")
 
-;	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER)
-;	GUICtrlSetBkColor(-1, 0xF0F0F0)
+	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	$HPETEnable = GUICtrlCreateButton("Enable HPET", 5, 85, 135, 20)
+	$HPETDisable = GUICtrlCreateButton("Disable HPET", 140, 85, 135, 20)
 
 	GUICtrlCreateTabItem("About")
 
@@ -142,6 +145,13 @@ Func Main()
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
 				Next
+
+			Case $hMsg = $HPETDisable
+				ToggleHPET("TRUE")
+
+			Case $hMsg = $HPETDisable
+				ToggleHPET("FALSE")
+
 		EndSelect
 	WEnd
 EndFunc
