@@ -1,13 +1,14 @@
 #RequireAdmin
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Icon=notcpucores.ico
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Res_Comment=Compiled 6/23/2017 @ 23:00 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 6/24/2017 @ 10:30 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.0.0.0
-#AutoIt3Wrapper_Res_LegalCopyright=No
+#AutoIt3Wrapper_Res_Fileversion=1.1.0.0
+#AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -24,8 +25,8 @@ ModeSelect($CmdLine)
 
 Func Main()
 
-	Local $hGUI = GUICreate("NotCPUCores", 280, 320, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX), $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
-	Local $sVersion = "1.0.0.0"
+	Local $hGUI = GUICreate("NotCPUCores", 280, 320, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX), $WS_EX_TOOLWINDOW)
+	Local $sVersion = "1.1.0.0"
 
 	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
@@ -204,6 +205,7 @@ Func ModeSelect($CmdLine)
 		EndSwitch
 	Else
 		If $CmdLine[0] = 0 Then
+			ConsoleWrite("Backend Console (Read-Only Mode)" & @CRLF & "Feel free to minimize, but closing will close the UI as well" & @CRLF & @CRLF)
 			Main()
 		Else
 			Switch $CmdLine[1]

@@ -19,8 +19,10 @@ Project stages:
 
 * Stage 1: Main Pseudo code (DONE!)
 * Stage 2: Actual coding (DONE!)
-* Stage 3: Command Prompt Version Release (DONE!)
-* Stage 4: UI coding (WORKING ON!)
-* Stage 5: UI Version Release
+* Stage 3: Command Prompt Version Release (IMPROVED VERSION RELEASED)
+* Stage 4: UI coding (DONE!)
+* Stage 5: UI Version Release (FIRST VERSION RELEASED)
+* Stage 6: Feature additions, Bug Fixing (WORKING ON!)
+* Stage 7: Make the UI Look Pretty (DO TO!)
 
 This program is free and open source. Feel free to download and modify. Please do not put up for sale.
