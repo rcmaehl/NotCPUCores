@@ -31,30 +31,41 @@ Func Main()
 
 	GUICtrlCreateTabItem("Optimize")
 
-	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER)
+	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
-	GUICtrlCreateLabel("Process Name:", 10, 45, 80, 15)
+	GUICtrlCreateLabel("Process Name:", 10, 50, 140, 15)
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT)
+	GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & "Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 	Local $hSearch = GUICtrlCreateButton("?", 250, 45, 20, 20)
+	GUICtrlSetTip(-1, "List Current Processes", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER)
+	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Core Count (Automatically Detected):", 10, 100, 220, 15)
-	Local $hCores = GUICtrlCreateInput(_GetCoreCount(), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
-	GUICtrlSetLimit(-2,2)
+	GUICtrlCreateLabel("Core Count:", 10, 105, 220, 15)
+	Local $hCores = GUICtrlCreateInput(_GetCoreCount(), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
+	GUICtrlSetLimit(-1,2)
+	GUICtrlSetTip(-1, "The Total Number of Threads on your computer." & @CRLF & "This is currently Automatically Detected.", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 130, 270, 15, $SS_CENTER)
+	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 130, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Core(s) (Single: 1, Multiple 1,3,4 etc):", 10, 150, 220, 15)
+	GUICtrlCreateLabel("Core(s):", 10, 155, 220, 15)
 	Local $hCores = GUICtrlCreateInput("", 230, 150, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
-	GUICtrlSetLimit(-2,2)
+	GUICtrlSetLimit(-1,2)
+	GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "Multiple Cores are not yet setup for UI.", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+	;GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "To run on Multiple Cores, seperate them with commas.", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+
+	GUICtrlCreateLabel("Advanced", 5, 180, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	GUICtrlCreateLabel("Advanced features coming future update!", 5, 200, 270, 20, $SS_CENTER)
+
 
 	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	$hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
 
-	GUICtrlCreateTabItem("Advanced")
+	GUICtrlCreateTabItem("One Time Tweaks")
 
 	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -88,7 +99,15 @@ Func Main()
 				Exit
 
 			Case $hMsg = $hReset
+				For $Loop = $hTask to $hReset Step 1
+					GUICtrlSetState($Loop, $GUI_DISABLE)
+				Next
+				GUICtrlSetData($hReset, "Restoring PC...")
 				Restore(_GetCoreCount())
+				GUICtrlSetData($hReset, "RESTORE TO DEFAULT")
+				For $Loop = $hTask to $hReset Step 1
+					GUICtrlSetState($Loop, $GUI_ENABLE)
+				Next
 
 			Case $hMsg = $hOptimize
 				ConsoleWrite("Calling OptimizeAll" & @CRLF)
