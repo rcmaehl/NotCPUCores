@@ -20,8 +20,24 @@
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
 
+ModeSelect($CmdLine) ; Jump to ModeSelect
 
-ModeSelect($CmdLine)
+Func _GetCoreCount()
+    Local $s_Text = ''
+    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+    If (IsObj($Obj_WMIService)) And (Not @error) Then
+        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
+
+        Local $Obj_Item
+        For $Obj_Item In $Col_Items
+            Local $s_Text = $Obj_Item.numberOfLogicalProcessors
+        Next
+
+        Return String($s_Text)
+    Else
+        Return 0
+    EndIf
+EndFunc
 
 Func Main()
 
@@ -117,7 +133,6 @@ Func Main()
 				Next
 
 			Case $hMsg = $hOptimize
-				ConsoleWrite("Calling OptimizeAll" & @CRLF)
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
@@ -235,12 +250,6 @@ Func ModeSelect($CmdLine)
 	EndIf
 EndFunc
 
-Func OptimizeAll($Process,$Cores)
-	StopServices("True")
-	SetPowerPlan("True")
-	Optimize($Process,$Cores)
-EndFunc
-
 Func Optimize($Process,$Cores = 1)
 	If StringInStr($Cores, ",") Then
 		Local $aCores = StringSplit($Cores, ",", $STR_NOCOUNT)
@@ -256,7 +265,7 @@ Func Optimize($Process,$Cores = 1)
 		$AllCores += 2^$i
 	Next
 	$Processes = ProcessList()
-	ConsoleWrite("Optimizing " & $Process & "...")
+	ConsoleWrite("Setting Priority and Affinity of " & $Process & "...")
 	For $Loop = 0 to $Processes[0][0] Step 1
 		If $Processes[$Loop][0] = $Process Then
 			ProcessSetPriority($Processes[$Loop][0],$PROCESS_HIGH) ; Self Explanatory
@@ -278,32 +287,10 @@ Func Optimize($Process,$Cores = 1)
 	Restore(_GetCoreCount())
 EndFunc
 
-Func ToggleHPET($State)
-	If $State = "True" Then
-		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
-		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
-	ElseIf $State = "False" Then
-		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
-		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
-	EndIf
-EndFunc
-
-Func StopServices($State)
-	If $State = "True" Then
-		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
-		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE) ; Stop Printer Spooler
-	ElseIf $State = "False" Then
-		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE) ; Start Windows Update
-		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE) ; Start Printer Spooler
-	EndIf
-EndFunc
-
-Func SetPowerPlan($State)
-	If $State = "True" Then
-		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_BALANCED', "", @SW_HIDE) ; Set BALANCED power plan
-	ElseIf $State = "False" Then
-		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE) ; Set MINIMUM power saving, aka max performance
-	EndIf
+Func OptimizeAll($Process,$Cores)
+	StopServices("True")
+	SetPowerPlan("True")
+	Optimize($Process,$Cores)
 EndFunc
 
 Func Restore($Cores)
@@ -312,30 +299,49 @@ Func Restore($Cores)
 	For $i = 0 To $Cores - 1
 		$AllCores += 2^$i
 	Next
+	ConsoleWrite("Restoring Priority and Affinity of all Other Processes...")
 	$Processes = ProcessList()
 	For $Loop = 0 to $Processes[0][0] Step 1
 		$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])  ; Select the Process
 		_WinAPI_SetProcessAffinityMask($hProcess, $AllCores) ; Set Affinity (which cores it's assigned to)
 		_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 	Next
-	RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
-	RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
 	ConsoleWrite("Done!" & @CRLF)
+	StopServices("False")
 EndFunc
 
-Func _GetCoreCount()
-    Local $s_Text = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
-    If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
+Func SetPowerPlan($State)
+	If $State = "True" Then
+		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_BALANCED', "", @SW_HIDE) ; Set BALANCED power plan
+	ElseIf $State = "False" Then
+		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE) ; Set MINIMUM power saving, aka max performance
+	Else
+		ConsoleWrite("SetPowerPlan Option " & $State & " is not valid!" & @CRLF)
+	EndIf
+EndFunc
 
-        Local $Obj_Item
-        For $Obj_Item In $Col_Items
-            Local $s_Text = $Obj_Item.numberOfLogicalProcessors
-        Next
+Func StopServices($State)
+	If $State = "True" Then
+		ConsoleWrite("Temporarily Game Impacting Services...")
+		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
+		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE) ; Stop Printer Spooler
+		ConsoleWrite("Done!" & @CRLF)
+	ElseIf $State = "False" Then
+		ConsoleWrite("Restarting Any Stopped Services...")
+		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE) ; Start Windows Update
+		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE) ; Start Printer Spooler
+		ConsoleWrite("Done!" & @CRLF)
+	Else
+		ConsoleWrite("StopServices Option " & $State & " is not valid!" & @CRLF)
+	EndIf
+EndFunc
 
-        Return String($s_Text)
-    Else
-        Return 0
-    EndIf
+Func ToggleHPET($State)
+	If $State = "True" Then
+		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
+		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
+	ElseIf $State = "False" Then
+		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
+		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
+	EndIf
 EndFunc
