@@ -51,16 +51,13 @@ Func Main()
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("Core(s):", 10, 155, 220, 15)
-	Local $hCores = GUICtrlCreateInput("", 230, 150, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
-	GUICtrlSetLimit(-1,2)
-	GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "Multiple Cores are not yet setup for UI.", "USAGE", $TIP_NOICON, $TIP_BALLOON)
-	;GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "To run on Multiple Cores, seperate them with commas.", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+	Local $hCores = GUICtrlCreateInput("", 200, 150, 70, 20, $ES_UPPERCASE + $ES_RIGHT)
+	GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "To run on Multiple Cores, seperate them with commas." & @CRLF & "Example: 1,3,4", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	GUICtrlCreateLabel("Advanced", 5, 180, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("Advanced features coming future update!", 5, 200, 270, 20, $SS_CENTER)
-
 
 	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	$hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
@@ -97,6 +94,15 @@ Func Main()
 			Case $hMsg = $GUI_EVENT_CLOSE
 				GUIDelete($hGUI)
 				Exit
+
+			Case $hMsg = $hCores
+				If Not StringIsInt(StringReplace(GUICtrlRead($hCores), ",", "")) Or StringRight(GUICtrlRead($hCores),1) = "," Or StringLeft(GUICtrlRead($hCores),1) = "," Then ; WHAT IS REGEX T_T
+					GUICtrlSetColor($hCores, 0xFF0000)
+					GUICtrlSetState($hOptimize, $GUI_DISABLE)
+				Else
+					GUICtrlSetColor($hCores, 0x000000)
+					GUICtrlSetState($hOptimize, $GUI_ENABLE)
+				EndIf
 
 			Case $hMsg = $hReset
 				For $Loop = $hTask to $hReset Step 1
