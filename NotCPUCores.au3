@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Res_Comment=Compiled 6/23/2017 @ 15:30 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 6/23/2017 @ 23:00 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.0.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=No
@@ -34,10 +34,10 @@ Func Main()
 	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 	GUICtrlCreateLabel("Process Name:", 10, 50, 140, 15)
-	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT)
+	Local $hTask = GUICtrlCreateInput("", 150, 45, 120, 20, $ES_UPPERCASE + $ES_RIGHT)
 	GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & "Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
-	Local $hSearch = GUICtrlCreateButton("?", 250, 45, 20, 20)
-	GUICtrlSetTip(-1, "List Current Processes", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+	;Local $hSearch = GUICtrlCreateButton("?", 250, 45, 20, 20)
+	;GUICtrlSetTip(-1, "List Current Processes", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -62,10 +62,10 @@ Func Main()
 	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	$hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
 
-	GUICtrlCreateTabItem("One Time Tweaks")
+;	GUICtrlCreateTabItem("One Time Tweaks")
 
-	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER)
-	GUICtrlSetBkColor(-1, 0xF0F0F0)
+;	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER)
+;	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateTabItem("About")
 
