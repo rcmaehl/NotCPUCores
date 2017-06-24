@@ -40,19 +40,19 @@ Func Main()
 	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Core Count (Automatically Detected):", 10, 100, 80, 15)
+	GUICtrlCreateLabel("Core Count (Automatically Detected):", 10, 100, 220, 15)
 	Local $hCores = GUICtrlCreateInput(_GetCoreCount(), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-2,2)
 
 	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 130, 270, 15, $SS_CENTER)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Core:", 10, 150, 80, 15)
+	GUICtrlCreateLabel("Core(s) (Single: 1, Multiple 1,3,4 etc):", 10, 150, 220, 15)
 	Local $hCores = GUICtrlCreateInput("", 230, 150, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-2,2)
 
-	$hReset = GUICtrlCreateButton("RESET", 5, 275, 270, 20)
-	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 295, 270, 20)
+	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
+	$hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
 
 	GUICtrlCreateTabItem("Advanced")
 
@@ -87,6 +87,20 @@ Func Main()
 				GUIDelete($hGUI)
 				Exit
 
+			Case $hMsg = $hReset
+				Restore(_GetCoreCount())
+
+			Case $hMsg = $hOptimize
+				ConsoleWrite("Calling OptimizeAll" & @CRLF)
+				For $Loop = $hTask to $hReset Step 1
+					GUICtrlSetState($Loop, $GUI_DISABLE)
+				Next
+				GUICtrlSetData($hOptimize, "Running Optimizations...")
+				OptimizeAll(GUICtrlRead($hTask),GUICtrlRead($hCores))
+				GUICtrlSetData($hOptimize, "OPTIMIZE")
+				For $Loop = $hTask to $hReset Step 1
+					GUICtrlSetState($Loop, $GUI_ENABLE)
+				Next
 		EndSelect
 	WEnd
 EndFunc
@@ -234,9 +248,7 @@ Func Optimize($Process,$Cores = 1)
 		Sleep(1000)
 	WEnd
 	ConsoleWrite("Done!" & @CRLF)
-	ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF)
 	Restore(_GetCoreCount())
-	ConsoleWrite("Done!" & @CRLF)
 EndFunc
 
 Func ToggleHPET($State)
@@ -261,13 +273,14 @@ EndFunc
 
 Func SetPowerPlan($State)
 	If $State = "True" Then
-		ConsoleWrite("INVALID PARAMETER FOR SETPOWERPLAN" & @CRLF)
+		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_BALANCED', "", @SW_HIDE) ; Set BALANCED power plan
 	ElseIf $State = "False" Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE) ; Set MINIMUM power saving, aka max performance
 	EndIf
 EndFunc
 
 Func Restore($Cores)
+	ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF)
 	Local $AllCores = 0
 	For $i = 0 To $Cores - 1
 		$AllCores += 2^$i
@@ -280,6 +293,7 @@ Func Restore($Cores)
 	Next
 	RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE)
 	RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE)
+	ConsoleWrite("Done!" & @CRLF)
 EndFunc
 
 Func _GetCoreCount()
@@ -290,7 +304,7 @@ Func _GetCoreCount()
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
-            Local $s_Text = $Obj_Item.numberOfCores
+            Local $s_Text = $Obj_Item.numberOfLogicalProcessors
         Next
 
         Return String($s_Text)
