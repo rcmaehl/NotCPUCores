@@ -2,3 +2,4 @@
 workspace.au3
 NotCPUCores.exe
 NotCPUCores_x64.exe
+includes/Console.au3

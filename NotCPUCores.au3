@@ -16,11 +16,14 @@
 #include <WinAPI.au3>
 #include <Process.au3>
 #include <Constants.au3>
+#include <GUIListView.au3>
 #include <EditConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <AutoItConstants.au3>
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
+#include <ListViewConstants.au3>
+
 
 ModeSelect($CmdLine) ; Jump to ModeSelect
 
@@ -43,7 +46,7 @@ EndFunc
 
 Func Main()
 
-	Local $hGUI = GUICreate("NotCPUCores", 280, 320, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+	Local $hGUI = GUICreate("NotCPUCores", 640, 320, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 	Local $sVersion = "1.2.0.0"
 
 	GUICtrlCreateTab(0, 0, 280, 320, 0)
@@ -69,7 +72,7 @@ Func Main()
 	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 130, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Core(s):", 10, 155, 220, 15)
+	GUICtrlCreateLabel("Core(s):", 10, 155, 190, 15)
 	Local $hCores = GUICtrlCreateInput("", 200, 150, 70, 20, $ES_UPPERCASE + $ES_RIGHT)
 	GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "To run on Multiple Cores, seperate them with commas." & @CRLF & "Example: 1,3,4", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
@@ -102,6 +105,25 @@ Func Main()
 
 	GUICtrlCreateTabItem("")
 
+	$hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 320, $LVS_REPORT, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	_GUICtrlListView_RegisterSortCallBack($hProcesses)
+
+	$aWindows = WinList()
+	Do
+		$Delete = _ArraySearch($aWindows, "Default IME")
+		_ArrayDelete($aWindows, $Delete)
+	Until _ArraySearch($aWindows, "Default IME") = -1
+	$aWindows[0][0] = UBound($aWindows)
+	For $Loop = 1 To $aWindows[0][0] - 1
+		$aWindows[$Loop][1] = _ProcessGetName(WinGetProcess($aWindows[$Loop][1]))
+		GUICtrlCreateListViewItem($aWindows[$Loop][1] & "|" & $aWindows[$Loop][0],$hProcesses)
+	Next
+	_ArrayDelete($aWindows, 0)
+	For $i = 0 To _GUICtrlListView_GetColumnCount($hProcesses) Step 1
+		_GUICtrlListView_SetColumnWidth($hProcesses, $i, $LVSCW_AUTOSIZE_USEHEADER)
+	Next
+	_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
+
 	GUISetState(@SW_SHOW, $hGUI)
 
 	While 1
@@ -111,8 +133,12 @@ Func Main()
 		Select
 
 			Case $hMsg = $GUI_EVENT_CLOSE
+				_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
 				GUIDelete($hGUI)
 				Exit
+
+			Case $hMsg = $hProcesses
+				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
 
 			Case $hMsg = $hSearch
 				$aWindows = WinList()
