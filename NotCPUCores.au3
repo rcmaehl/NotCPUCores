@@ -1,18 +1,20 @@
 #RequireAdmin
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=notcpucores.ico
+#AutoIt3Wrapper_Icon=icon.ico
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Res_Comment=Compiled 6/24/2017 @ 10:30 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 6/27/2017 @ 11:00 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.1.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
+#include <Array.au3>
 #include <WinAPI.au3>
+#include <Process.au3>
 #include <Constants.au3>
 #include <EditConstants.au3>
 #include <GUIConstantsEx.au3>
@@ -51,10 +53,10 @@ Func Main()
 	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 	GUICtrlCreateLabel("Process Name:", 10, 50, 140, 15)
-	Local $hTask = GUICtrlCreateInput("", 150, 45, 120, 20, $ES_UPPERCASE + $ES_RIGHT)
+	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT)
 	GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & "Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
-	;Local $hSearch = GUICtrlCreateButton("?", 250, 45, 20, 20)
-	;GUICtrlSetTip(-1, "List Current Processes", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+	Local $hSearch = GUICtrlCreateButton("?", 250, 45, 20, 20)
+	GUICtrlSetTip(-1, "List Current Processes", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -114,6 +116,19 @@ Func Main()
 			Case $hMsg = $GUI_EVENT_CLOSE
 				GUIDelete($hGUI)
 				Exit
+
+			Case $hMsg = $hSearch
+				$aWindows = WinList()
+				For $Loop = 1 To $aWindows[0][0] - 1
+					$aWindows[$Loop][1] = _ProcessGetName(WinGetProcess($aWindows[$Loop][1]))
+				Next
+				_ArrayDelete($aWindows, 0)
+				_ArraySort($aWindows, 0, 0, 0, 1)
+				Do
+					$Delete = _ArraySearch($aWindows, "Default IME")
+					_ArrayDelete($aWindows, $Delete)
+				Until _ArraySearch($aWindows, "Default IME") = -1
+				_ArrayDisplay($aWindows, "Current Windows And Their Process", "", 96, Default, "Window Title|Window Process")
 
 			Case $hMsg = $hCores
 				If Not StringIsInt(StringReplace(GUICtrlRead($hCores), ",", "")) Or StringRight(GUICtrlRead($hCores),1) = "," Or StringLeft(GUICtrlRead($hCores),1) = "," Then ; WHAT IS REGEX T_T
