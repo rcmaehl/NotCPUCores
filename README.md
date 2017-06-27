@@ -1,6 +1,8 @@
 # NotCPUCores
 The same, but free. Download under Releases
 
+![Version 1.1.0.0 - Not Too Pretty Right now, but working on](http://i.imgur.com/wbDL8nq.png)
+
 ## This program does the same optimizations as the non-free CPUCores. These include:
 
 * Changing the Process Priority
@@ -27,4 +29,3 @@ Project stages:
 
 This program is free and open source. Feel free to download and modify. Please do not put up for sale.
 
-![Version 1.1.0.0 - Not Too Pretty Right now, but working on](http://i.imgur.com/wbDL8nq.png)
