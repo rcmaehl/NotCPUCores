@@ -24,6 +24,42 @@
 #include <WindowsConstants.au3>
 #include <ListViewConstants.au3>
 
+#cs
+
+To Do
+
+1. Steam Game Auto-Detection and Dropdown (v 2.0)
+2. Allow Collapsing of Window/Process List
+3. Move Back-End Console when running as GUI into a CLOSE-ABLE Window (Console UDF)
+4. Allow Selecting from Window/Process List instead of it just being a guide
+5. Allow Optimization of Multiple Processes at once (v 2.0)
+6. Convert GUI to a Metro GUI or Allow Themes (v 2.0)
+
+
+== 2.0 Idea Master List ==
+
+Upon Launch open a small Metro UI with some options w/ Graphics (Optimize Game, Manage Auto Optimized, Optimize PC) aka Imgburn start-up but smaller
+NCC now launches on Start-up, automatically optimizes any processes chosen by user
+
+Optimize Game
+
+	Tabbed UI (Select from Steam, Select from GOG, Select from Running)
+		Options for Which Services to Stop Temporarily
+		More user friendly core selection (Checkboxes?)
+		Check-box to add game to games to be automatically optimized
+
+Manage Auto Optimize
+
+
+Optimize PC
+
+	Tabbed UI
+		Defrag, Trim, Disk Cleanup, Power options
+		Delayed auto-run program start
+		Advanced Tweaks (Ultimate Windows Tweaker-esque)
+
+#ce
+
 ModeSelect($CmdLine) ; Jump to ModeSelect
 
 Func _GetCoreCount()
@@ -91,6 +127,9 @@ Func Main()
 
 	$HPETEnable = GUICtrlCreateButton("Enable HPET", 5, 85, 135, 20)
 	$HPETDisable = GUICtrlCreateButton("Disable HPET", 140, 85, 135, 20)
+
+;	GUICtrlCreateLabel("Below you can run some Windows Maintenance Tools", 5, 115, 270, 20, $SS_CENTER + $SS_SUNKEN)
+;	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateTabItem("About")
 
