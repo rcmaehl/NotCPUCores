@@ -50,6 +50,7 @@ Optimize Game
 
 Manage Auto Optimize
 
+	List View/Icon View of Processes set to be automatically optimized
 
 Optimize PC
 
