@@ -107,6 +107,7 @@ Func _Restore($aCores = _GetCoreCount())
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $aCores - 1
+		$hAllCores += 2^$iLoop
 	Next
 
 	ConsoleWrite("Restoring Priority and Affinity of all Other Processes...")
@@ -114,6 +115,7 @@ Func _Restore($aCores = _GetCoreCount())
 	$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority back to normal
 	For $iLoop = 0 to $aProcesses[0][0] Step 1
 		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
 		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 	Next
 	ConsoleWrite("Done!" & @CRLF)
