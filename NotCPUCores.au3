@@ -64,17 +64,17 @@ Optimize PC
 ModeSelect($CmdLine) ; Jump to ModeSelect
 
 Func _GetCoreCount()
-    Local $s_Text = ''
+    Local $sText = ''
     Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
         Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
-            Local $s_Text = $Obj_Item.numberOfLogicalProcessors
+            Local $sText = $Obj_Item.numberOfLogicalProcessors
         Next
 
-        Return String($s_Text)
+        Return String($sText)
     Else
         Return 0
     EndIf
@@ -91,9 +91,12 @@ Func Main()
 
 	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
+
 	GUICtrlCreateLabel("Process Name:", 10, 50, 140, 15)
+
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT)
 	GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & "Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+
 	Local $hSearch = GUICtrlCreateButton(ChrW(8635), 250, 45, 20, 20)
 	GUICtrlSetFont(-1, 12)
 	GUICtrlSetTip(-1, "List Current Processes", "USAGE", $TIP_NOICON, $TIP_BALLOON)
@@ -102,6 +105,7 @@ Func Main()
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("Core Count:", 10, 105, 220, 15)
+
 	Local $hCores = GUICtrlCreateInput(_GetCoreCount(), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
 	GUICtrlSetLimit(-1,2)
 	GUICtrlSetTip(-1, "The Total Number of Threads on your computer." & @CRLF & "This is currently Automatically Detected.", "USAGE", $TIP_NOICON, $TIP_BALLOON)
@@ -110,6 +114,7 @@ Func Main()
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("Core(s):", 10, 155, 190, 15)
+
 	Local $hCores = GUICtrlCreateInput("", 200, 150, 70, 20, $ES_UPPERCASE + $ES_RIGHT)
 	GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "To run on Multiple Cores, seperate them with commas." & @CRLF & "Example: 1,3,4", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
@@ -213,7 +218,7 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hReset, "Restoring PC...")
-				Restore(_GetCoreCount())
+				_Restore()
 				GUICtrlSetData($hReset, "RESTORE TO DEFAULT")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
@@ -224,17 +229,17 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hOptimize, "Running Optimizations...")
-				OptimizeAll(GUICtrlRead($hTask),GUICtrlRead($hCores))
+				_OptimizeAll(GUICtrlRead($hTask),GUICtrlRead($hCores))
 				GUICtrlSetData($hOptimize, "OPTIMIZE")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
 				Next
 
 			Case $hMsg = $HPETDisable
-				ToggleHPET("TRUE")
+				_ToggleHPET("TRUE")
 
 			Case $hMsg = $HPETDisable
-				ToggleHPET("FALSE")
+				_ToggleHPET("FALSE")
 
 		EndSelect
 	WEnd
@@ -263,7 +268,7 @@ Func ModeSelect($CmdLine)
 				Case "SetPowerPlan"
 					ConsoleWrite("SetPowerPlan Requires True/False" & @CRLF)
 				Case "Restore"
-					Restore(_GetCoreCount)
+					_Restore()
 				Case Else
 					ConsoleWrite($CmdLine[1] & " is not a valid command." & @CRLF)
 			EndSwitch
@@ -279,7 +284,7 @@ Func ModeSelect($CmdLine)
 					ElseIf $CmdLine[0] > 3 Then
 						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
 					Else
-						Exit OptimizeAll($CmdLine[2],Number($CmdLine[3]))
+						Exit _OptimizeAll($CmdLine[2],Number($CmdLine[3]))
 					EndIf
 				Case "Optimize"
 					If $CmdLine[0] < 3 Then
@@ -289,7 +294,7 @@ Func ModeSelect($CmdLine)
 					ElseIf $CmdLine[0] > 3 Then
 						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
 					Else
-						Exit Optimize($CmdLine[2],$CmdLine[3])
+						Exit _Optimize($CmdLine[2],$CmdLine[3])
 					EndIf
 				Case "ToggleHPET"
 					If $CmdLine[0] < 2 Then
@@ -299,7 +304,7 @@ Func ModeSelect($CmdLine)
 					ElseIf $CmdLine[0] > 2 Then
 						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
 					Else
-						ToggleHPET($CmdLine[2])
+						_ToggleHPET($CmdLine[2])
 					EndIf
 				Case "StopServices"
 					If $CmdLine[0] < 2 Then
@@ -309,7 +314,7 @@ Func ModeSelect($CmdLine)
 					ElseIf $CmdLine[0] > 2 Then
 						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
 					Else
-						StopServices($CmdLine[2])
+						_StopServices($CmdLine[2])
 					EndIf
 				Case "SetPowerPlan"
 					If $CmdLine[0] < 2 Then
@@ -319,7 +324,7 @@ Func ModeSelect($CmdLine)
 					ElseIf $CmdLine[0] > 2 Then
 						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
 					Else
-						SetPowerPlan($CmdLine[2])
+						_SetPowerPlan($CmdLine[2])
 					EndIf
 				Case Else
 					ConsoleWrite($CmdLine[1] & " is not a valid command." & @CRLF)
@@ -329,118 +334,117 @@ Func ModeSelect($CmdLine)
 	EndSwitch
 EndFunc
 
-Func Optimize($Process,$Cores = 1)
+Func _Optimize($hProcess,$aCores = 1)
 
 	Select
-		Case Not ProcessExists($Process)
-			ConsoleWrite($Process & " is not currently running. Please run the program first" & @CRLF)
+		Case Not ProcessExists($hProcess)
+			ConsoleWrite($hProcess & " is not currently running. Please run the program first" & @CRLF)
 			Return 1
-		Case Not StringRegExp($Cores, "\A[1-9]+?(,[0-9]+)*\Z")
-			ConsoleWrite($Cores & " is not a proper declaration of what cores to run on" & @CRLF)
-			Return 1
-		Case $Cores > _GetCoreCount()
-			ConsoleWrite("Core " & $CmdLine[4] & " does not exist on a " & _GetCoreCount() & " core system" & @CRLF)
+		Case Not StringRegExp($aCores, "\A[1-9]+?(,[0-9]+)*\Z")
+			ConsoleWrite($aCores & " is not a proper declaration of what cores to run on" & @CRLF)
 			Return 1
 		Case Else
-			If StringInStr($Cores, ",") Then ; Convert Multiple Cores if Declared to Magic Number
-				Local $aCores = StringSplit($Cores, ",", $STR_NOCOUNT)
-				$Cores = 0
+			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
+			For $iLoop = 0 To _GetCoreCount() - 1
+				$hAllCores += 2^$iLoop
+			Next
+			If StringInStr($aCores, ",") Then ; Convert Multiple Cores if Declared to Magic Number
+				$aCores = StringSplit($aCores, ",", $STR_NOCOUNT)
+				$hCores = 0
 				For $Loop = 0 To UBound($aCores) - 1 Step 1
-					$Cores += 2^($aCores[$Loop]-1)
+					$hCores += 2^($aCores[$Loop]-1)
 				Next
 			Else
-				$Cores = 2^($Cores-1)
+				$hCores = 2^($aCores-1)
 			EndIf
-
-			Local $AllCores = 0 ; Get Maxmimum Cores Magic Number
-			For $i = 0 To _GetCoreCount() - 1
-				$AllCores += 2^$i
-			Next
-
-			$Processes = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-			ConsoleWrite("Setting Priority and Affinity of " & $Process & "...")
-			For $Loop = 0 to $Processes[0][0] Step 1
-				If $Processes[$Loop][0] = $Process Then
-					ProcessSetPriority($Processes[$Loop][0],$PROCESS_HIGH) ; Self Explanatory
-					$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1]) ; Select the Process
-					_WinAPI_SetProcessAffinityMask($hProcess, $Cores) ; Set Affinity (which cores it's assigned to)
-					_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+			If $hCores > $hAllCores Then
+				ConsoleWrite("You've specified more cores than available on your system" & @CRLF)
+				Return 1
+			EndIf
+			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
+			ConsoleWrite("Setting Priority and Affinity of " & $hProcess & "...")
+			For $iLoop = 0 to $aProcesses[0][0] Step 1
+				If $aProcesses[$iLoop][0] = $hProcess Then
+					ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
+					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
+					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				Else
-					$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])  ; Select the Process
-					_WinAPI_SetProcessAffinityMask($hProcess, $AllCores-$Cores) ; Set Affinity (which cores it's assigned to)
-					_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+					_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
+					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				EndIf
 			Next
 			ConsoleWrite("Done" & @CRLF)
-			ConsoleWrite("Waiting for " & $Process & " to close...")
-			While ProcessExists($Process)
+			ConsoleWrite("Waiting for " & $hProcess & " to close...")
+			While ProcessExists($hProcess)
 				Sleep(1000)
 			WEnd
 			ConsoleWrite("Done!" & @CRLF)
 
-			Restore(_GetCoreCount()) ; Do Clean Up
+			_Restore() ; Do Clean Up
 			Return 0
 	EndSelect
 EndFunc
 
-Func OptimizeAll($Process,$Cores)
-	StopServices("True")
-	SetPowerPlan("True")
-	Return Optimize($Process,$Cores)
+Func _OptimizeAll($hProcess,$aCores)
+	_StopServices("True")
+	_SetPowerPlan("True")
+	Return _Optimize($hProcess,$aCores)
 EndFunc
 
-Func Restore($Cores)
+Func _Restore($aCores = _GetCoreCount())
 	ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF)
 
-	Local $AllCores = 0 ; Get Maxmimum Cores Magic Number
-	For $i = 0 To $Cores - 1
-		$AllCores += 2^$i
+	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
+	For $iLoop = 0 To $aCores - 1
+		$hAllCores += 2^$iLoop
 	Next
 
 	ConsoleWrite("Restoring Priority and Affinity of all Other Processes...")
 
-	$Processes = ProcessList() ; Meat and Potatoes, Change Affinity and Priority back to normal
-	For $Loop = 0 to $Processes[0][0] Step 1
-		$hProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $Processes[$Loop][1])  ; Select the Process
-		_WinAPI_SetProcessAffinityMask($hProcess, $AllCores) ; Set Affinity (which cores it's assigned to)
-		_WinAPI_CloseHandle($hProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+	$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority back to normal
+	For $iLoop = 0 to $aProcesses[0][0] Step 1
+		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
+		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 	Next
 	ConsoleWrite("Done!" & @CRLF)
 
-	StopServices("False") ; Additional Clean Up
+	_StopServices("False") ; Additional Clean Up
 EndFunc
 
-Func SetPowerPlan($State)
-	If $State = "True" Then
+Func _SetPowerPlan($bState)
+	If $bState = "True" Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_BALANCED', "", @SW_HIDE) ; Set BALANCED power plan
-	ElseIf $State = "False" Then
+	ElseIf $bState = "False" Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE) ; Set MINIMUM power saving, aka max performance
 	Else
-		ConsoleWrite("SetPowerPlan Option " & $State & " is not valid!" & @CRLF)
+		ConsoleWrite("SetPowerPlan Option " & $bState & " is not valid!" & @CRLF)
 	EndIf
 EndFunc
 
-Func StopServices($State)
-	If $State = "True" Then
+Func _StopServices($bState)
+	If $bState = "True" Then
 		ConsoleWrite("Temporarily Pausing Game Impacting Services...")
 		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
 		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE) ; Stop Printer Spooler
 		ConsoleWrite("Done!" & @CRLF)
-	ElseIf $State = "False" Then
+	ElseIf $bState = "False" Then
 		ConsoleWrite("Restarting Any Stopped Services...")
 		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE) ; Start Windows Update
 		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE) ; Start Printer Spooler
 		ConsoleWrite("Done!" & @CRLF)
 	Else
-		ConsoleWrite("StopServices Option " & $State & " is not valid!" & @CRLF)
+		ConsoleWrite("StopServices Option " & $bState & " is not valid!" & @CRLF)
 	EndIf
 EndFunc
 
-Func ToggleHPET($State)
-	If $State = "True" Then
+Func _ToggleHPET($bState)
+	If $bState = "True" Then
 		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
 		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
-	ElseIf $State = "False" Then
+	ElseIf $bState = "False" Then
 		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
 		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
 	EndIf
