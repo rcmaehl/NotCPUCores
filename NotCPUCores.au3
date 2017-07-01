@@ -24,7 +24,6 @@
 #include <WindowsConstants.au3>
 #include <ListViewConstants.au3>
 
-
 ModeSelect($CmdLine) ; Jump to ModeSelect
 
 Func _GetCoreCount()
@@ -58,7 +57,8 @@ Func Main()
 	GUICtrlCreateLabel("Process Name:", 10, 50, 140, 15)
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT)
 	GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & "Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
-	Local $hSearch = GUICtrlCreateButton("?", 250, 45, 20, 20)
+	Local $hSearch = GUICtrlCreateButton(ChrW(8635), 250, 45, 20, 20)
+	GUICtrlSetFont(-1, 12)
 	GUICtrlSetTip(-1, "List Current Processes", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
@@ -105,7 +105,7 @@ Func Main()
 
 	GUICtrlCreateTabItem("")
 
-	$hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 320, $LVS_REPORT, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	$hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 320, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 	_GUICtrlListView_RegisterSortCallBack($hProcesses)
 
 	$aWindows = WinList()
@@ -140,18 +140,24 @@ Func Main()
 			Case $hMsg = $hProcesses
 				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
 
+
 			Case $hMsg = $hSearch
+				_GUICtrlListView_DeleteAllItems($hProcesses)
 				$aWindows = WinList()
-				For $Loop = 1 To $aWindows[0][0] - 1
-					$aWindows[$Loop][1] = _ProcessGetName(WinGetProcess($aWindows[$Loop][1]))
-				Next
-				_ArrayDelete($aWindows, 0)
-				_ArraySort($aWindows, 0, 0, 0, 1)
 				Do
 					$Delete = _ArraySearch($aWindows, "Default IME")
 					_ArrayDelete($aWindows, $Delete)
 				Until _ArraySearch($aWindows, "Default IME") = -1
-				_ArrayDisplay($aWindows, "Current Windows And Their Process", "", 96, Default, "Window Title|Window Process")
+				$aWindows[0][0] = UBound($aWindows)
+				For $Loop = 1 To $aWindows[0][0] - 1
+					$aWindows[$Loop][1] = _ProcessGetName(WinGetProcess($aWindows[$Loop][1]))
+					GUICtrlCreateListViewItem($aWindows[$Loop][1] & "|" & $aWindows[$Loop][0],$hProcesses)
+				Next
+				_ArrayDelete($aWindows, 0)
+				For $i = 0 To _GUICtrlListView_GetColumnCount($hProcesses) Step 1
+					_GUICtrlListView_SetColumnWidth($hProcesses, $i, $LVSCW_AUTOSIZE_USEHEADER)
+				Next
+				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
 
 			Case $hMsg = $hCores
 				If Not StringRegExp(GUICtrlRead($hCores), "\A[1-9]+?(,[0-9]+)*\Z") Then
