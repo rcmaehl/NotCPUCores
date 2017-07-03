@@ -16,7 +16,7 @@
 #include ".\includes\Console.au3"
 #include ".\includes\MetroGUI_UDF.au3"
 
-Main()
+ModeSelect()
 
 Func _CreateButton($sText, $iLeft, $iTop, $iWidth = -1, $iHeight = -1, $iStyle = -1)
 	Local $hCreated
@@ -178,24 +178,18 @@ Func _ToggleHPET($bState)
 	EndIf
 EndFunc
 
-Func Main()
-
+Func Manage()
 	Switch @OSVersion
 		Case "WIN_10", "WIN_81", "WIN_8"
 			_SetTheme("DarkBlue")
 			_Metro_EnableHighDPIScaling()
-			$hGUI = _Metro_CreateGUI("NotCPUCores", 640, 120, -1, -1)
+			$hGUI = _Metro_CreateGUI("NotCPUCores", 640, 480, -1, -1)
 			$aControl_Buttons = _Metro_AddControlButtons(True,False,False,False)
 			$hGUI_CLOSE_BUTTON = $aControl_Buttons[0]
 		Case Else
-			$hGUI = GUICreate("NotCPUCores", 640, 140, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+			$hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 			$hGUI_CLOSE_BUTTON = $GUI_EVENT_CLOSE
 	EndSwitch
-	GUICtrlCreateGroup("What Would You Like To Do?", 0, 0, 640, 140)
-	$hOptimize = _CreateButton("Optimize A Game", 10, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
-	$hManageSet = _CreateButton("Manage Auto Optimizes", 220, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
-	$hCleanPC = _CreateButton("Optimize PC", 430, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
-
 
 	GUISetState(@SW_SHOW, $hGUI)
 
@@ -210,7 +204,116 @@ Func Main()
 				Exit
 
 		EndSelect
+	WEnd
+EndFunc
+
+Func ModeSelect()
+	Local $hGUI
+
+	Switch @OSVersion
+		Case "WIN_10", "WIN_81", "WIN_8"
+			_SetTheme("DarkBlue")
+			_Metro_EnableHighDPIScaling()
+			$hGUI = _Metro_CreateGUI("NotCPUCores", 640, 140, -1, -1)
+			$aControl_Buttons = _Metro_AddControlButtons(True,False,False,False)
+			$hGUI_CLOSE_BUTTON = $aControl_Buttons[0]
+		Case Else
+			$hGUI = GUICreate("NotCPUCores", 640, 140, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+			$hGUI_CLOSE_BUTTON = $GUI_EVENT_CLOSE
+	EndSwitch
+	GUICtrlCreateGroup("What Would You Like To Do?", 0, 0, 640, 140)
+	$hOptimize = _CreateButton("Optimize A Game", 10, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
+	$hManageSet = _CreateButton("Manage Auto Optimizes", 220, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
+	$hCleanPC = _CreateButton("Optimize PC", 430, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
+
+	GUISetState(@SW_SHOW, $hGUI)
+
+	While 1
+
+		$hMsg = GUIGetMsg()
+
+		Select
+
+			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hGUI_CLOSE_BUTTON
+				GUIDelete($hGUI)
+				Exit
+
+			Case $hMsg = $hOptimize
+				GUIDelete($hGUI)
+				OptimizeGame()
+
+			Case $hMsg = $hManageSet
+				GUIDelete($hGUI)
+				Manage()
+
+			Case $hMsg = $hCleanPC
+				GUIDelete($hGUI)
+				OptimizePC()
+
+		EndSelect
 
 	WEnd
 
+EndFunc
+
+Func OptimizeGame()
+	Local $hGUI
+
+	Switch @OSVersion
+		Case "WIN_10", "WIN_81", "WIN_8"
+			_SetTheme("DarkBlue")
+			_Metro_EnableHighDPIScaling()
+			$hGUI = _Metro_CreateGUI("NotCPUCores", 640, 480, -1, -1)
+			$aControl_Buttons = _Metro_AddControlButtons(True,False,False,False)
+			$hGUI_CLOSE_BUTTON = $aControl_Buttons[0]
+		Case Else
+			$hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+			$hGUI_CLOSE_BUTTON = $GUI_EVENT_CLOSE
+	EndSwitch
+
+	GUISetState(@SW_SHOW, $hGUI)
+
+	While 1
+
+		$hMsg = GUIGetMsg()
+
+		Select
+
+			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hGUI_CLOSE_BUTTON
+				GUIDelete($hGUI)
+				Exit
+
+		EndSelect
+	WEnd
+EndFunc
+
+Func OptimizePC()
+	Local $hGUI
+
+	Switch @OSVersion
+		Case "WIN_10", "WIN_81", "WIN_8"
+			_SetTheme("DarkBlue")
+			_Metro_EnableHighDPIScaling()
+			$hGUI = _Metro_CreateGUI("NotCPUCores", 640, 480, -1, -1)
+			$aControl_Buttons = _Metro_AddControlButtons(True,False,False,False)
+			$hGUI_CLOSE_BUTTON = $aControl_Buttons[0]
+		Case Else
+			$hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+			$hGUI_CLOSE_BUTTON = $GUI_EVENT_CLOSE
+	EndSwitch
+
+	GUISetState(@SW_SHOW, $hGUI)
+
+	While 1
+
+		$hMsg = GUIGetMsg()
+
+		Select
+
+			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hGUI_CLOSE_BUTTON
+				GUIDelete($hGUI)
+				Exit
+
+		EndSelect
+	WEnd
 EndFunc
