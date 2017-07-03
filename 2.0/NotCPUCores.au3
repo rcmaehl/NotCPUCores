@@ -8,9 +8,28 @@
 #include <EditConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <AutoItConstants.au3>
+#include <ButtonConstants.au3>
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
 #include <ListViewConstants.au3>
+
+#include ".\includes\Console.au3"
+#include ".\includes\MetroGUI_UDF.au3"
+
+Main()
+
+Func _CreateButton($sText, $iLeft, $iTop, $iWidth = -1, $iHeight = -1, $iStyle = -1)
+	Local $hCreated
+
+	Switch @OSVersion
+		Case "WIN_10", "WIN_81", "WIN_8"
+			$hCreated = _Metro_CreateButton($sText, $iLeft, $iTop, $iWidth, $iHeight, $iStyle)
+		Case Else
+			$hCreated = GUICtrlCreateButton($sText, $iLeft, $iTop, $iWidth, $iHeight)
+	EndSwitch
+
+	Return $hCreated
+EndFunc
 
 Func _GetCoreCount()
     Local $sText = ''
@@ -157,4 +176,41 @@ Func _ToggleHPET($bState)
 		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
 		ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
 	EndIf
+EndFunc
+
+Func Main()
+
+	Switch @OSVersion
+		Case "WIN_10", "WIN_81", "WIN_8"
+			_SetTheme("DarkBlue")
+			_Metro_EnableHighDPIScaling()
+			$hGUI = _Metro_CreateGUI("NotCPUCores", 640, 120, -1, -1)
+			$aControl_Buttons = _Metro_AddControlButtons(True,False,False,False)
+			$hGUI_CLOSE_BUTTON = $aControl_Buttons[0]
+		Case Else
+			$hGUI = GUICreate("NotCPUCores", 640, 140, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+			$hGUI_CLOSE_BUTTON = $GUI_EVENT_CLOSE
+	EndSwitch
+	GUICtrlCreateGroup("What Would You Like To Do?", 0, 0, 640, 140)
+	$hOptimize = _CreateButton("Optimize A Game", 10, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
+	$hManageSet = _CreateButton("Manage Auto Optimizes", 220, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
+	$hCleanPC = _CreateButton("Optimize PC", 430, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
+
+
+	GUISetState(@SW_SHOW, $hGUI)
+
+	While 1
+
+		$hMsg = GUIGetMsg()
+
+		Select
+
+			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hGUI_CLOSE_BUTTON
+				GUIDelete($hGUI)
+				Exit
+
+		EndSelect
+
+	WEnd
+
 EndFunc
