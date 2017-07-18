@@ -376,7 +376,7 @@ Func _Optimize($hProcess,$aCores = 1)
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
 				Next
-				Sleep(30000)
+				Sleep(10000)
 			WEnd
 			ConsoleWrite("Done!" & @CRLF)
 
