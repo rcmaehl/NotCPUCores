@@ -89,22 +89,27 @@ Func _Optimize($hProcess,$aCores = 1)
 				ConsoleWrite("You've specified more cores than available on your system" & @CRLF)
 				Return 1
 			EndIf
-			ConsoleWrite("Optimzing " & $hProcess & ", in background until it closes...")
+			ConsoleWrite("Optimzing " & $hProcess & " in the background until it closes...")
+			$iProcessesLast = 0
 			While ProcessExists($hProcess)
 				$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-				For $iLoop = 0 to $aProcesses[0][0] Step 1
-					If $aProcesses[$iLoop][0] = $hProcess Then
-						ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
-						$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
-						_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
-						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-					Else
-						$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
-						_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
-						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-					EndIf
-				Next
-				Sleep(10000)
+				If Not (UBound($aProcesses) = $iProcessesLast) Then
+					ConsoleWrite("Running...")
+					For $iLoop = 0 to $aProcesses[0][0] Step 1
+						If $aProcesses[$iLoop][0] = $hProcess Then
+							ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
+							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
+							_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
+							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+						Else
+							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+							_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
+							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+						EndIf
+					Next
+					$iProcessesLast = UBound($aProcesses)
+					ConsoleWrite("Done!" & @CRLF)
+				EndIf
 			WEnd
 			ConsoleWrite("Done!" & @CRLF)
 
