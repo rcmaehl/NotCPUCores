@@ -7,7 +7,7 @@
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Comment=Compiled 6/27/2017 @ 11:00 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.2.0.0
+#AutoIt3Wrapper_Res_Fileversion=1.3.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -83,7 +83,7 @@ EndFunc
 Func Main()
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 320, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
-	Local $sVersion = "1.2.0.0"
+	Local $sVersion = "1.3.0.0"
 
 	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
@@ -94,7 +94,7 @@ Func Main()
 
 	GUICtrlCreateLabel("Process Name:", 10, 50, 140, 15)
 
-	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT)
+	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 	GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & "Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	Local $hSearch = GUICtrlCreateButton(ChrW(8635), 250, 45, 20, 20)
@@ -361,24 +361,22 @@ Func _Optimize($hProcess,$aCores = 1)
 				ConsoleWrite("You've specified more cores than available on your system" & @CRLF)
 				Return 1
 			EndIf
-			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-			ConsoleWrite("Setting Priority and Affinity of " & $hProcess & "...")
-			For $iLoop = 0 to $aProcesses[0][0] Step 1
-				If $aProcesses[$iLoop][0] = $hProcess Then
-					ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
-					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
-					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
-					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-				Else
-					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
-					_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
-					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-				EndIf
-			Next
-			ConsoleWrite("Done" & @CRLF)
-			ConsoleWrite("Waiting for " & $hProcess & " to close...")
+			ConsoleWrite("Optimzing " & $hProcess & ", in background until it closes...")
 			While ProcessExists($hProcess)
-				Sleep(1000)
+				$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
+				For $iLoop = 0 to $aProcesses[0][0] Step 1
+					If $aProcesses[$iLoop][0] = $hProcess Then
+						ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
+						$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
+						_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
+						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+					Else
+						$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+						_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
+						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+					EndIf
+				Next
+				Sleep(30000)
 			WEnd
 			ConsoleWrite("Done!" & @CRLF)
 
