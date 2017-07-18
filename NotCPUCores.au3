@@ -5,7 +5,7 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Res_Comment=Compiled 7/18/2017 @ 12:45 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 7/18/2017 @ 00:45 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.3.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
