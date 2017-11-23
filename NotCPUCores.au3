@@ -5,9 +5,9 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Res_Comment=Compiled 7/18/2017 @ 00:45 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 11/23/2017 @ 10:25 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.3.0.0
+#AutoIt3Wrapper_Res_Fileversion=1.3.1.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -83,7 +83,7 @@ EndFunc
 Func Main()
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 320, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
-	Local $sVersion = "1.3.0.0"
+	Local $sVersion = "1.3.1.0"
 
 	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
@@ -121,7 +121,13 @@ Func Main()
 	GUICtrlCreateLabel("Advanced", 5, 180, 270, 15, $SS_CENTER + $SS_SUNKEN)
 	GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Advanced features coming future update!", 5, 200, 270, 20, $SS_CENTER)
+	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 200, 220, 15)
+
+	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 200, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
+	GUICtrlSetLimit(3,1)
+	GUICtrlSetTip(-1, "Internal Sleep Timer." & @CRLF & "Decreasing this value can smooth ping spikes, " & @CRLF & "at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+
+	; GUICtrlCreateLabel("Advanced features coming future update!", 5, 200, 270, 20, $SS_CENTER)
 
 	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	$hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
@@ -174,6 +180,7 @@ Func Main()
 	While 1
 
 		$hMsg = GUIGetMsg()
+		Sleep(10)
 
 		Select
 
@@ -229,7 +236,7 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hOptimize, "Running Optimizations...")
-				_OptimizeAll(GUICtrlRead($hTask),GUICtrlRead($hCores))
+				_OptimizeAll(GUICtrlRead($hTask),GUICtrlRead($hCores),GUICtrlRead($hSleepTimer))
 				GUICtrlSetData($hOptimize, "OPTIMIZE")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
@@ -240,6 +247,9 @@ Func Main()
 
 			Case $hMsg = $HPETDisable
 				_ToggleHPET("FALSE")
+
+			Case Else
+				Sleep(10)
 
 		EndSelect
 	WEnd
@@ -281,7 +291,7 @@ Func ModeSelect($CmdLine)
 						ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreToRunOn" & @CRLF)
 						Sleep(1000)
 						Exit 1
-					ElseIf $CmdLine[0] > 3 Then
+					ElseIf $CmdLine[0] > 4 Then
 						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
 					Else
 						Exit _OptimizeAll($CmdLine[2],Number($CmdLine[3]))
@@ -334,7 +344,7 @@ Func ModeSelect($CmdLine)
 	EndSwitch
 EndFunc
 
-Func _Optimize($hProcess,$aCores = 1)
+Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100)
 
 	Select
 		Case Not ProcessExists($hProcess)
@@ -361,12 +371,16 @@ Func _Optimize($hProcess,$aCores = 1)
 				ConsoleWrite("You've specified more cores than available on your system" & @CRLF)
 				Return 1
 			EndIf
-			ConsoleWrite("Optimzing " & $hProcess & " in the background until it closes...")
+			ConsoleWrite("Optimzing " & $hProcess & " in the background until it closes..." & @CRLF)
 			$iProcessesLast = 0
 			While ProcessExists($hProcess)
+				Sleep($iSleepTime)
 				$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
+				Sleep($iSleepTime)
 				If Not (UBound($aProcesses) = $iProcessesLast) Then
-					ConsoleWrite("Running...")
+					Sleep($iSleepTime)
+					ConsoleWrite("Process Count Changed, Rerunning Optimizaion...")
+					Sleep($iSleepTime)
 					For $iLoop = 0 to $aProcesses[0][0] Step 1
 						If $aProcesses[$iLoop][0] = $hProcess Then
 							ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
@@ -379,8 +393,11 @@ Func _Optimize($hProcess,$aCores = 1)
 							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 						EndIf
 					Next
+					Sleep($iSleepTime)
 					$iProcessesLast = UBound($aProcesses)
+					Sleep($iSleepTime)
 					ConsoleWrite("Done!" & @CRLF)
+					Sleep($iSleepTime)
 				EndIf
 			WEnd
 			ConsoleWrite("Done!" & @CRLF)
@@ -390,10 +407,10 @@ Func _Optimize($hProcess,$aCores = 1)
 	EndSelect
 EndFunc
 
-Func _OptimizeAll($hProcess,$aCores)
+Func _OptimizeAll($hProcess,$aCores,$iSleepTime = 100)
 	_StopServices("True")
 	_SetPowerPlan("True")
-	Return _Optimize($hProcess,$aCores)
+	Return _Optimize($hProcess,$aCores,$iSleepTime)
 EndFunc
 
 Func _Restore($aCores = _GetCoreCount())
@@ -429,12 +446,12 @@ EndFunc
 
 Func _StopServices($bState)
 	If $bState = "True" Then
-		ConsoleWrite("Temporarily Pausing Game Impacting Services...")
+		ConsoleWrite("Temporarily Pausing Game Impacting Services..." & @CRLF)
 		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
 		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE) ; Stop Printer Spooler
 		ConsoleWrite("Done!" & @CRLF)
 	ElseIf $bState = "False" Then
-		ConsoleWrite("Restarting Any Stopped Services...")
+		ConsoleWrite("Restarting Any Stopped Services..." & @CRLF)
 		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE) ; Start Windows Update
 		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE) ; Start Printer Spooler
 		ConsoleWrite("Done!" & @CRLF)
