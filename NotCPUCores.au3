@@ -7,7 +7,7 @@
 #AutoIt3Wrapper_Change2CUI=N
 #AutoIt3Wrapper_Res_Comment=Compiled 11/23/2017 @ 10:25 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.4.1.0
+#AutoIt3Wrapper_Res_Fileversion=1.4.0.2
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
