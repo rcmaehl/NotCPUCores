@@ -25,7 +25,7 @@ Project stages:
 * Stage 2: Actual coding (DONE!)
 * Stage 3: Command Prompt Version Release (IMPROVED VERSION RELEASED)
 * Stage 4: UI coding (DONE!)
-* Stage 5: UI Version Release (1.3.0.0 RELEASED!)
+* Stage 5: UI Version Release (1.4.0.0 RELEASED!)
 * Stage 6: Feature additions, Bug Fixing (WORKING ON!)
 * Stage 7: Make the UI Look Pretty (DO TO!)
 
