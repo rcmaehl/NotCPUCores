@@ -7,7 +7,7 @@
 #AutoIt3Wrapper_Change2CUI=N
 #AutoIt3Wrapper_Res_Comment=Compiled 11/23/2017 @ 10:25 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.4.0.2
+#AutoIt3Wrapper_Res_Fileversion=1.5.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -87,7 +87,7 @@ EndFunc
 Func Main()
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
-	Local $sVersion = "1.4.0.1"
+	Local $sVersion = "1.5.0.0"
 
 	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
@@ -101,9 +101,9 @@ Func Main()
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & "Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	Local $hSearch = GUICtrlCreateButton(ChrW(8635), 250, 45, 20, 20)
+	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
-		GUICtrlSetTip(-1, "List Current Processes", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+		GUICtrlSetTip(-1, "IMPORT SELECTED PROCESS", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -128,7 +128,7 @@ Func Main()
 	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 200, 220, 15)
 
 	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 200, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
-		GUICtrlSetLimit(3,1)
+		GUICtrlSetLimit(-1, 3,1)
 		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & "Decreasing this value can smooth FPS drops, " & @CRLF & "at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 220, 260, 20, $BS_RIGHTBUTTON)
@@ -243,17 +243,6 @@ Func Main()
 				EndIf
 
 			Case $hMsg = $hProcesses
-				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
-
-			Case $hMsg = $hSearch
-				GUICtrlSetState($hDToggle, $GUI_DISABLE)
-				If $bPHidden Then
-					GUICtrlSetState($hProcesses, $GUI_SHOW)
-					$aPos = WinGetPos($hGUI)
-					WinMove($hGUI, "", $aPos[0], $aPos[1], 640)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 320)
-					$bPHidden = False
-				EndIf
 				_GUICtrlListView_DeleteAllItems($hProcesses)
 				$aWindows = WinList()
 				Do
@@ -270,6 +259,19 @@ Func Main()
 					_GUICtrlListView_SetColumnWidth($hProcesses, $i, $LVSCW_AUTOSIZE_USEHEADER)
 				Next
 				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
+
+			Case $hMsg = $hSearch
+				GUICtrlSetState($hDToggle, $GUI_DISABLE)
+				If $bPHidden Then
+					GUICtrlSetState($hProcesses, $GUI_SHOW)
+					$aPos = WinGetPos($hGUI)
+					WinMove($hGUI, "", $aPos[0], $aPos[1], 640)
+					GUICtrlSetPos($hProcesses, 280, 0, 355, 320)
+					$bPHidden = False
+				Else
+					$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
+					GUICtrlSetData($hTask, $aTask[0])
+				EndIf
 				GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
 			Case $hMsg = $hCores
