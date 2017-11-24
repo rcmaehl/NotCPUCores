@@ -87,7 +87,7 @@ EndFunc
 Func Main()
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
-	Local $sVersion = "1.4.0.0"
+	Local $sVersion = "1.4.0.1"
 
 	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
