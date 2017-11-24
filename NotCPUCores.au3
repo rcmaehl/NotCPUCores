@@ -7,7 +7,7 @@
 #AutoIt3Wrapper_Change2CUI=N
 #AutoIt3Wrapper_Res_Comment=Compiled 11/23/2017 @ 10:25 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.4.0.0
+#AutoIt3Wrapper_Res_Fileversion=1.4.1.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -119,7 +119,7 @@ Func Main()
 
 	GUICtrlCreateLabel("Core(s):", 10, 155, 190, 15)
 
-	Local $hCores = GUICtrlCreateInput("1", 200, 150, 70, 20, $ES_UPPERCASE + $ES_RIGHT)
+	Local $hCores = GUICtrlCreateInput("1", 200, 150, 70, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "To run on Multiple Cores, seperate them with commas." & @CRLF & "Example: 1,3,4", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	GUICtrlCreateLabel("Advanced", 5, 180, 270, 15, $SS_CENTER + $SS_SUNKEN)
@@ -129,9 +129,10 @@ Func Main()
 
 	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 200, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
 		GUICtrlSetLimit(3,1)
-		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & "Decreasing this value can smooth ping spikes, " & @CRLF & "at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & "Decreasing this value can smooth FPS drops, " & @CRLF & "at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 220, 260, 20, $BS_RIGHTBUTTON)
+		GUICtrlSetTip(-1, "Priority Override" & @CRLF & "Selecting this sets the process to a higher" & @CRLF & "priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	$hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
