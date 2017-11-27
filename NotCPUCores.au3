@@ -103,7 +103,7 @@ Func Main()
 
 	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
-		GUICtrlSetTip(-1, "IMPORT SELECTED PROCESS", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -288,7 +288,7 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hReset, "Restoring PC...")
-				_Restore(_GetCoreCount(),$hConsole)
+				_Restore(_GetCoreCount(), $hConsole)
 				GUICtrlSetData($hReset, "RESTORE TO DEFAULT")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
@@ -299,7 +299,9 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hOptimize, "Running Optimizations...")
-				_OptimizeAll(GUICtrlRead($hTask),GUICtrlRead($hCores),GUICtrlRead($hSleepTimer),_IsChecked($hRealtime),$hConsole)
+				If _OptimizeAll(GUICtrlRead($hTask),GUICtrlRead($hCores),GUICtrlRead($hSleepTimer),_IsChecked($hRealtime),$hConsole) Then
+					_Restore(_GetCoreCount(), $hConsole)
+				EndIf
 				GUICtrlSetData($hOptimize, "OPTIMIZE")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
@@ -517,7 +519,7 @@ Func _Restore($aCores = _GetCoreCount(),$hOutput = False)
 		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Done!" & @CRLF)
 	EndIf
 
-	_StopServices("False",$hOutput) ; Additional Clean Up
+	_StopServices("False", $hOutput) ; Additional Clean Up
 EndFunc
 
 Func _SetPowerPlan($bState,$hOutput = False)
