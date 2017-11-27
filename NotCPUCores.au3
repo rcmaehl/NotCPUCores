@@ -320,6 +320,14 @@ Func Main()
 	WEnd
 EndFunc
 
+Func _ConsoleWrite($sMessage, $hOutput = False)
+	If $hOutput = False Then
+		ConsoleWrite($sMessage)
+	Else
+		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sMessage)
+	EndIf
+EndFunc
+
 Func _GetChildProcesses($i_pid) ; First level children processes only
     Local Const $TH32CS_SNAPPROCESS = 0x00000002
 
@@ -394,18 +402,10 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 
 	Select
 		Case Not ProcessExists($hProcess)
-			If $hOutput = False Then
-				ConsoleWrite($hProcess & " is not currently running. Please run the program first" & @CRLF)
-			Else
-				GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $hProcess & " is not currently running. Please run the program first" & @CRLF)
-			EndIf
+			_ConsoleWrite($hProcess & " is not currently running. Please run the program first" & @CRLF, $hOutput)
 			Return 1
 		Case Not StringRegExp($aCores, "\A[1-9]+?(,[0-9]+)*\Z")
-			If $hOutput = False Then
-				ConsoleWrite($aCores & " is not a proper declaration of what cores to run on" & @CRLF)
-			Else
-				GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $aCores & " is not a proper declaration of what cores to run on" & @CRLF)
-			EndIf
+			_ConsoleWrite($aCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
 			Return 1
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
@@ -422,18 +422,10 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 				$hCores = 2^($aCores-1)
 			EndIf
 			If $hCores > $hAllCores Then
-				If $hOutput = False Then
-					ConsoleWrite("You've specified more cores than available on your system" & @CRLF)
-				Else
-					GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "You've specified more cores than available on your system" & @CRLF)
-				EndIf
+				_ConsoleWrite("You've specified more cores than available on your system" & @CRLF, $hOutput)
 				Return 1
 			EndIf
-			If $hOutput = False Then
-				ConsoleWrite("Optimzing " & $hProcess & " in the background until it closes..." & @CRLF)
-			Else
-				GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Optimzing " & $hProcess & " in the background until it closes..." & @CRLF)
-			EndIf
+			_ConsoleWrite("Optimzing " & $hProcess & " in the background until it closes..." & @CRLF, $hOutput)
 			$iProcessesLast = 0
 			While ProcessExists($hProcess)
 				Sleep($iSleepTime)
@@ -441,11 +433,7 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 				Sleep($iSleepTime)
 				If Not (UBound($aProcesses) = $iProcessesLast) Then
 					Sleep($iSleepTime)
-					If $hOutput = False Then
-						ConsoleWrite("Process Count Changed, Rerunning Optimizaion...")
-					Else
-						GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Process Count Changed, Rerunning Optimizaion...")
-					EndIf
+					_ConsoleWrite("Process Count Changed, Rerunning Optimizaion...", $hOutput)
 					Sleep($iSleepTime)
 					For $iLoop = 0 to $aProcesses[0][0] Step 1
 						If $aProcesses[$iLoop][0] = $hProcess Then
@@ -466,20 +454,11 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 					Sleep($iSleepTime)
 					$iProcessesLast = UBound($aProcesses)
 					Sleep($iSleepTime)
-					If $hOutput = False Then
-						ConsoleWrite("Done!" & @CRLF)
-					Else
-						GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Done!" & @CRLF)
-					EndIf
+					_ConsoleWrite("Done!" & @CRLF, $hOutput)
 					Sleep($iSleepTime)
 				EndIf
 			WEnd
-			If $hOutput = False Then
-				ConsoleWrite("Done!" & @CRLF)
-			Else
-				GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Done!" & @CRLF)
-			EndIf
-
+			_ConsoleWrite("Done!" & @CRLF, $hOutput)
 			_Restore(_GetCoreCount(),$hOutput) ; Do Clean Up
 			Return 0
 	EndSelect
@@ -492,32 +471,20 @@ Func _OptimizeAll($hProcess,$aCores,$iSleepTime = 100,$hRealtime = False,$hOutpu
 EndFunc
 
 Func _Restore($aCores = _GetCoreCount(),$hOutput = False)
-	If $hOutput = False Then
-		ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF)
-	Else
-		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Restoring Previous State..." & @CRLF & @CRLF)
-	EndIf
+	_ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF, $hOutput)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $aCores - 1
 		$hAllCores += 2^$iLoop
 	Next
 
-	If $hOutput = False Then
-		ConsoleWrite("Restoring Priority and Affinity of all Other Processes...")
-	Else
-		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Restoring Priority and Affinity of all Other Processes...")
-	EndIf
+	_ConsoleWrite("Restoring Priority and Affinity of all Other Processes...", $hOutput)
 	$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority back to normal
 	For $iLoop = 0 to $aProcesses[0][0] Step 1
 		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
 		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
 		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 	Next
-	If $hOutput = False Then
-		ConsoleWrite("Done!" & @CRLF)
-	Else
-		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Done!" & @CRLF)
-	EndIf
+	_ConsoleWrite("Done!" & @CRLF, $hOutput)
 
 	_StopServices("False", $hOutput) ; Additional Clean Up
 EndFunc
@@ -528,65 +495,33 @@ Func _SetPowerPlan($bState,$hOutput = False)
 	ElseIf $bState = "False" Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_BALANCED', "", @SW_HIDE) ; Set BALANCED power plan
 	Else
-		If $hOutput = False Then
-			ConsoleWrite("SetPowerPlan Option " & $bState & " is not valid!" & @CRLF)
-		Else
-			GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "SetPowerPlan Option " & $bState & " is not valid!" & @CRLF)
-		EndIf
+		_ConsoleWrite("SetPowerPlan Option " & $bState & " is not valid!" & @CRLF, $hOutput)
 	EndIf
 EndFunc
 
 Func _StopServices($bState,$hOutput = False)
 	If $bState = "True" Then
-		If $hOutput = False Then
-			ConsoleWrite("Temporarily Pausing Game Impacting Services..." & @CRLF)
-		Else
-			GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Temporarily Pausing Game Impacting Services..." & @CRLF)
-		EndIf
+		_ConsoleWrite("Temporarily Pausing Game Impacting Services..." & @CRLF, $hOutput)
 		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
 		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE) ; Stop Printer Spooler
-		If $hOutput = False Then
-			ConsoleWrite("Done!" & @CRLF)
-		Else
-			GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Done!" & @CRLF)
-		EndIf
+		_ConsoleWrite("Done!" & @CRLF, $hOutput)
 	ElseIf $bState = "False" Then
-		If $hOutput = False Then
-			ConsoleWrite("Restarting Any Stopped Services..." & @CRLF)
-		Else
-			GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Restarting Any Stopped Services..." & @CRLF)
-		EndIf
+		_ConsoleWrite("Restarting Any Stopped Services..." & @CRLF, $hOutput)
 		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE) ; Start Windows Update
 		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE) ; Start Printer Spooler
-		If $hOutput = False Then
-			ConsoleWrite("Done!" & @CRLF)
-		Else
-			GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "Done!" & @CRLF)
-		EndIf
+		_ConsoleWrite("Done!" & @CRLF, $hOutput)
 	Else
-		If $hOutput = False Then
-			ConsoleWrite("StopServices Option " & $bState & " is not valid!" & @CRLF)
-		Else
-			GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "StopServices Option " & $bState & " is not valid!" & @CRLF)
-		EndIf
+		_ConsoleWrite("StopServices Option " & $bState & " is not valid!" & @CRLF, $hOutput)
 	EndIf
 EndFunc
 
 Func _ToggleHPET($bState,$hOutput = False)
 	If $bState = "True" Then
-		If $hOutput = False Then
-			ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
-		Else
-			GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
-		EndIf
+		_ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF, $hOutput)
 		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
 	ElseIf $bState = "False" Then
 		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
-		If $hOutput = False Then
-			ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
-		Else
-			GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & "You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF)
-		EndIf
+		_ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF, $hOutput)
 	EndIf
 EndFunc
 
