@@ -25,7 +25,7 @@
 #include <WindowsConstants.au3>
 #include <ListViewConstants.au3>
 
-#include ".\Includes
+#include ".\Includes\_ModeSelect.au3"
 #include ".\Includes\_GetEnvironment.au3"
 
 Opt("GUIResizeMode", $GUI_DOCKALL)
@@ -98,7 +98,7 @@ Func Main()
 
 	GUICtrlCreateLabel("Core Count:", 10, 105, 220, 15)
 
-	Local $hCores = GUICtrlCreateInput(_GetCoreCount(), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
+	Local $hCores = GUICtrlCreateInput(_GetCPUInfo(0), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
 		GUICtrlSetLimit(-1,2)
 		GUICtrlSetTip(-1, "The Total Number of Threads on your computer." & @CRLF & "This is currently Automatically Detected.", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
@@ -127,7 +127,7 @@ Func Main()
 	#EndRegion
 
 	#Region ; Tweaks Tab
-	GUICtrlCreateTabItem("1 Time Tweaks")
+	GUICtrlCreateTabItem("PC Tweaks")
 
 	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -137,6 +137,9 @@ Func Main()
 
 ;	GUICtrlCreateLabel("Below you can run some Windows Maintenance Tools", 5, 115, 270, 20, $SS_CENTER + $SS_SUNKEN)
 ;	GUICtrlSetBkColor(-1, 0xF0F0F0)
+	#EndRegion
+
+	#Region ; Options Tab
 #cs
 	GUICtrlCreateTabItem("Options")
 
@@ -158,14 +161,20 @@ Func Main()
 	GUICtrlCreateLabel("Operating System", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("OS:", 10, 45, 140, 15)
-		GUICtrlCreateLabel("", 150, 45, 120, 20, $ES_RIGHT)
+	GUICtrlCreateLabel("OS:", 10, 45, 70, 15)
+		GUICtrlCreateLabel(_GetEnvironment(0) & " " & _GetEnvironment(1), 80, 45, 190, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("Language:", 10, 65, 140, 15)
-		GUICtrlCreateLabel("", 150, 65, 120, 20, $ES_RIGHT)
+	GUICtrlCreateLabel("Language:", 10, 65, 70, 15)
+		GUICtrlCreateLabel(_GetEnvironment(2), 80, 65, 190, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("Hardware", 5, 90, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	GUICtrlCreateLabel("CPU:", 10, 110, 50, 15)
+		GUICtrlCreateLabel(_GetCPUInfo(1), 60, 110, 210, 20, $ES_RIGHT)
+
+	GUICtrlCreateLabel("RAM:", 10, 130, 70, 15)
+		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB", 80, 130, 190, 20, $ES_RIGHT)
 
 	#EndRegion
 
@@ -311,7 +320,7 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hReset, "Restoring PC...")
-				_Restore(_GetCoreCount(), $hConsole)
+				_Restore(_GetCPUInfo(0), $hConsole)
 				GUICtrlSetData($hReset, "RESTORE TO DEFAULT")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
@@ -323,7 +332,7 @@ Func Main()
 				Next
 				GUICtrlSetData($hOptimize, "Running Optimizations...")
 				If _OptimizeAll(GUICtrlRead($hTask),GUICtrlRead($hCores),GUICtrlRead($hSleepTimer),_IsChecked($hRealtime),$hConsole) Then
-					_Restore(_GetCoreCount(), $hConsole)
+					_Restore(_GetCPUInfo(0), $hConsole)
 				EndIf
 				GUICtrlSetData($hOptimize, "OPTIMIZE")
 				For $Loop = $hTask to $hReset Step 1
@@ -351,18 +360,24 @@ Func _ConsoleWrite($sMessage, $hOutput = False)
 	EndIf
 EndFunc
 
-Func _GetCoreCount()
-    Local $sText = ''
+Func _GetCPUInfo($iFlag = 0)
+    Local $sThreads = ''
+	Local $sName = ''
     Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
         Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
-            Local $sText = $Obj_Item.numberOfLogicalProcessors
+            Local $sThreads = $Obj_Item.numberOfLogicalProcessors
+			Local $sName = $obj_Item.Name
         Next
 
-        Return String($sText)
+		If $iFlag = 0 Then
+			Return String($sThreads)
+		ElseIf $iFlag = 1 Then
+			Return String($sName)
+		EndIf
     Else
         Return 0
     EndIf
@@ -449,7 +464,7 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 			Return 1
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
-			For $iLoop = 0 To _GetCoreCount() - 1
+			For $iLoop = 0 To _GetCPUInfo(0) - 1
 				$hAllCores += 2^$iLoop
 			Next
 			If StringInStr($aCores, ",") Then ; Convert Multiple Cores if Declared to Magic Number
@@ -499,7 +514,7 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 				EndIf
 			WEnd
 			_ConsoleWrite("Done!" & @CRLF, $hOutput)
-			_Restore(_GetCoreCount(),$hOutput) ; Do Clean Up
+			_Restore(_GetCPUInfo(0),$hOutput) ; Do Clean Up
 			Return 0
 	EndSelect
 EndFunc
@@ -510,7 +525,7 @@ Func _OptimizeAll($hProcess,$aCores,$iSleepTime = 100,$hRealtime = False,$hOutpu
 	Return _Optimize($hProcess,$aCores,$iSleepTime,$hRealtime,$hOutput)
 EndFunc
 
-Func _Restore($aCores = _GetCoreCount(),$hOutput = False)
+Func _Restore($aCores = _GetCPUInfo(0),$hOutput = False)
 	_ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF, $hOutput)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $aCores - 1
