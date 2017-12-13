@@ -25,6 +25,9 @@
 #include <WindowsConstants.au3>
 #include <ListViewConstants.au3>
 
+#include ".\Includes
+#include ".\Includes\_GetEnvironment.au3"
+
 Opt("GUIResizeMode", $GUI_DOCKALL)
 
 #cs
@@ -42,8 +45,9 @@ To Do
 
 == 2.0 Idea Master List ==
 
+Options for translation
+NCC launches on Start-up, automatically optimizes any processes chosen by user
 Upon Launch open a small Metro UI with some options w/ Graphics (Optimize Game, Manage Auto Optimized, Optimize PC) aka Imgburn start-up but smaller
-NCC now launches on Start-up, automatically optimizes any processes chosen by user
 
 Optimize Game
 
@@ -67,23 +71,6 @@ Optimize PC
 
 Main() ; Jump to ModeSelect
 
-Func _GetCoreCount()
-    Local $sText = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
-    If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
-
-        Local $Obj_Item
-        For $Obj_Item In $Col_Items
-            Local $sText = $Obj_Item.numberOfLogicalProcessors
-        Next
-
-        Return String($sText)
-    Else
-        Return 0
-    EndIf
-EndFunc
-
 Func Main()
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
@@ -91,6 +78,7 @@ Func Main()
 
 	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
+	#Region ; Optimize Tab
 	GUICtrlCreateTabItem("Optimize")
 
 	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
@@ -132,11 +120,13 @@ Func Main()
 		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & "Decreasing this value can smooth FPS drops, " & @CRLF & "at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 220, 260, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, "Priority Override" & @CRLF & "Selecting this sets the process to a higher" & @CRLF & "priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & "priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	$hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
+	#EndRegion
 
+	#Region ; Tweaks Tab
 	GUICtrlCreateTabItem("1 Time Tweaks")
 
 	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER + $SS_SUNKEN)
@@ -160,18 +150,51 @@ Func Main()
 
 	GUICtrlCreateListView("", 5, 190, 270, 120, $LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$ES_READONLY)
 #ce
+	#EndRegion
+
+	#Region ; Specs Tab
+	GUICtrlCreateTabItem("My PC")
+
+	GUICtrlCreateLabel("Operating System", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+		GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	GUICtrlCreateLabel("OS:", 10, 45, 140, 15)
+		GUICtrlCreateLabel("", 150, 45, 120, 20, $ES_RIGHT)
+
+	GUICtrlCreateLabel("Language:", 10, 65, 140, 15)
+		GUICtrlCreateLabel("", 150, 65, 120, 20, $ES_RIGHT)
+
+	GUICtrlCreateLabel("Hardware", 5, 90, 270, 15, $SS_CENTER + $SS_SUNKEN)
+		GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	#EndRegion
+
+	#Region ; About Tab
 	GUICtrlCreateTabItem("About")
 
-	GUICtrlCreateLabel(@CRLF & "NotCPUCores" & @TAB & "v" & $sVersion & @CRLF & "Developed by Robert Maehl", 5, 35, 270, 50, $SS_CENTER)
+	GUICtrlCreateLabel(@CRLF & "NotCPUCores" & @TAB & "v" & $sVersion & @CRLF & _
+		"Developed by Robert Maehl" & @CRLF & _
+		"Icon by /u/ImRealNow", 5, 35, 270, 70, $SS_CENTER)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("What it does:" & @CRLF & @CRLF & "1. Find the Game Process" &  @CRLF & "2. Change Game Priority to High" & @CRLF & "3. Change Affinity to the Selected Core", 5, 95, 270, 90)
+	GUICtrlCreateLabel("What it does:" & @CRLF & _
+		@CRLF & _
+		"1. Find the Game Process" & @CRLF & _
+		"2. Change Game Priority to High" & @CRLF & _
+		"3. Change Affinity to the Selected Core(s)" & @CRLF & _
+		"4. Set all other Processes Affinity off the Selected Core(s)", 5, 115, 270, 90)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("How To Do It Yourself:" & @CRLF & @CRLF & "1. Open Task Manager" & @CRLF & "2. Find the Game Process under Processes or Details" &  @CRLF & "3. Right Click, Set Priority, High" & @CRLF & "4. Right Click, Set Affinity, Select Your Cores", 5, 195, 270, 100)
+	GUICtrlCreateLabel("How To Do It Yourself:" & @CRLF & _
+		@CRLF & _
+		"1. Open Task Manager" & @CRLF & _
+		"2. Find the Game Process under Processes or Details" &  @CRLF & _
+		"3. Right Click, Set Priority, High" & @CRLF & _
+		"4. Right Click, Set Affinity, Select Your Core(s)", 5, 215, 270, 100)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateTabItem("")
+	#EndRegion
 
 	$bCHidden = False
 	$bPHidden = False
@@ -328,6 +351,23 @@ Func _ConsoleWrite($sMessage, $hOutput = False)
 	EndIf
 EndFunc
 
+Func _GetCoreCount()
+    Local $sText = ''
+    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+    If (IsObj($Obj_WMIService)) And (Not @error) Then
+        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
+
+        Local $Obj_Item
+        For $Obj_Item In $Col_Items
+            Local $sText = $Obj_Item.numberOfLogicalProcessors
+        Next
+
+        Return String($sText)
+    Else
+        Return 0
+    EndIf
+EndFunc
+
 Func _GetChildProcesses($i_pid) ; First level children processes only
     Local Const $TH32CS_SNAPPROCESS = 0x00000002
 
@@ -433,7 +473,7 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 				Sleep($iSleepTime)
 				If Not (UBound($aProcesses) = $iProcessesLast) Then
 					Sleep($iSleepTime)
-					_ConsoleWrite("Process Count Changed, Rerunning Optimizaion...", $hOutput)
+					_ConsoleWrite("Process Count Changed, Rerunning Optimization...", $hOutput)
 					Sleep($iSleepTime)
 					For $iLoop = 0 to $aProcesses[0][0] Step 1
 						If $aProcesses[$iLoop][0] = $hProcess Then
@@ -523,93 +563,4 @@ Func _ToggleHPET($bState,$hOutput = False)
 		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
 		_ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF, $hOutput)
 	EndIf
-EndFunc
-
-Func _ZZZREMOVED_ModeSelect($CmdLine)
-	Switch $CmdLine[0]
-		Case 0
-			ConsoleWrite("Backend Console (Read-Only Mode)" & @CRLF & "Feel free to minimize, but closing will close the UI as well" & @CRLF & @CRLF)
-			Main()
-		Case 1
-			Switch $CmdLine[1]
-				Case "/?"
-					ConsoleWrite("Available Commands: OptimizeAll Optimize ToggleHPET StopServices SetPowerPlan Restore" & @CRLF)
-				Case "Help"
-					ConsoleWrite("Available Commands: OptimizeAll Optimize ToggleHPET StopServices SetPowerPlan Restore" & @CRLF)
-				Case "OptimizeAll"
-					ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreToRunOn" & @CRLF)
-				Case "Optimize"
-					ConsoleWrite("Optimize Requires ProcessName.exe CoreToRunOn" & @CRLF)
-					Sleep(5000)
-				Case "ToggleHPET"
-					ConsoleWrite("ToggleHPET Requires True/False" & @CRLF)
-				Case "StopServices"
-					ConsoleWrite("StopServices Requires True/False" & @CRLF)
-				Case "SetPowerPlan"
-					ConsoleWrite("SetPowerPlan Requires True/False" & @CRLF)
-				Case "Restore"
-					_Restore()
-				Case Else
-					ConsoleWrite($CmdLine[1] & " is not a valid command." & @CRLF)
-			EndSwitch
-			Sleep(5000)
-			Exit 0
-		Case Else
-			Switch $CmdLine[1]
-				Case "OptimizeAll"
-					If $CmdLine[0] < 3 Then
-						ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreToRunOn" & @CRLF)
-						Sleep(1000)
-						Exit 1
-					ElseIf $CmdLine[0] > 4 Then
-						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
-					Else
-						Exit _OptimizeAll($CmdLine[2],Number($CmdLine[3]))
-					EndIf
-				Case "Optimize"
-					If $CmdLine[0] < 3 Then
-						ConsoleWrite("OptimizeAll Requires ProcessName.exe CoreToRunOn" & @CRLF)
-						Sleep(1000)
-						Exit 1
-					ElseIf $CmdLine[0] > 3 Then
-						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
-					Else
-						Exit _Optimize($CmdLine[2],$CmdLine[3])
-					EndIf
-				Case "ToggleHPET"
-					If $CmdLine[0] < 2 Then
-						ConsoleWrite("ToggleHPET Requires True/False" & @CRLF)
-						Sleep(1000)
-						Exit 1
-					ElseIf $CmdLine[0] > 2 Then
-						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
-					Else
-						_ToggleHPET($CmdLine[2])
-					EndIf
-				Case "StopServices"
-					If $CmdLine[0] < 2 Then
-						ConsoleWrite("StopServices Requires True/False" & @CRLF)
-						Sleep(1000)
-						Exit 1
-					ElseIf $CmdLine[0] > 2 Then
-						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
-					Else
-						_StopServices($CmdLine[2])
-					EndIf
-				Case "SetPowerPlan"
-					If $CmdLine[0] < 2 Then
-						ConsoleWrite("SetPowerPlan Requires True/False" & @CRLF)
-						Sleep(1000)
-						Exit 1
-					ElseIf $CmdLine[0] > 2 Then
-						ConsoleWrite("Too Many Parameters Passed" & @CRLF)
-					Else
-						_SetPowerPlan($CmdLine[2])
-					EndIf
-				Case Else
-					ConsoleWrite($CmdLine[1] & " is not a valid command." & @CRLF)
-					Sleep(1000)
-					Exit 1
-			EndSwitch
-	EndSwitch
 EndFunc
