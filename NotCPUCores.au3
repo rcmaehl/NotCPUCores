@@ -25,6 +25,7 @@
 #include <WindowsConstants.au3>
 #include <ListViewConstants.au3>
 
+#include ".\Includes\_WMIC.au3"
 #include ".\Includes\_ModeSelect.au3"
 #include ".\Includes\_GetEnvironment.au3"
 
@@ -162,7 +163,7 @@ Func Main()
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("OS:", 10, 45, 70, 15)
-		GUICtrlCreateLabel(_GetEnvironment(0) & " " & _GetEnvironment(1), 80, 45, 190, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetOSInfo(), 80, 45, 190, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("Language:", 10, 65, 70, 15)
 		GUICtrlCreateLabel(_GetEnvironment(2), 80, 65, 190, 20, $ES_RIGHT)
@@ -358,29 +359,6 @@ Func _ConsoleWrite($sMessage, $hOutput = False)
 	Else
 		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sMessage)
 	EndIf
-EndFunc
-
-Func _GetCPUInfo($iFlag = 0)
-    Local $sThreads = ''
-	Local $sName = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
-    If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
-
-        Local $Obj_Item
-        For $Obj_Item In $Col_Items
-            Local $sThreads = $Obj_Item.numberOfLogicalProcessors
-			Local $sName = $obj_Item.Name
-        Next
-
-		If $iFlag = 0 Then
-			Return String($sThreads)
-		ElseIf $iFlag = 1 Then
-			Return String($sName)
-		EndIf
-    Else
-        Return 0
-    EndIf
 EndFunc
 
 Func _GetChildProcesses($i_pid) ; First level children processes only
