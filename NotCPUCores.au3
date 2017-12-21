@@ -1,11 +1,10 @@
-#RequireAdmin
 #NoTrayIcon
+#RequireAdmin
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=icon.ico
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
-#AutoIt3Wrapper_Change2CUI=N
-#AutoIt3Wrapper_Res_Comment=Compiled 11/23/2017 @ 10:25 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 12/21/2017 @ 00:14 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.5.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
@@ -163,7 +162,7 @@ Func Main()
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("OS:", 10, 45, 70, 15)
-		GUICtrlCreateLabel(_GetOSInfo(), 80, 45, 190, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetEnvironment(0) & " " & _GetEnvironment(1), 80, 45, 190, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("Language:", 10, 65, 70, 15)
 		GUICtrlCreateLabel(_GetEnvironment(2), 80, 65, 190, 20, $ES_RIGHT)
@@ -175,7 +174,10 @@ Func Main()
 		GUICtrlCreateLabel(_GetCPUInfo(1), 60, 110, 210, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("RAM:", 10, 130, 70, 15)
-		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB", 80, 130, 190, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & "MHz", 80, 130, 190, 20, $ES_RIGHT)
+
+	GUICtrlCreateLabel("GPU:", 10, 150, 70, 15)
+		GUICtrlCreateLabel(_GetGPUInfo(0), 80, 150, 190, 20, $ES_RIGHT)
 
 	#EndRegion
 
