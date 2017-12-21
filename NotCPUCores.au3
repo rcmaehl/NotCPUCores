@@ -1,10 +1,11 @@
-#NoTrayIcon
 #RequireAdmin
+#NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=icon.ico
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
-#AutoIt3Wrapper_Res_Comment=Compiled 12/21/2017 @ 00:14 EST
+#AutoIt3Wrapper_Change2CUI=N
+#AutoIt3Wrapper_Res_Comment=Compiled 11/23/2017 @ 10:25 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.5.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
@@ -69,12 +70,15 @@ Optimize PC
 
 #ce
 
-Main() ; Jump to ModeSelect
+Main()
 
 Func Main()
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 	Local $sVersion = "1.5.0.0"
+
+	$hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
+		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
 
 	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
@@ -162,22 +166,25 @@ Func Main()
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("OS:", 10, 45, 70, 15)
-		GUICtrlCreateLabel(_GetEnvironment(0) & " " & _GetEnvironment(1), 80, 45, 190, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetOSInfo(0) & " " & _GetOSInfo(1), 80, 45, 190, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("Language:", 10, 65, 70, 15)
-		GUICtrlCreateLabel(_GetEnvironment(2), 80, 65, 190, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetLanguage(), 80, 65, 190, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("Hardware", 5, 90, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("CPU:", 10, 110, 50, 15)
-		GUICtrlCreateLabel(_GetCPUInfo(1), 60, 110, 210, 20, $ES_RIGHT)
+	GUICtrlCreateLabel("Motherboard:", 10, 110, 70, 15)
+		GUICtrlCreateLabel(_GetMotherboardInfo(0) & " " & _GetMotherboardInfo(1), 60, 130, 210, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("RAM:", 10, 130, 70, 15)
-		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & "MHz", 80, 130, 190, 20, $ES_RIGHT)
+	GUICtrlCreateLabel("CPU:", 10, 150, 50, 15)
+		GUICtrlCreateLabel(_GetCPUInfo(1), 60, 170, 210, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("GPU:", 10, 150, 70, 15)
-		GUICtrlCreateLabel(_GetGPUInfo(0), 80, 150, 190, 20, $ES_RIGHT)
+	GUICtrlCreateLabel("RAM:", 10, 190, 70, 15)
+		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & "MHz", 80, 210, 190, 20, $ES_RIGHT)
+
+	GUICtrlCreateLabel("GPU:", 10, 230, 70, 15)
+		GUICtrlCreateLabel(_GetGPUInfo(0), 80, 250, 190, 20, $ES_RIGHT)
 
 	#EndRegion
 
@@ -208,42 +215,28 @@ Func Main()
 	GUICtrlCreateTabItem("")
 	#EndRegion
 
-	$bCHidden = False
-	$bPHidden = False
-
-	$hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
-		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
-
+	#Region ; Process List
+	Local $bPHidden = False
 	$hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 320, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hProcesses)
 
-	$aWindows = WinList()
-		Do
-			$Delete = _ArraySearch($aWindows, "Default IME")
-			_ArrayDelete($aWindows, $Delete)
-		Until _ArraySearch($aWindows, "Default IME") = -1
-		$aWindows[0][0] = UBound($aWindows)
-		For $Loop = 1 To $aWindows[0][0] - 1
-			$aWindows[$Loop][1] = _ProcessGetName(WinGetProcess($aWindows[$Loop][1]))
-			GUICtrlCreateListViewItem($aWindows[$Loop][1] & "|" & $aWindows[$Loop][0],$hProcesses)
-		Next
-		_ArrayDelete($aWindows, 0)
-		For $i = 0 To _GUICtrlListView_GetColumnCount($hProcesses) Step 1
-			_GUICtrlListView_SetColumnWidth($hProcesses, $i, $LVSCW_AUTOSIZE_USEHEADER)
-		Next
-		_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
+	_GetProcessList($hProcesses)
 
+	GUICtrlSetState($hProcesses, $GUI_HIDE)
+	$bPHidden = True
+	#EndRegion
+
+	#Region ; Debug Console
+	Local $bCHidden = False
 	$hConsole = GUICtrlCreateEdit("Debug Console Initialized" & @CRLF, 0, 320, 640, 160, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY))
 		GUICtrlSetColor(-1, 0xFFFFFF)
 		GUICtrlSetBkColor(-1, 0x000000)
 
 	GUICtrlSetState($hConsole, $GUI_HIDE)
-	GUICtrlSetState($hProcesses, $GUI_HIDE)
-	$aPos = WinGetPos($hGUI)
-	WinMove($hGUI, "", $aPos[0], $aPos[1], 285, 345)
 	$bCHidden = True
-	$bPHidden = True
+	#EndRegion
 
+	WinMove($hGUI, "", Default, Default, 285, 345, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
 	While 1
@@ -278,22 +271,7 @@ Func Main()
 				EndIf
 
 			Case $hMsg = $hProcesses
-				_GUICtrlListView_DeleteAllItems($hProcesses)
-				$aWindows = WinList()
-				Do
-					$Delete = _ArraySearch($aWindows, "Default IME")
-					_ArrayDelete($aWindows, $Delete)
-				Until _ArraySearch($aWindows, "Default IME") = -1
-				$aWindows[0][0] = UBound($aWindows)
-				For $Loop = 1 To $aWindows[0][0] - 1
-					$aWindows[$Loop][1] = _ProcessGetName(WinGetProcess($aWindows[$Loop][1]))
-					GUICtrlCreateListViewItem($aWindows[$Loop][1] & "|" & $aWindows[$Loop][0],$hProcesses)
-				Next
-				_ArrayDelete($aWindows, 0)
-				For $i = 0 To _GUICtrlListView_GetColumnCount($hProcesses) Step 1
-					_GUICtrlListView_SetColumnWidth($hProcesses, $i, $LVSCW_AUTOSIZE_USEHEADER)
-				Next
-				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
+				_GetProcessList($hProcesses)
 
 			Case $hMsg = $hSearch
 				GUICtrlSetState($hDToggle, $GUI_DISABLE)
@@ -427,6 +405,27 @@ Func _GetChildProcesses($i_pid) ; First level children processes only
     DllCall("Kernel32.dll", "int", "CloseHandle", "long", $a_tool_help[0])
     If $i_add Then Return $a_children
     Return SetError(3, 0, 0)
+EndFunc
+
+Func _GetProcessList($hControl)
+
+	_GUICtrlListView_DeleteAllItems($hControl)
+	Local $aWindows = WinList()
+	Do
+		$Delete = _ArraySearch($aWindows, "Default IME")
+		_ArrayDelete($aWindows, $Delete)
+	Until _ArraySearch($aWindows, "Default IME") = -1
+	$aWindows[0][0] = UBound($aWindows)
+	For $Loop = 1 To $aWindows[0][0] - 1
+		$aWindows[$Loop][1] = _ProcessGetName(WinGetProcess($aWindows[$Loop][1]))
+		GUICtrlCreateListViewItem($aWindows[$Loop][1] & "|" & $aWindows[$Loop][0], $hControl)
+	Next
+	_ArrayDelete($aWindows, 0)
+	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
+		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
+	Next
+	_GUICtrlListView_SortItems($hControl, GUICtrlGetState($hControl))
+
 EndFunc
 
 Func _IsChecked($idControlID)
