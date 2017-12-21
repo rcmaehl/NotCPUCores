@@ -181,7 +181,7 @@ Func Main()
 		GUICtrlCreateLabel(_GetCPUInfo(1), 60, 170, 210, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("RAM:", 10, 190, 70, 15)
-		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & "MHz", 80, 210, 190, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & " MHz", 80, 210, 190, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("GPU:", 10, 230, 70, 15)
 		GUICtrlCreateLabel(_GetGPUInfo(0), 80, 250, 190, 20, $ES_RIGHT)
@@ -432,7 +432,7 @@ Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
 
-Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutput = False)
+Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
 
 	Select
 		Case Not ProcessExists($hProcess)
@@ -498,13 +498,13 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 	EndSelect
 EndFunc
 
-Func _OptimizeAll($hProcess,$aCores,$iSleepTime = 100,$hRealtime = False,$hOutput = False)
+Func _OptimizeAll($hProcess, $aCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
 	_StopServices("True", $hOutput)
 	_SetPowerPlan("True", $hOutput)
 	Return _Optimize($hProcess,$aCores,$iSleepTime,$hRealtime,$hOutput)
 EndFunc
 
-Func _Restore($aCores = _GetCPUInfo(0),$hOutput = False)
+Func _Restore($aCores = _GetCPUInfo(0), $hOutput = False)
 	_ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF, $hOutput)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $aCores - 1
@@ -523,7 +523,7 @@ Func _Restore($aCores = _GetCPUInfo(0),$hOutput = False)
 	_StopServices("False", $hOutput) ; Additional Clean Up
 EndFunc
 
-Func _SetPowerPlan($bState,$hOutput = False)
+Func _SetPowerPlan($bState, $hOutput = False)
 	If $bState = "True" Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE) ; Set MINIMUM power saving, aka max performance
 	ElseIf $bState = "False" Then
@@ -533,7 +533,7 @@ Func _SetPowerPlan($bState,$hOutput = False)
 	EndIf
 EndFunc
 
-Func _StopServices($bState,$hOutput = False)
+Func _StopServices($bState, $hOutput = False)
 	If $bState = "True" Then
 		_ConsoleWrite("Temporarily Pausing Game Impacting Services..." & @CRLF, $hOutput)
 		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
@@ -549,7 +549,7 @@ Func _StopServices($bState,$hOutput = False)
 	EndIf
 EndFunc
 
-Func _ToggleHPET($bState,$hOutput = False)
+Func _ToggleHPET($bState, $hOutput = False)
 	If $bState = "True" Then
 		_ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF, $hOutput)
 		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer

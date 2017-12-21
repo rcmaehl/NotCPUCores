@@ -13,6 +13,10 @@
 #include <WindowsConstants.au3>
 #include <ListViewConstants.au3>
 
+#include ".\Includes\_WMIC.au3"
+;#include ".\Includes\_ModeSelect.au3"
+#include ".\Includes\_GetEnvironment.au3"
+
 #include ".\includes\Console.au3"
 #include ".\includes\MetroGUI_UDF.au3"
 
@@ -31,43 +35,12 @@ Func _CreateButton($sText, $iLeft, $iTop, $iWidth = -1, $iHeight = -1, $iStyle =
 	Return $hCreated
 EndFunc
 
-Func _GetWindowProcessList()
-	Local $aWindows = WinList()
-	Local $iDelete = 0
-	Do
-		$iDelete = _ArraySearch($aWindows, "Default IME")
-		_ArrayDelete($aWindows, $iDelete)
-	Until _ArraySearch($aWindows, "Default IME") = -1
-	$aWindows[0][0] = UBound($aWindows)
-	For $iLoop = 1 To $aWindows[0][0] - 1
-		$aWindows[$iLoop][1] = _ProcessGetName(WinGetProcess($aWindows[$iLoop][1]))
-	Next
-	_ArrayDelete($aWindows, 0)
-EndFunc
-
 Func _ConsoleWrite($sMessage, $hOutput = False)
 	If $hOutput = False Then
 		ConsoleWrite($sMessage)
 	Else
 		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sMessage)
 	EndIf
-EndFunc
-
-Func _GetCoreCount()
-    Local $sText = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
-    If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
-
-        Local $Obj_Item
-        For $Obj_Item In $Col_Items
-            Local $sText = $Obj_Item.numberOfLogicalProcessors
-        Next
-
-        Return String($sText)
-    Else
-        Return 0
-    EndIf
 EndFunc
 
 Func _GetChildProcesses($i_pid) ; First level children processes only
@@ -136,11 +109,32 @@ Func _GetChildProcesses($i_pid) ; First level children processes only
     Return SetError(3, 0, 0)
 EndFunc
 
+Func _GetProcessList($hControl)
+
+	_GUICtrlListView_DeleteAllItems($hControl)
+	Local $aWindows = WinList()
+	Do
+		$Delete = _ArraySearch($aWindows, "Default IME")
+		_ArrayDelete($aWindows, $Delete)
+	Until _ArraySearch($aWindows, "Default IME") = -1
+	$aWindows[0][0] = UBound($aWindows)
+	For $Loop = 1 To $aWindows[0][0] - 1
+		$aWindows[$Loop][1] = _ProcessGetName(WinGetProcess($aWindows[$Loop][1]))
+		GUICtrlCreateListViewItem($aWindows[$Loop][1] & "|" & $aWindows[$Loop][0], $hControl)
+	Next
+	_ArrayDelete($aWindows, 0)
+	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
+		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
+	Next
+	_GUICtrlListView_SortItems($hControl, GUICtrlGetState($hControl))
+
+EndFunc
+
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
 
-Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutput = False)
+Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
 
 	Select
 		Case Not ProcessExists($hProcess)
@@ -151,7 +145,7 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 			Return 1
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
-			For $iLoop = 0 To _GetCoreCount() - 1
+			For $iLoop = 0 To _GetCPUInfo(0) - 1
 				$hAllCores += 2^$iLoop
 			Next
 			If StringInStr($aCores, ",") Then ; Convert Multiple Cores if Declared to Magic Number
@@ -201,18 +195,18 @@ Func _Optimize($hProcess,$aCores = 1,$iSleepTime = 100,$hRealtime = False,$hOutp
 				EndIf
 			WEnd
 			_ConsoleWrite("Done!" & @CRLF, $hOutput)
-			_Restore(_GetCoreCount(),$hOutput) ; Do Clean Up
+			_Restore(_GetCPUInfo(0),$hOutput) ; Do Clean Up
 			Return 0
 	EndSelect
 EndFunc
 
-Func _OptimizeAll($hProcess,$aCores,$iSleepTime = 100,$hRealtime = False,$hOutput = False)
+Func _OptimizeAll($hProcess, $aCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
 	_StopServices("True", $hOutput)
 	_SetPowerPlan("True", $hOutput)
 	Return _Optimize($hProcess,$aCores,$iSleepTime,$hRealtime,$hOutput)
 EndFunc
 
-Func _Restore($aCores = _GetCoreCount(),$hOutput = False)
+Func _Restore($aCores = _GetCPUInfo(0), $hOutput = False)
 	_ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF, $hOutput)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $aCores - 1
@@ -231,7 +225,7 @@ Func _Restore($aCores = _GetCoreCount(),$hOutput = False)
 	_StopServices("False", $hOutput) ; Additional Clean Up
 EndFunc
 
-Func _SetPowerPlan($bState,$hOutput = False)
+Func _SetPowerPlan($bState, $hOutput = False)
 	If $bState = "True" Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE) ; Set MINIMUM power saving, aka max performance
 	ElseIf $bState = "False" Then
@@ -241,7 +235,7 @@ Func _SetPowerPlan($bState,$hOutput = False)
 	EndIf
 EndFunc
 
-Func _StopServices($bState,$hOutput = False)
+Func _StopServices($bState, $hOutput = False)
 	If $bState = "True" Then
 		_ConsoleWrite("Temporarily Pausing Game Impacting Services..." & @CRLF, $hOutput)
 		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
@@ -257,7 +251,7 @@ Func _StopServices($bState,$hOutput = False)
 	EndIf
 EndFunc
 
-Func _ToggleHPET($bState,$hOutput = False)
+Func _ToggleHPET($bState, $hOutput = False)
 	If $bState = "True" Then
 		_ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF, $hOutput)
 		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
@@ -303,17 +297,21 @@ Func ModeSelect()
 		Case "WIN_10", "WIN_81", "WIN_8"
 			_SetTheme("DarkBlue")
 			_Metro_EnableHighDPIScaling()
-			$hGUI = _Metro_CreateGUI("NotCPUCores", 640, 140, -1, -1)
+			GUICtrlSetDefColor(0xFFFFFF)
+			$hGUI = _Metro_CreateGUI("NotCPUCores", 640, 160, -1, -1, False)
 			$aControl_Buttons = _Metro_AddControlButtons(True,False,False,False)
 			$hGUI_CLOSE_BUTTON = $aControl_Buttons[0]
+			$iHOffset = 25
 		Case Else
 			$hGUI = GUICreate("NotCPUCores", 640, 140, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 			$hGUI_CLOSE_BUTTON = $GUI_EVENT_CLOSE
+			$iHOffset = 0
 	EndSwitch
-	GUICtrlCreateGroup("What Would You Like To Do?", 0, 0, 640, 140)
-	$hOptimize = _CreateButton("Optimize A Game", 10, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
-	$hManageSet = _CreateButton("Manage Auto Optimizes", 220, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
-	$hCleanPC = _CreateButton("Optimize PC", 430, 20, 200, 110, BitXOR($BS_ICON,$BS_TOP))
+;	GUICtrlCreateGroup("What Would You Like To Do?", 5, 5 + $iHOffset, 630, 110 + $iHOffset)
+;	GUICtrlSetColor(-1, 0xFFFFFF)
+;	$hOptimize = _CreateButton("Optimize A Game", 10, 20 + $iHOffset, 200, 110, BitXOR($BS_ICON,$BS_TOP))
+;	$hManageSet = _CreateButton("Manage Auto Optimizes", 220, 20 + $iHOffset, 200, 110, BitXOR($BS_ICON,$BS_TOP))
+;	$hCleanPC = _CreateButton("Optimize PC", 430, 20 + $iHOffset, 200, 110, BitXOR($BS_ICON,$BS_TOP))
 
 	GUISetState(@SW_SHOW, $hGUI)
 
@@ -326,7 +324,7 @@ Func ModeSelect()
 			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hGUI_CLOSE_BUTTON
 				GUIDelete($hGUI)
 				Exit
-
+#cs
 			Case $hMsg = $hOptimize
 				GUIDelete($hGUI)
 				OptimizeGame()
@@ -338,7 +336,7 @@ Func ModeSelect()
 			Case $hMsg = $hCleanPC
 				GUIDelete($hGUI)
 				OptimizePC()
-
+#ce
 		EndSelect
 
 	WEnd
