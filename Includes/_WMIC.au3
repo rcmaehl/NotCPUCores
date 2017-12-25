@@ -1,9 +1,11 @@
+#include <StringConstants.au3>
+
 Func _GetCPUInfo($iFlag = 0)
     Local $sThreads = ''
 	Local $sName = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+    Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
@@ -23,18 +25,22 @@ EndFunc
 
 Func _GetGPUInfo($iFlag = 0)
     Local $sName = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+	Local $sMemory = ''
+    Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_VideoController')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_VideoController')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
             $sName = $Obj_Item.Name
+			$sMemory = $obj_Item.AdapterRAM
         Next
 
 		Switch $iFlag
 			Case 0
 				Return String($sName)
+			Case 1
+				Return String($sMemory)
 		EndSwitch
     Else
         Return 0
@@ -44,9 +50,9 @@ EndFunc
 Func _GetMotherboardInfo($iFlag = 0)
     Local $sProduct = ''
     Local $sManufacturer = ''
-	Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+	Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_BaseBoard')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_BaseBoard')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
@@ -69,9 +75,9 @@ Func _GetOSInfo($iFlag = 0)
 	Local $sArch = ''
     Local $sName = ''
 	Local $sLocale = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+    Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_OperatingSystem')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_OperatingSystem')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
@@ -95,9 +101,9 @@ EndFunc
 
 Func _GetRAMInfo($iFlag = 0)
     Local $sSpeed = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+    Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_PhysicalMemory')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_PhysicalMemory')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items

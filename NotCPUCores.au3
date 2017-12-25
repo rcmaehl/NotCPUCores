@@ -31,6 +31,9 @@
 
 Opt("GUIResizeMode", $GUI_DOCKALL)
 
+Global $bInterrupt = False
+HotKeySet("{PAUSE}", "_Interrupt")
+
 #cs
 
 To Do
@@ -77,7 +80,7 @@ Func Main()
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 	Local $sVersion = "1.5.0.0"
 
-	$hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
+	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
 
 	GUICtrlCreateTab(0, 0, 280, 320, 0)
@@ -102,7 +105,7 @@ Func Main()
 
 	GUICtrlCreateLabel("Core Count:", 10, 105, 220, 15)
 
-	Local $hCores = GUICtrlCreateInput(_GetCPUInfo(0), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
+	GUICtrlCreateInput(_GetCPUInfo(0), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
 		GUICtrlSetLimit(-1,2)
 		GUICtrlSetTip(-1, "The Total Number of Threads on your computer." & @CRLF & "This is currently Automatically Detected.", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
@@ -126,8 +129,8 @@ Func Main()
 	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 220, 260, 20, $BS_RIGHTBUTTON)
 		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & "priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	$hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
-	$hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
+	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
+	Local $hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
 	#EndRegion
 
 	#Region ; Tweaks Tab
@@ -136,8 +139,8 @@ Func Main()
 	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	$HPETEnable = GUICtrlCreateButton("Enable HPET", 5, 85, 135, 20)
-	$HPETDisable = GUICtrlCreateButton("Disable HPET", 140, 85, 135, 20)
+	Local $HPETEnable = GUICtrlCreateButton("Enable HPET", 5, 85, 135, 20)
+	Local $HPETDisable = GUICtrlCreateButton("Disable HPET", 140, 85, 135, 20)
 
 ;	GUICtrlCreateLabel("Below you can run some Windows Maintenance Tools", 5, 115, 270, 20, $SS_CENTER + $SS_SUNKEN)
 ;	GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -217,7 +220,7 @@ Func Main()
 
 	#Region ; Process List
 	Local $bPHidden = False
-	$hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 320, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 320, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hProcesses)
 
 	_GetProcessList($hProcesses)
@@ -239,7 +242,6 @@ Func Main()
 	WinMove($hGUI, "", Default, Default, 285, 345, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
-	While 1
 
 		$hMsg = GUIGetMsg()
 		Sleep(10)
@@ -311,7 +313,7 @@ Func Main()
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
-				GUICtrlSetData($hOptimize, "Running Optimizations...")
+				GUICtrlSetData($hOptimize, "Running Optimizations..., Pause/Break to Stop")
 				If _OptimizeAll(GUICtrlRead($hTask),GUICtrlRead($hCores),GUICtrlRead($hSleepTimer),_IsChecked($hRealtime),$hConsole) Then
 					_Restore(_GetCPUInfo(0), $hConsole)
 				EndIf
@@ -407,6 +409,22 @@ Func _GetChildProcesses($i_pid) ; First level children processes only
     Return SetError(3, 0, 0)
 EndFunc
 
+Func _GetHPETState()
+	DllCall("kernel32.dll", "int", "Wow64DisableWow64FsRedirection", "int", 1)
+	$hDOS = Run(@ComSpec & ' /c C:\Windows\System32\bcdedit.exe /enum Active | find "useplatformclock"', "", @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD)
+	ProcessWaitClose($hDOS)
+	$sMessage = StdoutRead($hDOS) & StderrRead($hDOS)
+	$aMessage = StringSplit($sMessage, @CRLF)
+	For $iLoop = UBound($aMessage) - 1 To 0 Step -1
+		If $aMessage[$iLoop] = "" Then
+			_ArrayDelete($aMessage, $iLoop)
+		EndIf
+	Next
+	$aMessage[0] = UBound($aMessage) - 1
+	If $aMessage[0] >= 1 Then $aMessage[1] = StringStripWS($aMessage[1], $STR_STRIPALL)
+	Return $aMessage
+EndFunc
+
 Func _GetProcessList($hControl)
 
 	_GUICtrlListView_DeleteAllItems($hControl)
@@ -428,6 +446,11 @@ Func _GetProcessList($hControl)
 
 EndFunc
 
+Func _Interrupt()
+	$bInterrupt = True
+EndFunc
+
+
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
@@ -436,10 +459,10 @@ Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $h
 
 	Select
 		Case Not ProcessExists($hProcess)
-			_ConsoleWrite($hProcess & " is not currently running. Please run the program first" & @CRLF, $hOutput)
+			_ConsoleWrite("!> " & $hProcess & " is not currently running. Please run the program first" & @CRLF, $hOutput)
 			Return 1
 		Case Not StringRegExp($aCores, "\A[1-9]+?(,[0-9]+)*\Z")
-			_ConsoleWrite($aCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
+			_ConsoleWrite("!> " & $aCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
 			Return 1
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
@@ -456,12 +479,12 @@ Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $h
 				$hCores = 2^($aCores-1)
 			EndIf
 			If $hCores > $hAllCores Then
-				_ConsoleWrite("You've specified more cores than available on your system" & @CRLF, $hOutput)
+				_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hOutput)
 				Return 1
 			EndIf
 			_ConsoleWrite("Optimzing " & $hProcess & " in the background until it closes..." & @CRLF, $hOutput)
 			$iProcessesLast = 0
-			While ProcessExists($hProcess)
+			While ProcessExists($hProcess) And $bInterrupt = False
 				Sleep($iSleepTime)
 				$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 				Sleep($iSleepTime)
@@ -492,6 +515,10 @@ Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $h
 					Sleep($iSleepTime)
 				EndIf
 			WEnd
+			If $bInterrupt = True Then
+				$bInterrupt = False
+				_ConsoleWrite("Exiting Optimizations via Interrupt...")
+			EndIf
 			_ConsoleWrite("Done!" & @CRLF, $hOutput)
 			_Restore(_GetCPUInfo(0),$hOutput) ; Do Clean Up
 			Return 0
@@ -529,7 +556,7 @@ Func _SetPowerPlan($bState, $hOutput = False)
 	ElseIf $bState = "False" Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_BALANCED', "", @SW_HIDE) ; Set BALANCED power plan
 	Else
-		_ConsoleWrite("SetPowerPlan Option " & $bState & " is not valid!" & @CRLF, $hOutput)
+		_ConsoleWrite("!> SetPowerPlan Option " & $bState & " is not valid!" & @CRLF, $hOutput)
 	EndIf
 EndFunc
 
@@ -545,7 +572,7 @@ Func _StopServices($bState, $hOutput = False)
 		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE) ; Start Printer Spooler
 		_ConsoleWrite("Done!" & @CRLF, $hOutput)
 	Else
-		_ConsoleWrite("StopServices Option " & $bState & " is not valid!" & @CRLF, $hOutput)
+		_ConsoleWrite("!> StopServices Option " & $bState & " is not valid!" & @CRLF, $hOutput)
 	EndIf
 EndFunc
 
