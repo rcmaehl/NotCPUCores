@@ -1,5 +1,5 @@
 Func _GetLanguage($iFlag = 0)
-	$sLang = "Unknown"
+	Local $sLang = "Unknown"
 	Switch @OSLang
 		Case "0436"
 			$sLang = "Afrikaans - South Africa"

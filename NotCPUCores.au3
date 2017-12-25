@@ -5,10 +5,10 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=N
-#AutoIt3Wrapper_Res_Comment=Compiled 11/23/2017 @ 10:25 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 12/25/2017 @ 8:25 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.5.0.0
-#AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using MIT License
+#AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -242,6 +242,7 @@ Func Main()
 	WinMove($hGUI, "", Default, Default, 285, 345, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
+	While 1
 
 		$hMsg = GUIGetMsg()
 		Sleep(10)
