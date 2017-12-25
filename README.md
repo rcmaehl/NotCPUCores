@@ -1,8 +1,6 @@
 # NotCPUCores
 Functionally the Same, but Free. Download under Releases
 
-**HI! Got a bug report or feature request? Create a issue using the tab above and I'll get on it when I can. Minor feature requests and bug reports will likely be added as soon as I see them. Larger requests may be delayed due to additional responsibilities at my Job. Happy Holidays - *Robert M.***
-
 ![Version 1.4.0.0](https://i.imgur.com/y54djgm.gif)
 
 ## This program does the same optimizations as the non-free CPUCores. These include:
