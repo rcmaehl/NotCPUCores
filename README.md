@@ -8,7 +8,7 @@ Functionally the Same, but Free. Download under Releases
 ## This program does the same optimizations as the non-free CPUCores. These include:
 
 * Changing the Process Priority
-* The Cores the game runs on
+* Changing the Cores the Process runs on
 * Stopping Unneeded Services while the game is running
 * Setting the Power Plan to Max.
 * Tweaking HPET (System Event Timers)
@@ -23,11 +23,11 @@ Project stages:
 
 * Stage 1: Main Pseudo code (DONE!)
 * Stage 2: Actual coding (DONE!)
-* Stage 3: Command Prompt Version Release (IMPROVED VERSION RELEASED)
+* Stage 3: Command Prompt Version Release (DONE!)
 * Stage 4: UI coding (DONE!)
-* Stage 5: UI Version Release (1.5.0.0 RELEASED!)
-* Stage 6: Feature additions, Bug Fixing (WORKING ON!)
-* Stage 7: Make the UI Look Pretty (DO TO!)
+* Stage 5: UI Version Release (DONE!)
+* Stage 6: Feature additions, Bug Fixing (LATEST RELEASE: 1.5.0.0)
+* Stage 7: Make the UI Look Pretty (PLANNED 2.0.0.0)
 
 This program is free and open source. Feel free to download and modify. Please do not put up for sale.
 
