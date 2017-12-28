@@ -18,6 +18,7 @@
 #include <Constants.au3>
 #include <GUIListView.au3>
 #include <EditConstants.au3>
+#include <ComboConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <AutoItConstants.au3>
 #include <ButtonConstants.au3>
@@ -78,7 +79,7 @@ Main()
 Func Main()
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
-	Local $sVersion = "1.5.0.0"
+	Local $sVersion = "1.6.0.0"
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
@@ -91,7 +92,7 @@ Func Main()
 	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Process Name:", 10, 50, 140, 15)
+	GUICtrlCreateLabel("Game Process:", 10, 50, 140, 15)
 
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & "Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
@@ -100,33 +101,37 @@ Func Main()
 		GUICtrlSetFont(-1, 12)
 		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	GUICtrlCreateLabel("How Many Cores Do You Have?", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Steaming Mode", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Core Count:", 10, 105, 220, 15)
+	GUICtrlCreateLabel("Broadcast Software:", 10, 105, 140, 15)
 
-	GUICtrlCreateInput(_GetCPUInfo(0), 230, 100, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
-		GUICtrlSetLimit(-1,2)
-		GUICtrlSetTip(-1, "The Total Number of Threads on your computer." & @CRLF & "This is currently Automatically Detected.", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+	Local $hBroadcaster = GUICtrlCreateCombo("", 170, 100, 100, 20, $CBS_DROPDOWNLIST)
+		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
 
-	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 130, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Allocation Mode:", 10, 130, 140, 15)
+
+	Local $hSplitMode = GUICtrlCreateCombo("", 170, 125, 100, 20, $CBS_DROPDOWNLIST)
+		GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Odd Cores|Even Cores|Last AMD CCX|Last 2 AMD CCX", "OFF")
+
+	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 150, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Core(s):", 10, 155, 190, 15)
+	GUICtrlCreateLabel("Core(s):", 10, 175, 190, 15)
 
-	Local $hCores = GUICtrlCreateInput("1", 200, 150, 70, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hCores = GUICtrlCreateInput("1", 200, 170, 70, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "To run on Multiple Cores, seperate them with commas." & @CRLF & "Example: 1,3,4", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	GUICtrlCreateLabel("Advanced", 5, 180, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Advanced", 5, 200, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 200, 220, 15)
+	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 220, 220, 15)
 
-	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 200, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
+	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 220, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
 		GUICtrlSetLimit(-1, 3,1)
 		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & "Decreasing this value can smooth FPS drops, " & @CRLF & "at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 220, 260, 20, $BS_RIGHTBUTTON)
+	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 240, 260, 20, $BS_RIGHTBUTTON)
 		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & "priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
@@ -461,7 +466,7 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	If FileExists($sPath) Then
 
 		#Region ; File Info
-		$_sLang_Version     = IniRead($sPath, "File", "Version" , $sVersion)
+;		$_sLang_Version     = IniRead($sPath, "File", "Version" , $sVersion)
 		$_sLang_Language    = IniRead($sPath, "File", "Name"    , "Default")
 		#EndRegion
 
