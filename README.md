@@ -1,5 +1,5 @@
 # NotCPUCores
-Functionally the Same, but Free. Download under Releases
+Functionally the Same, but Free. Soon to be even better than the Original ;). Download under Releases
 
 ![Version 1.4.0.0](https://i.imgur.com/y54djgm.gif)
 
