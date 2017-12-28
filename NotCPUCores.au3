@@ -295,6 +295,38 @@ Func Main()
 				EndIf
 				GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
+			Case $hMsg = $hSplitMode
+				Switch GUICtrlRead($hSplitMode)
+
+					Case "OFF"
+						$hBroadcasterCores = 0
+
+					Case "Last Core"
+						$hCores = 2^(_GetCPUInfo(0)-1)
+
+					Case "Last 2 Cores"
+
+					Case "Last 4 Cores
+
+					Case "Last Half"
+
+					Case "Odd Cores"
+
+					Case "Even Cores"
+
+					Case "Last AMD CCX"
+						; TODO: Add Look Into AMD CCX layout for non 8 core Ryzen CPUs
+
+					Case "Last 2 AMD CCX"
+						; TODO: Add Look Into AMD CCX layout for non 8 core Ryzen CPUs
+
+					Case Else
+						$hBroadcasterCores = 0
+						; TODO: Add error message
+				EndSwitch
+
+
+#cs Depreciated in favor of steaming mode
 			Case $hMsg = $hCores
 				If Not StringRegExp(GUICtrlRead($hCores), "\A[1-9]+?(,[0-9]+)*\Z") Then
 					GUICtrlSetColor($hCores, 0xFF0000)
@@ -303,6 +335,7 @@ Func Main()
 					GUICtrlSetColor($hCores, 0x000000)
 					GUICtrlSetState($hOptimize, $GUI_ENABLE)
 				EndIf
+#ce
 
 			Case $hMsg = $hReset
 				For $Loop = $hTask to $hReset Step 1
