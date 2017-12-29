@@ -101,7 +101,7 @@ Func Main()
 		GUICtrlSetFont(-1, 12)
 		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	GUICtrlCreateLabel("Steaming Mode", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Streaming Mode", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("Broadcast Software:", 10, 105, 140, 15)
@@ -112,7 +112,7 @@ Func Main()
 	GUICtrlCreateLabel("Allocation Mode:", 10, 130, 140, 15)
 
 	Local $hSplitMode = GUICtrlCreateCombo("", 170, 125, 100, 20, $CBS_DROPDOWNLIST)
-		GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Odd Cores|Even Cores|Last AMD CCX|Last 2 AMD CCX", "OFF")
+		GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Odd Cores|Even Cores|Last AMD CCX|Last 2 AMD CCX", "OFF")
 
 	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 150, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -296,32 +296,47 @@ Func Main()
 				GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
 			Case $hMsg = $hSplitMode
+				$hBroadcasterFlag = 0
+				ConsoleWrite(GUICtrlRead($hSplitMode) & @CRLF)
 				Switch GUICtrlRead($hSplitMode)
 
 					Case "OFF"
-						$hBroadcasterCores = 0
+						$hBroadcasterFlag = 0
 
 					Case "Last Core"
-						$hCores = 2^(_GetCPUInfo(0)-1)
+						$hBroadcasterFlag = 2^(_GetCPUInfo(0)-1)
+						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
 					Case "Last 2 Cores"
+						For $iLoop = (_GetCPUInfo(0)-1) To _GetCPUInfo(0)
+							$hBroadcasterFlag += 2^($iLoop-1)
+						Next
+						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
-					Case "Last 4 Cores
+					Case "Last 4 Cores"
+						For $iLoop = (_GetCPUInfo(0)-3) To _GetCPUInfo(0)
+							$hBroadcasterFlag += 2^($iLoop-1)
+						Next
+						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
 					Case "Last Half"
+						For $iLoop = (_GetCPUInfo(0) - (_GetCPUInfo(0)/2) + 1) To _GetCPUInfo(0)
+							$hBroadcasterFlag += 2^($iLoop-1)
+						Next
+						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
-					Case "Odd Cores"
+;					Case "Odd Cores"
 
-					Case "Even Cores"
+;					Case "Even Cores"
 
-					Case "Last AMD CCX"
+;					Case "Last AMD CCX"
 						; TODO: Add Look Into AMD CCX layout for non 8 core Ryzen CPUs
 
-					Case "Last 2 AMD CCX"
+;					Case "Last 2 AMD CCX"
 						; TODO: Add Look Into AMD CCX layout for non 8 core Ryzen CPUs
 
 					Case Else
-						$hBroadcasterCores = 0
+						$hBroadcasterFlag = 0
 						; TODO: Add error message
 				EndSwitch
 
