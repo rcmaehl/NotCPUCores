@@ -78,6 +78,9 @@ Main()
 
 Func Main()
 
+	; One Time Variable Setting
+	Local $iCores = _GetCPUInfo(0)
+
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 	Local $sVersion = "1.6.0.0"
 
@@ -297,7 +300,6 @@ Func Main()
 
 			Case $hMsg = $hSplitMode
 				$hBroadcasterFlag = 0
-				$iCores = _GetCPUInfo(0)
 				ConsoleWrite(GUICtrlRead($hSplitMode) & @CRLF)
 				Switch GUICtrlRead($hSplitMode)
 
@@ -554,6 +556,8 @@ EndFunc
 
 Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
 
+	Local $iCores = _GetCPUInfo(0)
+
 	Select
 		Case Not ProcessExists($hProcess)
 			_ConsoleWrite("!> " & $hProcess & " is not currently running. Please run the program first" & @CRLF, $hOutput)
@@ -563,7 +567,7 @@ Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $h
 			Return 1
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
-			For $iLoop = 0 To _GetCPUInfo(0) - 1
+			For $iLoop = 0 To $iCores - 1
 				$hAllCores += 2^$iLoop
 			Next
 			If StringInStr($aCores, ",") Then ; Convert Multiple Cores if Declared to Magic Number
@@ -617,7 +621,7 @@ Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $h
 				_ConsoleWrite("Exiting Optimizations via Interrupt...")
 			EndIf
 			_ConsoleWrite("Done!" & @CRLF, $hOutput)
-			_Restore(_GetCPUInfo(0),$hOutput) ; Do Clean Up
+			_Restore($iCores,$hOutput) ; Do Clean Up
 			Return 0
 	EndSelect
 EndFunc
