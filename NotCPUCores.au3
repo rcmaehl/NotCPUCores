@@ -7,7 +7,7 @@
 #AutoIt3Wrapper_Change2CUI=N
 #AutoIt3Wrapper_Res_Comment=Compiled 12/25/2017 @ 8:25 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.5.0.0
+#AutoIt3Wrapper_Res_Fileversion=1.6.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -307,30 +307,32 @@ Func Main()
 						$hBroadcasterFlag = 0
 
 					Case "Last Core"
-						$hBroadcasterFlag = 2^($iCores-1)
-						ConsoleWrite($hBroadcasterFlag & @CRLF)
+						$hBroadcasterFlag = 2^($iCores - 1)
 
 					Case "Last 2 Cores"
-						For $iLoop = ($iCores-1) To $iCores
-							$hBroadcasterFlag += 2^($iLoop-1)
+						For $iLoop = ($iCores - 2) To $iCores - 1
+							$hBroadcasterFlag += 2^($iLoop)
 						Next
-						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
 					Case "Last 4 Cores"
-						For $iLoop = ($iCores-3) To $iCores
-							$hBroadcasterFlag += 2^($iLoop-1)
+						For $iLoop = ($iCores-4) To $iCores - 1
+							$hBroadcasterFlag += 2^($iLoop)
 						Next
-						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
 					Case "Last Half"
-						For $iLoop = ($iCores - ($iCores/2) + 1) To $iCores
-							$hBroadcasterFlag += 2^($iLoop-1)
+						For $iLoop = Ceiling(($iCores - ($iCores/2))) To $iCores - 1
+							$hBroadcasterFlag += 2^($iLoop)
 						Next
-						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
-;					Case "Odd Cores"
-
-;					Case "Even Cores"
+					Case "Odd Cores"
+						For $iLoop = 1 To $iCores - 1 Step 2
+							$hBroadcasterFlag += 2^($iLoop)
+						Next
+=
+					Case "Even Cores"
+						For $iLoop = 0 To $iCores - 1 Step 2
+							$hBroadcasterFlag += 2^($iLoop)
+						Next
 
 ;					Case "Last AMD CCX"
 						; TODO: Add Look Into AMD CCX layout for non 8 core Ryzen CPUs
