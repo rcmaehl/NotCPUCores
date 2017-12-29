@@ -1,5 +1,5 @@
 # NotCPUCores
-Functionally the Same, but Free. Download under Releases
+Functionally the Same, but Free. Soon to be even better than the Original ;). Download under Releases
 
 ![Version 1.4.0.0](https://i.imgur.com/y54djgm.gif)
 
@@ -13,7 +13,7 @@ Functionally the Same, but Free. Download under Releases
 
 ## Is it worth using NotCPUCores/CPUCores/(Insert Other Optimizer Here)?
 
-Probably not, but you DEFINITELY should NOT be paying money for it. All these optimizers do simple tweaks that you yourself can do. You MAY see marginal returns, slightly better stability of FPS, but also more battery usage. There is SIMPLY NO REPLACEMENT for doing a hardware upgrade.
+Probably not, but you DEFINITELY should NOT be paying money for it. All these optimizers do simple tweaks that you yourself can do. You MAY see marginal returns, slightly better stability of FPS, but also more battery usage. There is SIMPLY NO REPLACEMENT for doing a hardware upgrade. **Hang on though,** there's some upcoming changes in 1.6.0.0 for those of you that stream. Stay tuned ;)
 
 ## Are you done yet?
 
