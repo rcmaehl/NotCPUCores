@@ -1,7 +1,7 @@
 # NotCPUCores
 Functionally the Same, but Free. Soon to be even better than the Original ;). Download under Releases
 
-![Version 1.4.0.0](https://i.imgur.com/y54djgm.gif)
+![Version 1.5.0.0](https://i.imgur.com/NSZQc0b.gif)
 
 ## This program does the same optimizations as the non-free CPUCores. These include:
 
