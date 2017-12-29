@@ -639,6 +639,7 @@ Func _OptimizeBroadcaster($hBroadcaster, $hBroadcasterCores, $iSleepTime = 100, 
 
 	Switch $hBroadcaster
 		Case "OBS"
+			$aProcesses[3] = ["obs.exe", "obs32.exe", "obs64.exe"]
 		Case "XSplit"
 			$aProcesses[4] = ["XGS32.exe", "XGS64.exe", "XSplit.Core.exe", "XSplit.xbcbp.exe"]
 	EndSwitch
