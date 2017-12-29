@@ -300,7 +300,6 @@ Func Main()
 
 			Case $hMsg = $hSplitMode
 				$hBroadcasterFlag = 0
-				ConsoleWrite(GUICtrlRead($hSplitMode) & @CRLF)
 				Switch GUICtrlRead($hSplitMode)
 
 					Case "OFF"
@@ -620,7 +619,7 @@ Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $h
 			WEnd
 			If $bInterrupt = True Then
 				$bInterrupt = False
-				_ConsoleWrite("Exiting Optimizations via Interrupt...")
+				_ConsoleWrite("Exiting Optimizations via Interrupt...", $hOutput)
 			EndIf
 			_ConsoleWrite("Done!" & @CRLF, $hOutput)
 			_Restore($iCores,$hOutput) ; Do Clean Up
