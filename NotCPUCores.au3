@@ -297,6 +297,7 @@ Func Main()
 
 			Case $hMsg = $hSplitMode
 				$hBroadcasterFlag = 0
+				$iCores = _GetCPUInfo(0)
 				ConsoleWrite(GUICtrlRead($hSplitMode) & @CRLF)
 				Switch GUICtrlRead($hSplitMode)
 
@@ -304,23 +305,23 @@ Func Main()
 						$hBroadcasterFlag = 0
 
 					Case "Last Core"
-						$hBroadcasterFlag = 2^(_GetCPUInfo(0)-1)
+						$hBroadcasterFlag = 2^($iCores-1)
 						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
 					Case "Last 2 Cores"
-						For $iLoop = (_GetCPUInfo(0)-1) To _GetCPUInfo(0)
+						For $iLoop = ($iCores-1) To $iCores
 							$hBroadcasterFlag += 2^($iLoop-1)
 						Next
 						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
 					Case "Last 4 Cores"
-						For $iLoop = (_GetCPUInfo(0)-3) To _GetCPUInfo(0)
+						For $iLoop = ($iCores-3) To $iCores
 							$hBroadcasterFlag += 2^($iLoop-1)
 						Next
 						ConsoleWrite($hBroadcasterFlag & @CRLF)
 
 					Case "Last Half"
-						For $iLoop = (_GetCPUInfo(0) - (_GetCPUInfo(0)/2) + 1) To _GetCPUInfo(0)
+						For $iLoop = ($iCores - ($iCores/2) + 1) To $iCores
 							$hBroadcasterFlag += 2^($iLoop-1)
 						Next
 						ConsoleWrite($hBroadcasterFlag & @CRLF)
