@@ -3,29 +3,12 @@ Functionally the Same, but Free. Soon to be even better than the Original ;). Do
 
 ![Version 1.5.0.0](https://i.imgur.com/NSZQc0b.gif)
 
-## This program does the same optimizations as the non-free CPUCores. These include:
+## What is NotCPUCores?
 
-* Changing the Process Priority
-* Changing the Cores the Process runs on
-* Stopping Unneeded Services while the game is running
-* Setting the Power Plan to Max.
-* Tweaking HPET (System Event Timers)
+What NotCPUCores is called a lot of things. A lot of them are **snake oil** terms, so let's get them out of the way first, before we get technical. "Game Booster", "FPS Booster", "System Stabilizer", "Process Tweaker", "Game Tweaker" among others. NotCPUCores uses Windows' own tools to tell it how to give CPU cores, disk usage priority, and other tasks to a game or application, compared to how it handles them by default. NotCPUCores does the same or similar tweaks compared to non-free alternatives.
 
-## Is it worth using NotCPUCores/CPUCores/(Insert Other Optimizer Here)?
+## Is it worth using NotCPUCores/CPUCores/(Insert Other Optimizer/Booster Here)?
 
-Probably not, but you DEFINITELY should NOT be paying money for it. All these optimizers do simple tweaks that you yourself can do. You MAY see marginal returns, slightly better stability of FPS, but also more battery usage. There is SIMPLY NO REPLACEMENT for doing a hardware upgrade. **Hang on though,** there's some upcoming changes in 1.6.0.0 for those of you that stream. Stay tuned ;)
-
-## Are you done yet?
-
-Project stages:
-
-* Stage 1: Main Pseudo code (DONE!)
-* Stage 2: Actual coding (DONE!)
-* Stage 3: Command Prompt Version Release (DONE!)
-* Stage 4: UI coding (DONE!)
-* Stage 5: UI Version Release (DONE!)
-* Stage 6: Feature additions, Bug Fixing (LATEST RELEASE: 1.5.0.0)
-* Stage 7: Make the UI Look Pretty (PLANNED 2.0.0.0)
+All these optimizers do simple tweaks that you yourself can do, so probably not; You DEFINITELY should NOT be forced to pay money for it. You MAY see marginal returns, slightly better stability of FPS, but also more battery usage. There is SIMPLY NO REPLACEMENT for doing a hardware upgrade. **Hang on though,** there's some upcoming changes in 1.6.0.0 for those of you that stream. Stay tuned ;)
 
 This program is free and open source. Feel free to download and modify. Please do not put up for sale.
-
