@@ -1,6 +1,6 @@
 ## How would you best describe NotCPUCores?
 
-NotCPUCores uses Windows' own tools to tell it how to allocate (give) system resources (CPU cores) to processes, compared to how it handles them by default. NotCPUCores is made to take the hassle out of manually adjusting CPU threads, priority, and other resources, and to give you more control over your PC.
+NotCPUCores uses Windows' own tools to tell it how to give CPU cores, disk usage priority, and other tasks to a game or application, compared to how it handles them by default. NotCPUCores is made to take the hassle out of manually adjusting CPU threads, priority, and other resources, and to give you more control over your PC.
 
 
 ## Certain terms were called "snake oil" in the Overview, can I still call NotCPUCores them?
@@ -12,7 +12,7 @@ I'd rather you didn't, but I'm hard pressed for terms that people in the IT fiel
 
 * Anyone that doesn't want to reinstall Windows
 * Anyone that doesn't want to do a couple hours of PC cleanup
-* Anyone such as Streamers that run multiple CPU intensive tasks at once
+* Soon, Streamers that run multiple CPU intensive tasks at once (1.6.0.0)
 
 
 ## Where does the increase in FPS, quicker loading, more stability, etc come from?
