@@ -11,4 +11,8 @@ What NotCPUCores is called a lot of things. A lot of them are **snake oil** term
 
 All these optimizers do simple tweaks that you yourself can do, so probably not; You DEFINITELY should NOT be forced to pay money for it. You MAY see marginal returns, slightly better stability of FPS, but also more battery usage. There is SIMPLY NO REPLACEMENT for doing a hardware upgrade. **Hang on though,** there's some upcoming changes in 1.6.0.0 for those of you that stream. Stay tuned ;)
 
+## How does it work? / Getting the Benefits without Installing / Etc
+
+Visit the [FAQ Page](https://github.com/rcmaehl/NotCPUCores/blob/master/FAQ.md)
+
 This program is free and open source. Feel free to download and modify. Please do not put up for sale.
