@@ -171,9 +171,22 @@ Func Main()
 	#EndRegion
 
 	#Region ; Options Tab
-#cs
+
 	GUICtrlCreateTabItem("Options")
 
+	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 35, 220, 15)
+
+	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 30, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
+		GUICtrlSetLimit(-1, 3,1)
+		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & _
+			"Decreasing this value can smooth FPS drops, " & @CRLF & _
+			"at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+
+	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 50, 260, 20, $BS_RIGHTBUTTON)
+		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & _
+			"priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+
+#cs
 	GUICtrlCreateLabel("Processes to Always Include", 5, 25, 270, 20, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
@@ -184,6 +197,7 @@ Func Main()
 
 	GUICtrlCreateListView("", 5, 190, 270, 120, $LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$ES_READONLY)
 #ce
+
 	#EndRegion
 
 	#Region ; Specs Tab
@@ -239,8 +253,9 @@ Func Main()
 		"4. Right Click, Set Affinity, Select Your Core(s)", 5, 215, 270, 100)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateTabItem("")
 	#EndRegion
+	GUICtrlCreateTabItem("")
+
 
 	#Region ; Process List
 	Local $bPHidden = False
