@@ -83,6 +83,7 @@ Func Main()
 
 	; One Time Variable Setting
 	Local $iProcesses = 0
+	Local $aProcesses[0]
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 	Local $sVersion = "1.6.0.0"
@@ -314,6 +315,21 @@ Func Main()
 				EndIf
 				GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
+			Case $hMsg = $hBroadcaster
+				Switch GUICtrlRead($hBroadcaster)
+					Case "OBS"
+						ReDim $aProcesses[3]
+						$aProcesses[0] = "obs.exe"
+						$aProcesses[1] = "obs32.exe"
+						$aProcesses[2] = "obs64.exe"
+					Case "XSplit"
+						ReDim $aProcesses[4]
+						$aProcesses[0] = "XGS32.exe"
+						$aProcesses[1] = "XGS64.exe"
+						$aProcesses[2] = "XSplit.Core.exe"
+						$aProcesses[3] = "XSplit.xbcbp.exe"
+				EndSwitch
+
 			Case $hMsg = $hSplitMode
 				$hBroadcasterFlag = 0
 				Switch GUICtrlRead($hSplitMode)
@@ -359,9 +375,7 @@ Func Main()
 						; TODO: Add error message
 				EndSwitch
 
-
-#cs Depreciated in favor of steaming mode
-			Case $hMsg = $hCores
+			Case $hMsg = $hCores ;Depreciated in favor of steaming mode
 				If Not StringRegExp(GUICtrlRead($hCores), "\A[1-9]+?(,[0-9]+)*\Z") Then
 					GUICtrlSetColor($hCores, 0xFF0000)
 					GUICtrlSetState($hOptimize, $GUI_DISABLE)
@@ -369,7 +383,6 @@ Func Main()
 					GUICtrlSetColor($hCores, 0x000000)
 					GUICtrlSetState($hOptimize, $GUI_ENABLE)
 				EndIf
-#ce
 
 			Case $hMsg = $hReset
 				For $Loop = $hTask to $hReset Step 1
@@ -563,9 +576,9 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	EndIf
 EndFunc
 
-Func _Optimize($iCycle, $hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
+Func _Optimize($iProcesses, $hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
 
-	If $iCycle > 0 Then
+	If $iProcesses > 0 Then
 		If $bInterrupt = True Then
 			$bInterrupt = False
 			_ConsoleWrite("Exiting Optimizations via Interrupt...", $hOutput)
@@ -592,7 +605,7 @@ Func _Optimize($iCycle, $hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = 
 			Sleep($iSleepTime)
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			Sleep($iSleepTime)
-			If Not (UBound($aProcesses) = $iCycle) Then
+			If Not (UBound($aProcesses) = $iProcesses) Then
 				Sleep($iSleepTime)
 				_ConsoleWrite("Process Count Changed, Rerunning Optimization...", $hOutput)
 				Sleep($iSleepTime)
@@ -605,10 +618,6 @@ Func _Optimize($iCycle, $hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = 
 						EndIf
 						$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
 						_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
-						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-					Else
-						$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
-						_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
 				Next
@@ -644,12 +653,11 @@ Func _Optimize($iCycle, $hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = 
 					Return 0
 				EndIf
 				_ConsoleWrite("Optimzing " & $hProcess & " in the background until it closes..." & @CRLF, $hOutput)
-				$iProcessesLast = 0
 				If ProcessExists($hProcess) And $bInterrupt = False Then
 					Sleep($iSleepTime)
 					$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 					Sleep($iSleepTime)
-					If Not (UBound($aProcesses) = $iProcessesLast) Then
+					If Not (UBound($aProcesses) = $iProcesses) Then
 						Sleep($iSleepTime)
 						_ConsoleWrite("Process Count Changed, Rerunning Optimization...", $hOutput)
 						Sleep($iSleepTime)
@@ -663,10 +671,6 @@ Func _Optimize($iCycle, $hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = 
 								$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
 								_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 								_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-							Else
-								$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
-								_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
-								_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 							EndIf
 						Next
 						Sleep($iSleepTime)
@@ -679,21 +683,14 @@ Func _Optimize($iCycle, $hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = 
 	Return UBound($aProcesses)
 EndFunc
 
-Func _OptimizeAll($hProcess, $aCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
+Func _OptimizeAll($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
 	_StopServices("True", $hOutput)
 	_SetPowerPlan("True", $hOutput)
 	Return _Optimize(False, $hProcess,$aCores,$iSleepTime,$hRealtime,$hOutput)
 EndFunc
 
 #cs
-Func _OptimizeBroadcaster($bCycle, $hBroadcaster, $hBroadcasterCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
-
-	Switch $hBroadcaster
-		Case "OBS"
-			Local $aProcesses[3] = ["obs.exe", "obs32.exe", "obs64.exe"]
-		Case "XSplit"
-			Local $aProcesses[4] = ["XGS32.exe", "XGS64.exe", "XSplit.Core.exe", "XSplit.xbcbp.exe"]
-	EndSwitch
+Func _OptimizeBroadcaster($bCycle, $aProcesses, $hBroadcasterCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
 
 	Select
 		Case Not ProcessExists($hProcess)
@@ -740,10 +737,6 @@ Func _OptimizeBroadcaster($bCycle, $hBroadcaster, $hBroadcasterCores, $iSleepTim
 							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
 							_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-						Else
-							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
-							_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
-							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 						EndIf
 					Next
 					Sleep($iSleepTime)
@@ -763,6 +756,27 @@ Func _OptimizeBroadcaster($bCycle, $hBroadcaster, $hBroadcasterCores, $iSleepTim
 	EndSelect
 EndFunc
 #ce
+
+Func _OptimizeOthers($iCycle, ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
+	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
+	For $iLoop = 0 To $iCores - 1
+		$hAllCores += 2^$iLoop
+	Next
+	_ConsoleWrite("Optimizing Other Processess...", $hOutput)
+	Sleep($iSleepTime)
+	$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
+	Sleep($iSleepTime)
+	For $iLoop = 0 to $aProcesses[0][0] Step 1
+		If Not _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) Then
+			$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+			_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
+			_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+		EndIf
+	Next
+	Sleep($iSleepTime)
+	_ConsoleWrite("Done!" & @CRLF, $hOutput)
+	Sleep($iSleepTime)
+EndFunc
 
 Func _Restore($aCores = _GetCPUInfo(0), $hOutput = False)
 	_ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF, $hOutput)
