@@ -138,21 +138,6 @@ Func Main()
 			"Example: 1,3,4" & @CRLF & _
 			"Maximum Cores: " & $iCores, "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	GUICtrlCreateLabel("Advanced", 5, 200, 270, 15, $SS_CENTER + $SS_SUNKEN)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 220, 220, 15)
-
-	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 220, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
-		GUICtrlSetLimit(-1, 3,1)
-		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & _
-			"Decreasing this value can smooth FPS drops, " & @CRLF & _
-			"at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
-
-	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 240, 260, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & _
-			"priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
-
 	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	Local $hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
 	#EndRegion
