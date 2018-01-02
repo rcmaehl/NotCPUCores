@@ -102,7 +102,8 @@ Func Main()
 	GUICtrlCreateLabel("Game Process:", 10, 50, 140, 15)
 
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
-		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & "Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & _
+			"Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
@@ -111,15 +112,16 @@ Func Main()
 	GUICtrlCreateLabel("Streaming Mode", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Broadcast Software:", 10, 105, 140, 15)
+	GUICtrlCreateLabel("Allocation Mode:", 10, 105, 140, 15) ; 130
 
-	Local $hBroadcaster = GUICtrlCreateCombo("", 170, 100, 100, 20, $CBS_DROPDOWNLIST)
-		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
-
-	GUICtrlCreateLabel("Allocation Mode:", 10, 130, 140, 15)
-
-	Local $hSplitMode = GUICtrlCreateCombo("", 170, 125, 100, 20, $CBS_DROPDOWNLIST)
+	Local $hSplitMode = GUICtrlCreateCombo("", 170, 100, 100, 20, $CBS_DROPDOWNLIST) ; 125
 		GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Odd Cores|Even Cores|Last AMD CCX|Last 2 AMD CCX", "OFF")
+
+	GUICtrlCreateLabel("Broadcast Software:", 10, 130, 140, 15) ; 105
+
+	Local $hBroadcaster = GUICtrlCreateCombo("", 170, 125, 100, 20, $CBS_DROPDOWNLIST) ; 100
+		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
+		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 150, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -127,7 +129,10 @@ Func Main()
 	GUICtrlCreateLabel("Core(s):", 10, 175, 190, 15)
 
 	Local $hCores = GUICtrlCreateInput("1", 200, 170, 70, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
-		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & "To run on Multiple Cores, seperate them with commas." & @CRLF & "Example: 1,3,4", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
+			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
+			"Example: 1,3,4" & @CRLF & _
+			"Maximum Cores: " & $iCores, "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	GUICtrlCreateLabel("Advanced", 5, 200, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -136,10 +141,13 @@ Func Main()
 
 	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 220, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
 		GUICtrlSetLimit(-1, 3,1)
-		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & "Decreasing this value can smooth FPS drops, " & @CRLF & "at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & _
+			"Decreasing this value can smooth FPS drops, " & @CRLF & _
+			"at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 240, 260, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & "priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & _
+			"priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	Local $hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
@@ -331,47 +339,54 @@ Func Main()
 				EndSwitch
 
 			Case $hMsg = $hSplitMode
-				$hBroadcasterFlag = 0
+				$hBroadcasterCores = 0
 				Switch GUICtrlRead($hSplitMode)
 
 					Case "OFF"
-						$hBroadcasterFlag = 0
+						$hBroadcasterCores = 0
+						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 
 					Case "Last Core"
-						$hBroadcasterFlag = 2^($iCores - 1)
+						$hBroadcasterCores = 2^($iCores - 1)
+						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last 2 Cores"
 						For $iLoop = ($iCores - 2) To $iCores - 1
-							$hBroadcasterFlag += 2^($iLoop)
+							$hBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last 4 Cores"
 						For $iLoop = ($iCores-4) To $iCores - 1
-							$hBroadcasterFlag += 2^($iLoop)
+							$hBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last Half"
 						For $iLoop = Ceiling(($iCores - ($iCores/2))) To $iCores - 1
-							$hBroadcasterFlag += 2^($iLoop)
+							$hBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Odd Cores"
 						For $iLoop = 1 To $iCores - 1 Step 2
-							$hBroadcasterFlag += 2^($iLoop)
+							$hBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
+
 					Case "Even Cores"
 						For $iLoop = 0 To $iCores - 1 Step 2
-							$hBroadcasterFlag += 2^($iLoop)
+							$hBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 ;					Case "Last AMD CCX"
 						; TODO: Add Look Into AMD CCX layout for non 8 core Ryzen CPUs
-
-;					Case "Last 2 AMD CCX"
-						; TODO: Add Look Into AMD CCX layout for non 8 core Ryzen CPUs
+						;GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case Else
-						$hBroadcasterFlag = 0
+						$hBroadcasterCores = 0
+						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						; TODO: Add error message
 				EndSwitch
 
