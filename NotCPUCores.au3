@@ -281,6 +281,7 @@ Func Main()
 					$aProcesses[0] = GUICtrlRead($hTask)
 					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,GUICtrlRead($hSleepTimer),_IsChecked($hRealtime),$hConsole)
 					If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), GUICtrlRead($hSleepTimer), $hConsole) Then $iProcesses = 1
+					If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, GUICtrlRead($hSleepTimer), _IsChecked($hRealtime), $hConsole) Then $iProcesses = 1
 				EndIf
 			EndIf
 		EndIf
@@ -439,6 +440,7 @@ Func Main()
 				$aProcesses[0] = GUICtrlRead($hTask)
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,GUICtrlRead($hSleepTimer),_IsChecked($hRealtime),$hConsole)
 				If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), GUICtrlRead($hSleepTimer), $hConsole) Then $iProcesses = 1
+				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, GUICtrlRead($hSleepTimer), _IsChecked($hRealtime), $hConsole) Then $iProcesses = 1
 
 			Case $hMsg = $HPETDisable
 				_ToggleHPET("TRUE", $hConsole)
@@ -706,73 +708,38 @@ Func _OptimizeAll($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False,
 	Return _Optimize(0,$hProcess,$aCores,$iSleepTime,$hRealtime,$hOutput)
 EndFunc
 
-#cs
-Func _OptimizeBroadcaster($bCycle, $aProcesses, $hBroadcasterCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
+Func _OptimizeBroadcaster($aProcesses, $hCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
 
 	Select
-		Case Not ProcessExists($hProcess)
-			_ConsoleWrite("!> " & $hProcess & " is not currently running. Please run the program first" & @CRLF, $hOutput)
-			Return 1
-		Case Not StringRegExp($aCores, "\A[1-9]+?(,[0-9]+)*\Z")
-			_ConsoleWrite("!> " & $aCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
+		Case Not IsInt($hCores)
+			_ConsoleWrite("!> " & $hCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
 			Return 1
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 			For $iLoop = 0 To $iCores - 1
 				$hAllCores += 2^$iLoop
 			Next
-			If StringInStr($aCores, ",") Then ; Convert Multiple Cores if Declared to Magic Number
-				$aCores = StringSplit($aCores, ",", $STR_NOCOUNT)
-				$hCores = 0
-				For $Loop = 0 To UBound($aCores) - 1 Step 1
-					$hCores += 2^($aCores[$Loop]-1)
-				Next
-			Else
-				$hCores = 2^($aCores-1)
-			EndIf
 			If $hCores > $hAllCores Then
 				_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hOutput)
 				Return 1
 			EndIf
-			_ConsoleWrite("Optimzing " & $hProcess & " in the background until it closes..." & @CRLF, $hOutput)
 			$iProcessesLast = 0
-			While ProcessExists($hProcess) And $bInterrupt = False
-				Sleep($iSleepTime)
-				$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-				Sleep($iSleepTime)
-				If Not (UBound($aProcesses) = $iProcessesLast) Then
-					Sleep($iSleepTime)
-					_ConsoleWrite("Process Count Changed, Rerunning Optimization...", $hOutput)
-					Sleep($iSleepTime)
-					For $iLoop = 0 to $aProcesses[0][0] Step 1
-						If $aProcesses[$iLoop][0] = $hProcess Then
-							If $hRealtime Then
-								ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_REALTIME)
-							Else
-								ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
-							EndIf
-							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
-							_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
-							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-						EndIf
-					Next
-					Sleep($iSleepTime)
-					$iProcessesLast = UBound($aProcesses)
-					Sleep($iSleepTime)
-					_ConsoleWrite("Done!" & @CRLF, $hOutput)
-					Sleep($iSleepTime)
+			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
+			For $iLoop = 0 to $aProcesses[0][0] Step 1
+				If _ArraySearch($aProcesses, $aProcesses[$iLoop][0]) Then
+					If $hRealtime Then
+						ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_REALTIME)
+					Else
+						ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
+					EndIf
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
+					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
+					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				EndIf
-			WEnd
-			If $bInterrupt = True Then
-				$bInterrupt = False
-				_ConsoleWrite("Exiting Optimizations via Interrupt...", $hOutput)
-			EndIf
-			_ConsoleWrite("Done!" & @CRLF, $hOutput)
-			_Restore($iCores,$hOutput) ; Do Clean Up
-			Return 0
+			Next
 	EndSelect
+	Return 0
 EndFunc
-#ce
 
 Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 	ConsoleWrite("BitOR: " & $hCores & @CRLF)
@@ -798,8 +765,8 @@ Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = 
 				EndIf
 			Next
 			Sleep($iSleepTime)
-			Return 0
 	EndSelect
+	Return 0
 EndFunc
 
 Func _Restore($aCores = _GetCPUInfo(0), $hOutput = False)
