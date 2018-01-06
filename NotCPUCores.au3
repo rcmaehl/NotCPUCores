@@ -400,6 +400,7 @@ Func Main()
 					Case Else
 						$iBroadcasterCores = 0
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
+						ReDim $aProcesses[1]
 						; TODO: Add error message
 				EndSwitch
 
@@ -453,6 +454,21 @@ Func Main()
 
 		EndSelect
 	WEnd
+EndFunc
+
+Func _CalculateCCX($bHyperthreading = True)
+
+	If $iCores > 16 Then ; Threadripper
+		$iDivisor = 4
+	ElseIf $iCores = 4 Then ; Ryzen 3
+		$bHyperthreading = False
+		$iDivisor = 2
+	Else
+		$iDivisor = 2
+	EndIf
+
+	Return (($iCores/($bHyperthreading + 1))/$iDivisor) * ($bHyperthreading + 1)
+
 EndFunc
 
 Func _ConsoleWrite($sMessage, $hOutput = False)
