@@ -393,9 +393,11 @@ Func Main()
 						Next
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-;					Case "Last AMD CCX"
-						; TODO: Add Look Into AMD CCX layout for non 8 core Ryzen CPUs
-						;GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
+					Case "Last AMD CCX"
+						For $iLoop = ($iCores - _CalculateCCX()) To $iCores - 1 Step 2
+							$iBroadcasterCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case Else
 						$iBroadcasterCores = 0
@@ -456,18 +458,15 @@ Func Main()
 	WEnd
 EndFunc
 
-Func _CalculateCCX($bHyperthreading = True)
+Func _CalculateCCX()
 
 	If $iCores > 16 Then ; Threadripper
 		$iDivisor = 4
-	ElseIf $iCores = 4 Then ; Ryzen 3
-		$bHyperthreading = False
-		$iDivisor = 2
 	Else
 		$iDivisor = 2
 	EndIf
 
-	Return (($iCores/($bHyperthreading + 1))/$iDivisor) * ($bHyperthreading + 1)
+	Return ($iCores/$iDivisor)
 
 EndFunc
 
