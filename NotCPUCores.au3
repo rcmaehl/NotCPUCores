@@ -282,7 +282,7 @@ Func Main()
 				_ConsoleWrite("Exiting Optimizations via Interrupt...", $hConsole)
 				$iProcesses = 1
 			ElseIf $iProcesses = 1 Then
-				_Restore($hAllCores, $hConsole) ; Do Clean Up
+				_Restore($iThreads, $hConsole) ; Do Clean Up
 				GUICtrlSetData($hOptimize, "OPTIMIZE")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
@@ -440,7 +440,7 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hReset, "Restoring PC...")
-				_Restore(_GetCPUInfo(1), $hConsole)
+				_Restore($iThreads, $hConsole)
 				GUICtrlSetData($hReset, "RESTORE TO DEFAULT")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
