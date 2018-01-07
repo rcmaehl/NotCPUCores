@@ -279,10 +279,10 @@ Func Main()
 		If Not $iProcesses = 0 Then
 			If $bInterrupt = True Then
 				$bInterrupt = False
-				_ConsoleWrite("Exiting Optimizations via Interrupt...", $hOutput)
+				_ConsoleWrite("Exiting Optimizations via Interrupt...", $hConsole)
 				$iProcesses = 1
 			ElseIf $iProcesses = 1 Then
-				_Restore($hAllCores,$hOutput) ; Do Clean Up
+				_Restore($hAllCores, $hConsole) ; Do Clean Up
 				GUICtrlSetData($hOptimize, "OPTIMIZE")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
