@@ -277,7 +277,12 @@ Func Main()
 
 		; Optimize first, always
 		If Not $iProcesses = 0 Then
-			If $iProcesses = 1 Then
+			If $bInterrupt = True Then
+				$bInterrupt = False
+				_ConsoleWrite("Exiting Optimizations via Interrupt...", $hOutput)
+				$iProcesses = 1
+			ElseIf $iProcesses = 1 Then
+				_Restore($hAllCores,$hOutput) ; Do Clean Up
 				GUICtrlSetData($hOptimize, "OPTIMIZE")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
@@ -656,14 +661,8 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $hRealtime = 
 	Next
 
 	If $iProcesses > 0 Then
-		If $bInterrupt = True Then
-			$bInterrupt = False
-			_ConsoleWrite("Exiting Optimizations via Interrupt...", $hOutput)
-			_Restore($hAllCores,$hOutput) ; Do Clean Up
-			Return 1
-		ElseIf Not ProcessExists($hProcess) Then
+		If Not ProcessExists($hProcess) Then
 			_ConsoleWrite($hProcess & " exited. Restoring..." & @CRLF, $hOutput)
-			_Restore($hAllCores,$hOutput) ; Do Clean Up
 			Return 1
 		ElseIf ProcessExists($hProcess) And $bInterrupt = False Then
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
