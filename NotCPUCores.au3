@@ -34,6 +34,7 @@ Opt("GUIResizeMode", $GUI_DOCKALL)
 
 Global $bInterrupt = False
 HotKeySet("{PAUSE}", "_Interrupt")
+HotKeySet("{BREAK}", "_Interrupt")
 
 #cs
 
@@ -75,7 +76,9 @@ Optimize PC
 #ce
 
 ; Set Core Count as Global to Reduce WMIC calls
+
 Global $iCores = _GetCPUInfo(0)
+Global $iThreads = _GetCPUInfo(1)
 
 Main()
 
@@ -116,14 +119,18 @@ Func Main()
 	GUICtrlCreateLabel("Streaming Mode", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Allocation Mode:", 10, 105, 140, 15) ; 130
+	GUICtrlCreateLabel("Allocation Mode:", 10, 105, 140, 15)
 
-	Local $hSplitMode = GUICtrlCreateCombo("", 170, 100, 100, 20, $CBS_DROPDOWNLIST) ; 125
-		GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Odd Cores|Even Cores|Last AMD CCX", "OFF")
+	Local $hSplitMode = GUICtrlCreateCombo("", 170, 100, 100, 20, $CBS_DROPDOWNLIST)
+		If $iCores = $iThreads Then
+			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Even Cores|Odd Cores|Last AMD CCX", "OFF")
+		Else
+			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Physical Cores|Non-Physical Cores|Every Other Pair|Last AMD CCX", "OFF")
+		EndIf
 
 	GUICtrlCreateLabel("Broadcast Software:", 10, 130, 140, 15) ; 105
 
-	Local $hBroadcaster = GUICtrlCreateCombo("", 170, 125, 100, 20, $CBS_DROPDOWNLIST) ; 100
+	Local $hBroadcaster = GUICtrlCreateCombo("", 170, 125, 100, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
@@ -136,7 +143,7 @@ Func Main()
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
 			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
 			"Example: 1,3,4" & @CRLF & _
-			"Maximum Cores: " & $iCores, "USAGE", $TIP_NOICON, $TIP_BALLOON)
+			"Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
 	Local $hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
@@ -204,7 +211,7 @@ Func Main()
 		GUICtrlCreateLabel(_GetMotherboardInfo(0) & " " & _GetMotherboardInfo(1), 60, 130, 210, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("CPU:", 10, 150, 50, 15)
-		GUICtrlCreateLabel(_GetCPUInfo(1), 60, 170, 210, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetCPUInfo(2), 60, 170, 210, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel("RAM:", 10, 190, 70, 15)
 		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & " MHz", 80, 210, 190, 20, $ES_RIGHT)
@@ -360,41 +367,48 @@ Func Main()
 						$aProcesses[0] = GUICtrlRead($hTask)
 
 					Case "Last Core"
-						$iBroadcasterCores = 2^($iCores - 1)
+						$iBroadcasterCores = 2^($iThreads - 1)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last 2 Cores"
-						For $iLoop = ($iCores - 2) To $iCores - 1
+						For $iLoop = ($iThreads - 2) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last 4 Cores"
-						For $iLoop = ($iCores-4) To $iCores - 1
+						For $iLoop = ($iThreads-4) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last Half"
-						For $iLoop = Ceiling(($iCores - ($iCores/2))) To $iCores - 1
+						For $iLoop = Ceiling(($iThreads - ($iThreads/2))) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Odd Cores"
-						For $iLoop = 1 To $iCores - 1 Step 2
+					Case "Odd Cores", "Non-Physical Cores"
+						For $iLoop = 1 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Even Cores"
-						For $iLoop = 0 To $iCores - 1 Step 2
+					Case "Even Cores", "Physical Cores"
+						For $iLoop = 0 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
+
+					Case "Every Other Pair"
+						For $iLoop = 0 To $iThreads - 1 Step 4
+							$iBroadcasterCores += 2^($iLoop)
+							$iBroadcasterCores += 2^($iLoop + 1)
 						Next
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last AMD CCX"
-						For $iLoop = ($iCores - _CalculateCCX()) To $iCores - 1 Step 2
+						For $iLoop = ($iThreads - _CalculateCCX()) To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
@@ -403,7 +417,8 @@ Func Main()
 						$iBroadcasterCores = 0
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						ReDim $aProcesses[1]
-						; TODO: Add error message
+						_ConsoleWrite("!>Not sure how you did this, but invalid Broadcaster Mode!" & @CRLF, $hConsole)
+
 				EndSwitch
 
 			Case $hMsg = $hCores ;Depreciated in favor of steaming mode
@@ -420,7 +435,7 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hReset, "Restoring PC...")
-				_Restore(_GetCPUInfo(0), $hConsole)
+				_Restore(_GetCPUInfo(1), $hConsole)
 				GUICtrlSetData($hReset, "RESTORE TO DEFAULT")
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_ENABLE)
@@ -460,13 +475,13 @@ EndFunc
 
 Func _CalculateCCX()
 
-	If $iCores > 16 Then ; Threadripper
+	If $iThreads > 16 Then ; Threadripper
 		$iDivisor = 4
 	Else
 		$iDivisor = 2
 	EndIf
 
-	Return ($iCores/$iDivisor)
+	Return ($iThreads/$iDivisor)
 
 EndFunc
 
@@ -636,7 +651,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $hRealtime = 
 	ConsoleWrite("Task: " & $hCores & @CRLF)
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
-	For $iLoop = 0 To $iCores - 1
+	For $iLoop = 0 To $iThreads - 1
 		$hAllCores += 2^$iLoop
 	Next
 
@@ -731,7 +746,7 @@ Func _OptimizeBroadcaster($aProcesses, $hCores, $iSleepTime = 100, $hRealtime = 
 			Return 1
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
-			For $iLoop = 0 To $iCores - 1
+			For $iLoop = 0 To $iThreads - 1
 				$hAllCores += 2^$iLoop
 			Next
 			If $hCores > $hAllCores Then
@@ -759,7 +774,7 @@ EndFunc
 Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 	ConsoleWrite("BitOR: " & $hCores & @CRLF)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
-	For $iLoop = 0 To $iCores - 1
+	For $iLoop = 0 To $iThreads - 1
 		$hAllCores += 2^$iLoop
 	Next
 	Select
@@ -784,7 +799,7 @@ Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = 
 	Return 0
 EndFunc
 
-Func _Restore($aCores = _GetCPUInfo(0), $hOutput = False)
+Func _Restore($aCores = _GetCPUInfo(1), $hOutput = False)
 	_ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF, $hOutput)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $aCores - 1

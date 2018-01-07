@@ -1,6 +1,7 @@
 #include <StringConstants.au3>
 
 Func _GetCPUInfo($iFlag = 0)
+	Local $sCores = ''
     Local $sThreads = ''
 	Local $sName = ''
     Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
@@ -9,15 +10,22 @@ Func _GetCPUInfo($iFlag = 0)
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
-			$sThreads = $Obj_Item.numberOfLogicalProcessors
+			$sCores = $Obj_Item.NumberOfCores
+			$sThreads = $Obj_Item.NumberOfLogicalProcessors
 			$sName = $obj_Item.Name
         Next
 
-		If $iFlag = 0 Then
-			Return String($sThreads)
-		ElseIf $iFlag = 1 Then
-			Return String($sName)
-		EndIf
+
+		Switch $iFlag
+			Case 0
+				Return String($sCores)
+			Case 1
+				Return String($sThreads)
+			Case 2
+				Return String($sName)
+			Case Else
+				Return 0
+		EndSwitch
     Else
         Return 0
     EndIf
@@ -41,6 +49,8 @@ Func _GetGPUInfo($iFlag = 0)
 				Return String($sName)
 			Case 1
 				Return String($sMemory)
+			Case Else
+				Return 0
 		EndSwitch
     Else
         Return 0
@@ -65,6 +75,8 @@ Func _GetMotherboardInfo($iFlag = 0)
 				Return String($sManufacturer)
 			Case 1
 				Return String($sProduct)
+			Case Else
+				Return 0
 		EndSwitch
     Else
         Return 0
@@ -93,6 +105,8 @@ Func _GetOSInfo($iFlag = 0)
 				Return String($sArch)
 			Case 2
 				Return String($sLocale)
+			Case Else
+				Return 0
 		EndSwitch
     Else
         Return 0
@@ -112,6 +126,8 @@ Func _GetRAMInfo($iFlag = 0)
 
 		If $iFlag = 0 Then
 			Return String($sSpeed)
+		Else
+			Return 0
 		EndIf
     Else
         Return 0
