@@ -1,21 +1,33 @@
+#include-once
+
+#include <StringConstants.au3>
+
 Func _GetCPUInfo($iFlag = 0)
+	Local $sCores = ''
     Local $sThreads = ''
 	Local $sName = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+    Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_Processor')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
-			$sThreads = $Obj_Item.numberOfLogicalProcessors
+			$sCores = $Obj_Item.NumberOfCores
+			$sThreads = $Obj_Item.NumberOfLogicalProcessors
 			$sName = $obj_Item.Name
         Next
 
-		If $iFlag = 0 Then
-			Return String($sThreads)
-		ElseIf $iFlag = 1 Then
-			Return String($sName)
-		EndIf
+
+		Switch $iFlag
+			Case 0
+				Return String($sCores)
+			Case 1
+				Return String($sThreads)
+			Case 2
+				Return String($sName)
+			Case Else
+				Return 0
+		EndSwitch
     Else
         Return 0
     EndIf
@@ -23,18 +35,24 @@ EndFunc
 
 Func _GetGPUInfo($iFlag = 0)
     Local $sName = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+	Local $sMemory = ''
+    Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_VideoController')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_VideoController')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
             $sName = $Obj_Item.Name
+			$sMemory = $obj_Item.AdapterRAM
         Next
 
 		Switch $iFlag
 			Case 0
 				Return String($sName)
+			Case 1
+				Return String($sMemory)
+			Case Else
+				Return 0
 		EndSwitch
     Else
         Return 0
@@ -44,9 +62,9 @@ EndFunc
 Func _GetMotherboardInfo($iFlag = 0)
     Local $sProduct = ''
     Local $sManufacturer = ''
-	Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+	Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_BaseBoard')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_BaseBoard')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
@@ -59,6 +77,8 @@ Func _GetMotherboardInfo($iFlag = 0)
 				Return String($sManufacturer)
 			Case 1
 				Return String($sProduct)
+			Case Else
+				Return 0
 		EndSwitch
     Else
         Return 0
@@ -69,9 +89,9 @@ Func _GetOSInfo($iFlag = 0)
 	Local $sArch = ''
     Local $sName = ''
 	Local $sLocale = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+    Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_OperatingSystem')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_OperatingSystem')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
@@ -87,6 +107,8 @@ Func _GetOSInfo($iFlag = 0)
 				Return String($sArch)
 			Case 2
 				Return String($sLocale)
+			Case Else
+				Return 0
 		EndSwitch
     Else
         Return 0
@@ -95,9 +117,9 @@ EndFunc
 
 Func _GetRAMInfo($iFlag = 0)
     Local $sSpeed = ''
-    Dim $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
+    Local $Obj_WMIService = ObjGet('winmgmts:\\' & @ComputerName & '\root\cimv2');
     If (IsObj($Obj_WMIService)) And (Not @error) Then
-        Dim $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_PhysicalMemory')
+        Local $Col_Items = $Obj_WMIService.ExecQuery('Select * from Win32_PhysicalMemory')
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
@@ -106,6 +128,8 @@ Func _GetRAMInfo($iFlag = 0)
 
 		If $iFlag = 0 Then
 			Return String($sSpeed)
+		Else
+			Return 0
 		EndIf
     Else
         Return 0

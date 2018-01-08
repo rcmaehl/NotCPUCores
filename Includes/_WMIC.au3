@@ -1,3 +1,5 @@
+#include-once
+
 #include <StringConstants.au3>
 
 Func _GetCPUInfo($iFlag = 0)

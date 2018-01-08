@@ -1,7 +1,5 @@
 #RequireAdmin
 
-#include <Array.au3>
-#include <WinAPI.au3>
 #include <Process.au3>
 #include <Constants.au3>
 #include <GUIListView.au3>
@@ -13,6 +11,7 @@
 #include <WindowsConstants.au3>
 #include <ListViewConstants.au3>
 
+#include ".\Includes\_Core.au3"
 #include ".\Includes\_WMIC.au3"
 ;#include ".\Includes\_ModeSelect.au3"
 #include ".\Includes\_GetEnvironment.au3"
@@ -33,14 +32,6 @@ Func _CreateButton($sText, $iLeft, $iTop, $iWidth = -1, $iHeight = -1, $iStyle =
 	EndSwitch
 
 	Return $hCreated
-EndFunc
-
-Func _ConsoleWrite($sMessage, $hOutput = False)
-	If $hOutput = False Then
-		ConsoleWrite($sMessage)
-	Else
-		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sMessage)
-	EndIf
 EndFunc
 
 Func _GetChildProcesses($i_pid) ; First level children processes only
@@ -133,133 +124,6 @@ EndFunc
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
-
-Func _Optimize($hProcess, $aCores = 1, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
-
-	Select
-		Case Not ProcessExists($hProcess)
-			_ConsoleWrite($hProcess & " is not currently running. Please run the program first" & @CRLF, $hOutput)
-			Return 1
-		Case Not StringRegExp($aCores, "\A[1-9]+?(,[0-9]+)*\Z")
-			_ConsoleWrite($aCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
-			Return 1
-		Case Else
-			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
-			For $iLoop = 0 To _GetCPUInfo(0) - 1
-				$hAllCores += 2^$iLoop
-			Next
-			If StringInStr($aCores, ",") Then ; Convert Multiple Cores if Declared to Magic Number
-				$aCores = StringSplit($aCores, ",", $STR_NOCOUNT)
-				$hCores = 0
-				For $Loop = 0 To UBound($aCores) - 1 Step 1
-					$hCores += 2^($aCores[$Loop]-1)
-				Next
-			Else
-				$hCores = 2^($aCores-1)
-			EndIf
-			If $hCores > $hAllCores Then
-				_ConsoleWrite("You've specified more cores than available on your system" & @CRLF, $hOutput)
-				Return 1
-			EndIf
-			_ConsoleWrite("Optimzing " & $hProcess & " in the background until it closes..." & @CRLF, $hOutput)
-			$iProcessesLast = 0
-			While ProcessExists($hProcess)
-				Sleep($iSleepTime)
-				$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-				Sleep($iSleepTime)
-				If Not (UBound($aProcesses) = $iProcessesLast) Then
-					Sleep($iSleepTime)
-					_ConsoleWrite("Process Count Changed, Rerunning Optimization...", $hOutput)
-					Sleep($iSleepTime)
-					For $iLoop = 0 to $aProcesses[0][0] Step 1
-						If $aProcesses[$iLoop][0] = $hProcess Then
-							If $hRealtime Then
-								ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_REALTIME)
-							Else
-								ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
-							EndIf
-							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
-							_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
-							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-						Else
-							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
-							_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores-$hCores) ; Set Affinity (which cores it's assigned to)
-							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-						EndIf
-					Next
-					Sleep($iSleepTime)
-					$iProcessesLast = UBound($aProcesses)
-					Sleep($iSleepTime)
-					_ConsoleWrite("Done!" & @CRLF, $hOutput)
-					Sleep($iSleepTime)
-				EndIf
-			WEnd
-			_ConsoleWrite("Done!" & @CRLF, $hOutput)
-			_Restore(_GetCPUInfo(0),$hOutput) ; Do Clean Up
-			Return 0
-	EndSelect
-EndFunc
-
-Func _OptimizeAll($hProcess, $aCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
-	_StopServices("True", $hOutput)
-	_SetPowerPlan("True", $hOutput)
-	Return _Optimize($hProcess,$aCores,$iSleepTime,$hRealtime,$hOutput)
-EndFunc
-
-Func _Restore($aCores = _GetCPUInfo(0), $hOutput = False)
-	_ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF, $hOutput)
-	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
-	For $iLoop = 0 To $aCores - 1
-		$hAllCores += 2^$iLoop
-	Next
-
-	_ConsoleWrite("Restoring Priority and Affinity of all Other Processes...", $hOutput)
-	$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority back to normal
-	For $iLoop = 0 to $aProcesses[0][0] Step 1
-		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
-		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
-		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
-	Next
-	_ConsoleWrite("Done!" & @CRLF, $hOutput)
-
-	_StopServices("False", $hOutput) ; Additional Clean Up
-EndFunc
-
-Func _SetPowerPlan($bState, $hOutput = False)
-	If $bState = "True" Then
-		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE) ; Set MINIMUM power saving, aka max performance
-	ElseIf $bState = "False" Then
-		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_BALANCED', "", @SW_HIDE) ; Set BALANCED power plan
-	Else
-		_ConsoleWrite("SetPowerPlan Option " & $bState & " is not valid!" & @CRLF, $hOutput)
-	EndIf
-EndFunc
-
-Func _StopServices($bState, $hOutput = False)
-	If $bState = "True" Then
-		_ConsoleWrite("Temporarily Pausing Game Impacting Services..." & @CRLF, $hOutput)
-		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
-		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE) ; Stop Printer Spooler
-		_ConsoleWrite("Done!" & @CRLF, $hOutput)
-	ElseIf $bState = "False" Then
-		_ConsoleWrite("Restarting Any Stopped Services..." & @CRLF, $hOutput)
-		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE) ; Start Windows Update
-		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE) ; Start Printer Spooler
-		_ConsoleWrite("Done!" & @CRLF, $hOutput)
-	Else
-		_ConsoleWrite("StopServices Option " & $bState & " is not valid!" & @CRLF, $hOutput)
-	EndIf
-EndFunc
-
-Func _ToggleHPET($bState, $hOutput = False)
-	If $bState = "True" Then
-		_ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF, $hOutput)
-		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
-	ElseIf $bState = "False" Then
-		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
-		_ConsoleWrite("You've changed the state of the HPET, you'll need to restart your computer for this tweak to apply" & @CRLF, $hOutput)
-	EndIf
-EndFunc
 
 Func Manage()
 	Switch @OSVersion
