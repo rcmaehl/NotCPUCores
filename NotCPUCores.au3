@@ -84,20 +84,23 @@ Main()
 Func Main()
 
 	; One Time Variable Setting
-	Local $iProcesses = 0
-	Local $aProcesses[1]
-
 	Local $aCores
+	Local $sVersion = "1.6.0.0"
+	Local $aProcesses[1]
+	Local $iProcesses = 0
 	Local $iProcessCores = 0
 	Local $iBroadcasterCores = 0
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
-	Local $sVersion = "1.6.0.0"
+
+	Local $hMenu1 = GUICtrlCreateMenu("File")
+	Local $hMenu2 = GUICtrlCreateMenu("Options")
+	Local $hRealtime = GUICtrlCreateMenuItem("Use Realtime Priority", $hMenu2)
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
 
-	GUICtrlCreateTab(0, 0, 280, 320, 0)
+	GUICtrlCreateTab(0, 0, 280, 300, 0)
 
 	#Region ; Optimize Tab
 	GUICtrlCreateTabItem("Optimize")
@@ -144,8 +147,8 @@ Func Main()
 			"Example: 1,3,4" & @CRLF & _
 			"Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 270, 20)
-	Local $hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 295, 270, 20)
+	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 255, 270, 20)
+	Local $hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 5, 275, 270, 20)
 	#EndRegion
 
 	#Region ; Tweaks Tab
@@ -173,9 +176,9 @@ Func Main()
 			"Decreasing this value can smooth FPS drops, " & @CRLF & _
 			"at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 50, 260, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & _
-			"priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+;	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 50, 260, 20, $BS_RIGHTBUTTON)
+;		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & _
+;			"priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 #cs
 	GUICtrlCreateLabel("Processes to Always Include", 5, 25, 270, 20, $SS_CENTER + $SS_SUNKEN)
@@ -250,7 +253,7 @@ Func Main()
 
 	#Region ; Process List
 	Local $bPHidden = False
-	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 320, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 300, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hProcesses)
 
 	_GetProcessList($hProcesses)
@@ -261,7 +264,7 @@ Func Main()
 
 	#Region ; Debug Console
 	Local $bCHidden = False
-	$hConsole = GUICtrlCreateEdit("Debug Console Initialized" & @CRLF, 0, 320, 640, 160, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY))
+	$hConsole = GUICtrlCreateEdit("Debug Console Initialized" & @CRLF, 0, 300, 640, 160, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY))
 		GUICtrlSetColor(-1, 0xFFFFFF)
 		GUICtrlSetBkColor(-1, 0x000000)
 
@@ -313,8 +316,8 @@ Func Main()
 					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 480)
-					GUICtrlSetPos($hConsole, 0, 320, 635, 135)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 320)
+					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
+					GUICtrlSetPos($hProcesses, 280, 0, 355, 300)
 					$bCHidden = False
 					$bPHidden = False
 				Else
@@ -326,6 +329,13 @@ Func Main()
 					$bPHidden = True
 				EndIf
 
+			Case $hMsg = $hRealtime
+				If _IsChecked($hRealtime) Then
+					GUICtrlSetState($hRealtime, $GUI_UNCHECKED)
+				Else
+					GUICtrlSetState($hRealtime, $GUI_CHECKED)
+				EndIf
+
 			Case $hMsg = $hProcesses
 				_GetProcessList($hProcesses)
 
@@ -335,7 +345,7 @@ Func Main()
 					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 640)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 320)
+					GUICtrlSetPos($hProcesses, 280, 0, 355, 300)
 					$bPHidden = False
 				Else
 					$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
@@ -426,7 +436,7 @@ Func Main()
 				EndSwitch
 
 			Case $hMsg = $hCores ;Depreciated in favor of steaming mode
-				If Not StringRegExp(GUICtrlRead($hCores), "\A[1-9]+?(,[0-9]+)*\Z") Then
+				If Not StringRegExp(GUICtrlRead($hCores), "\A[1-9]+[0-9]*(\-[1-9]+[0-9]*)?,*\Z") Then ;\A[0-9]+?(,[0-9]+)*\Z
 					GUICtrlSetColor($hCores, 0xFF0000)
 					GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				Else
@@ -453,8 +463,21 @@ Func Main()
 				If StringInStr(GUICtrlRead($hCores), ",") Then ; Convert Multiple Cores if Declared to Magic Number
 					$aCores = StringSplit(GUICtrlRead($hCores), ",", $STR_NOCOUNT)
 					$iProcessCores = 0
-					For $Loop = 0 To UBound($aCores) - 1 Step 1
-						$iProcessCores += 2^($aCores[$Loop]-1)
+					For $iLoop1 = 0 To UBound($aCores) - 1 Step 1
+						If StringInStr($aCores[$iLoop], "-") Then
+							$aRange = StringSplit($aCores[$iLoop1], "-", $STR_NOCOUNT)
+							If Not $aRange[0] < $aRange[1] Then
+								For $iLoop2 = $aRange[1] To $aRange[0]
+									$iProcessCores += 2^($iLoop2-1)
+								Next
+							Else
+								For $iLoop2 = $aRange[0] To $aRange[1]
+									$iProcessCores += 2^($iLoop2-1)
+								Next
+							EndIf
+						Else
+							$iProcessCores += 2^($aCores[$iLoop1]-1)
+						EndIf
 					Next
 				Else
 					$iProcessCores = 2^(GUICtrlRead($hCores)-1)
@@ -603,6 +626,8 @@ Func _LoadLanguage($iLanguage = @OSLang)
 		$_sLang_DebugTip        = IniRead($sPath, "GUI", "DebugTip"     , "Toggle Debug Mode"           )
 		$_sLang_ProcessList     = IniRead($sPath, "GUI", "ProcessList"  , "Window Process"              )
 		$_sLang_ProcessTitle    = IniRead($sPath, "GUI", "ProcessTitle" , "Window Title"                )
+		$_sLang_FileMenu        = IniRead($sPath, "GUI", "FileMenu"     , "File"                        )
+		$_sLang_OptionsMenu     = IniRead($sPath, "GUI", "OptionsMenu"  , "Options"                     )
 		#EndRegion
 
 		#Region ; Console Output
