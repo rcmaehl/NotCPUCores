@@ -352,6 +352,10 @@ Func Main()
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
 				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
+				GUICtrlSetData($hTask       , String(IniRead($hFile, "General"  , "Process" ,    "")))
+				GUICtrlSetData($hCores      , String(IniRead($hFile, "General"  , "Threads" ,   "1")))
+				GUICtrlSetData($hSplitMode  , String(IniRead($hFile, "Streaming", "SplitAs" , "OFF")))
+				GUICtrlSetData($hBroadcaster, String(IniRead($hFile, "Streaming", "Software", "OBS")))
 
 			Case $hMsg = $hSave
 				If GUICtrlRead($hTask) = "" Then
@@ -360,6 +364,10 @@ Func Main()
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
 				$hFile = FileSaveDialog("Save Current Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
+				IniWrite($hFile, "General"  , "Process" , GUICtrlRead($hTask       ))
+				IniWrite($hFile, "General"  , "Threads" , GUICtrlRead($hCores      ))
+				IniWrite($hFile, "Streaming", "SplitAs" , GUICtrlRead($hSplitMode  ))
+				IniWrite($hFile, "Streaming", "Software", GUICtrlRead($hBroadcaster))
 
 			Case $hMsg = $hProcesses
 				_GetProcessList($hProcesses)
@@ -461,7 +469,10 @@ Func Main()
 				EndSwitch
 
 			Case $hMsg = $hCores ;Depreciated in favor of steaming mode
-				If Not StringRegExp(GUICtrlRead($hCores), "\A[1-9]+[0-9]*(\-[1-9]+[0-9]*)?,*\Z") Then ;\A[0-9]+?(,[0-9]+)*\Z
+				If Not StringRegExp(GUICtrlRead($hCores), "^([1-9]+\d*(-[1-9]+\d*)?,?)+$") Then ;\A[0-9]+?(,[0-9]+)*\Z
+					GUICtrlSetColor($hCores, 0xFF0000)
+					GUICtrlSetState($hOptimize, $GUI_DISABLE)
+				ElseIf StringRight(GUICtrlRead($hCores), 1) = "," Then
 					GUICtrlSetColor($hCores, 0xFF0000)
 					GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				Else
