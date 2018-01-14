@@ -16,6 +16,7 @@
 #include <Constants.au3>
 #include <GUIListView.au3>
 #include <EditConstants.au3>
+#include <FileConstants.au3>
 #include <ComboConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <AutoItConstants.au3>
@@ -93,9 +94,18 @@ Func Main()
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 
+	#Region ; File Menu
 	Local $hMenu1 = GUICtrlCreateMenu("File")
+	Local $hLoad = GUICtrlCreateMenuItem("Load Profile", $hMenu1)
+	Local $hSave = GUICtrlCreateMenuItem("Save Profile", $hMenu1)
+	GUICtrlCreateMenuItem("", $hMenu1)
+	Local $hQuit = GUICtrlCreateMenuItem("Quit"        , $hMenu1)
+	#EndRegion
+
+	#Region ; Options Menu
 	Local $hMenu2 = GUICtrlCreateMenu("Options")
 	Local $hRealtime = GUICtrlCreateMenuItem("Use Realtime Priority", $hMenu2)
+	#EndRegion
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
@@ -250,7 +260,6 @@ Func Main()
 	#EndRegion
 	GUICtrlCreateTabItem("")
 
-
 	#Region ; Process List
 	Local $bPHidden = False
 	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 300, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
@@ -305,7 +314,7 @@ Func Main()
 
 		Select
 
-			Case $hMsg = $GUI_EVENT_CLOSE
+			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hQuit
 				_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
 				GUIDelete($hGUI)
 				Exit
@@ -335,6 +344,22 @@ Func Main()
 				Else
 					GUICtrlSetState($hRealtime, $GUI_CHECKED)
 				EndIf
+
+			Case $hMsg = $hLoad
+				If GUICtrlRead($hTask) = "" Then
+					$sFile = "profile.ncc"
+				Else
+					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
+				EndIf
+				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
+
+			Case $hMsg = $hSave
+				If GUICtrlRead($hTask) = "" Then
+					$sFile = "profile.ncc"
+				Else
+					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
+				EndIf
+				$hFile = FileSaveDialog("Save Current Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
 
 			Case $hMsg = $hProcesses
 				_GetProcessList($hProcesses)
