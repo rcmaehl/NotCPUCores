@@ -469,7 +469,7 @@ Func Main()
 				EndSwitch
 
 			Case $hMsg = $hCores ;Depreciated in favor of steaming mode
-				If Not StringRegExp(GUICtrlRead($hCores), "^([1-9]+\d*(-[1-9]+\d*)?,?)+$") Then ;\A[0-9]+?(,[0-9]+)*\Z
+				If Not StringRegExp(GUICtrlRead($hCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then ;\A[0-9]+?(,[0-9]+)*\Z
 					GUICtrlSetColor($hCores, 0xFF0000)
 					GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				ElseIf StringRight(GUICtrlRead($hCores), 1) = "," Then
