@@ -15,7 +15,6 @@
 #include <Process.au3>
 #include <Constants.au3>
 #include <GUIListView.au3>
-#include <TabConstants.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
 #include <ComboConstants.au3>
@@ -94,7 +93,7 @@ Func Main()
 	Local $iProcessCores = 0
 	Local $iBroadcasterCores = 0
 
-	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+	Local $hGUI = GUICreate("NotCPUCores", 640, 500, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 
 	#Region ; File Menu
 	Local $hMenu1 = GUICtrlCreateMenu("File")
@@ -117,54 +116,60 @@ Func Main()
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
 
-	GUICtrlCreateTab(0, 0, 280, 300, BitXOR($TCS_MULTILINE, $TCS_VERTICAL))
+	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
+	#Region ; Optimize Tab
 	GUICtrlCreateTabItem("Optimize")
 
-	GUICtrlCreateLabel("Type/Select the Process Name", 25, 5, 250, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Game Process:", 30, 30, 140, 15)
+	GUICtrlCreateLabel("Game Process:", 10, 50, 140, 15)
 
-	Local $hTask = GUICtrlCreateInput("", 150, 25, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hTask = GUICtrlCreateInput("", 170, 45, 80, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & _
 			"Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 25, 20, 20)
+	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
 		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	GUICtrlCreateLabel("Streaming Mode", 25, 60, 250, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Streaming Mode", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Allocation Mode:", 30, 85, 140, 15)
+	GUICtrlCreateLabel("Allocation Mode:", 10, 105, 140, 15)
 
-	Local $hSplitMode = GUICtrlCreateCombo("", 170, 80, 100, 20, $CBS_DROPDOWNLIST)
+	Local $hSplitMode = GUICtrlCreateCombo("", 170, 100, 100, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
 			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Even Cores|Odd Cores|Last AMD CCX", "OFF")
 		Else
 			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Physical Cores|Non-Physical Cores|Every Other Pair|Last AMD CCX", "OFF")
 		EndIf
 
-	GUICtrlCreateLabel("Broadcast Software:", 30, 110, 140, 15) ; 105
+	GUICtrlCreateLabel("Broadcast Software:", 10, 130, 140, 15) ; 105
 
-	Local $hBroadcaster = GUICtrlCreateCombo("", 170, 105, 100, 20, $CBS_DROPDOWNLIST)
+	Local $hBroadcaster = GUICtrlCreateCombo("", 170, 125, 100, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 25, 130, 250, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 150, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Core(s):", 30, 155, 190, 15)
+	GUICtrlCreateLabel("Core(s):", 10, 175, 190, 15)
 
-	Local $hCores = GUICtrlCreateInput("1", 180, 150, 90, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hCores = GUICtrlCreateInput("1", 170, 170, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
 			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
 			"Example: 1,3,4" & @CRLF & _
 			"Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 25, 235, 250, 20)
-	Local $hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 25, 255, 250, 20)
+	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 295, 135, 20)
+	Local $hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 140, 295, 135, 20)
+	#EndRegion
+
+	#Region ; Stream Tab
+	GUICtrlCreateTabItem("Stream")
+
 	#EndRegion
 
 	#Region ; Tweaks Tab
@@ -179,7 +184,7 @@ Func Main()
 ;	GUICtrlCreateLabel("Below you can run some Windows Maintenance Tools", 5, 115, 270, 20, $SS_CENTER + $SS_SUNKEN)
 ;	GUICtrlSetBkColor(-1, 0xF0F0F0)
 	#EndRegion
-
+#cs
 	#Region ; Options Tab
 
 	GUICtrlCreateTabItem("Options")
@@ -192,9 +197,9 @@ Func Main()
 			"Decreasing this value can smooth FPS drops, " & @CRLF & _
 			"at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-;	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 50, 260, 20, $BS_RIGHTBUTTON)
-;		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & _
-;			"priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 50, 260, 20, $BS_RIGHTBUTTON)
+		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & _
+			"priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 #cs
 	GUICtrlCreateLabel("Processes to Always Include", 5, 25, 270, 20, $SS_CENTER + $SS_SUNKEN)
@@ -204,7 +209,7 @@ Func Main()
 
 	GUICtrlCreateLabel("Processes to Always Exclude", 5, 170, 270, 20, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
+#ce
 	GUICtrlCreateListView("", 5, 190, 270, 120, $LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$ES_READONLY)
 #ce
 
@@ -287,7 +292,7 @@ Func Main()
 	$bCHidden = True
 	#EndRegion
 
-	WinMove($hGUI, "", Default, Default, 285, 345, 1)
+	WinMove($hGUI, "", Default, Default, 285, 365, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
 	While 1
@@ -308,9 +313,9 @@ Func Main()
 			Else
 				If Not (UBound(ProcessList()) = $iProcesses) Then
 					$aProcesses[0] = GUICtrlRead($hTask)
-					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,GUICtrlRead($hSleepTimer),_IsChecked($hRealtime),$hConsole)
-					If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), GUICtrlRead($hSleepTimer), $hConsole) Then $iProcesses = 1
-					If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, GUICtrlRead($hSleepTimer), _IsChecked($hRealtime), $hConsole) Then $iProcesses = 1
+					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,_IsChecked($hRealtime),$hConsole)
+					If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), $iSleep, $hConsole) Then $iProcesses = 1
+					If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, _IsChecked($hRealtime), $hConsole) Then $iProcesses = 1
 				EndIf
 			EndIf
 		EndIf
@@ -330,16 +335,16 @@ Func Main()
 					GUICtrlSetState($hConsole, $GUI_SHOW)
 					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
-					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 480)
-					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 300)
+					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 500)
+					GUICtrlSetPos($hConsole, 0, 320, 635, 135)
+					GUICtrlSetPos($hProcesses, 280, 0, 355, 320)
 					$bCHidden = False
 					$bPHidden = False
 				Else
 					GUICtrlSetState($hConsole, $GUI_HIDE)
 					GUICtrlSetState($hProcesses, $GUI_HIDE)
 					$aPos = WinGetPos($hGUI)
-					WinMove($hGUI, "", $aPos[0], $aPos[1], 285, 345)
+					WinMove($hGUI, "", $aPos[0], $aPos[1], 285, 365)
 					$bCHidden = True
 					$bPHidden = True
 				EndIf
@@ -528,9 +533,9 @@ Func Main()
 					$iProcessCores = 2^(GUICtrlRead($hCores)-1)
 				EndIf
 				$aProcesses[0] = GUICtrlRead($hTask)
-				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,GUICtrlRead($hSleepTimer),_IsChecked($hRealtime),$hConsole)
-				If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), GUICtrlRead($hSleepTimer), $hConsole) Then $iProcesses = 1
-				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, GUICtrlRead($hSleepTimer), _IsChecked($hRealtime), $hConsole) Then $iProcesses = 1
+				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,_IsChecked($hRealtime),$hConsole)
+				If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), $iSleep, $hConsole) Then $iProcesses = 1
+				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, _IsChecked($hRealtime), $hConsole) Then $iProcesses = 1
 
 			Case $hMsg = $HPETDisable
 				_ToggleHPET("TRUE", $hConsole)
