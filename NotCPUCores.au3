@@ -86,13 +86,14 @@ Func Main()
 
 	; One Time Variable Setting
 	Local $aCores
+	Local $iSleep = 100
 	Local $sVersion = "1.6.0.0"
 	Local $aProcesses[1]
 	Local $iProcesses = 0
 	Local $iProcessCores = 0
 	Local $iBroadcasterCores = 0
 
-	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+	Local $hGUI = GUICreate("NotCPUCores", 640, 500, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 
 	#Region ; File Menu
 	Local $hMenu1 = GUICtrlCreateMenu("File")
@@ -103,14 +104,19 @@ Func Main()
 	#EndRegion
 
 	#Region ; Options Menu
-	Local $hMenu2 = GUICtrlCreateMenu("Options")
+	Local $hMenu2 = GUICtrlCreateMenu("Options"    )
+	Local $hTimer = GUICtrlCreateMenu("Sleep Timer", $hMenu2)
+	Local $hGetTimer = GUICtrlCreateMenuItem("Current Timer: " & $iSleep & "ms", $hTimer)
+	GUICtrlSetState($hGetTimer, $GUI_DISABLE)
+	GUICtrlCreateMenuItem("", $hTimer)
+	Local $hSetTimer = GUICtrlCreateMenuItem("Set Sleep Timer", $hTimer)
 	Local $hRealtime = GUICtrlCreateMenuItem("Use Realtime Priority", $hMenu2)
 	#EndRegion
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
 
-	GUICtrlCreateTab(0, 0, 280, 300, 0)
+	GUICtrlCreateTab(0, 0, 280, 320, 0)
 
 	#Region ; Optimize Tab
 	GUICtrlCreateTabItem("Optimize")
@@ -281,7 +287,7 @@ Func Main()
 	$bCHidden = True
 	#EndRegion
 
-	WinMove($hGUI, "", Default, Default, 285, 345, 1)
+	WinMove($hGUI, "", Default, Default, 285, 365, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
 	While 1
@@ -324,16 +330,16 @@ Func Main()
 					GUICtrlSetState($hConsole, $GUI_SHOW)
 					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
-					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 480)
-					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 300)
+					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 500)
+					GUICtrlSetPos($hConsole, 0, 320, 635, 135)
+					GUICtrlSetPos($hProcesses, 280, 0, 355, 320)
 					$bCHidden = False
 					$bPHidden = False
 				Else
 					GUICtrlSetState($hConsole, $GUI_HIDE)
 					GUICtrlSetState($hProcesses, $GUI_HIDE)
 					$aPos = WinGetPos($hGUI)
-					WinMove($hGUI, "", $aPos[0], $aPos[1], 285, 345)
+					WinMove($hGUI, "", $aPos[0], $aPos[1], 285, 365)
 					$bCHidden = True
 					$bPHidden = True
 				EndIf
@@ -344,6 +350,9 @@ Func Main()
 				Else
 					GUICtrlSetState($hRealtime, $GUI_CHECKED)
 				EndIf
+
+			;Case $hMsg = $hSetTimer
+				;InputBox("Set Sleep Timer", "
 
 			Case $hMsg = $hLoad
 				If GUICtrlRead($hTask) = "" Then
