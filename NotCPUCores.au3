@@ -184,9 +184,9 @@ Func Main()
 ;	GUICtrlCreateLabel("Below you can run some Windows Maintenance Tools", 5, 115, 270, 20, $SS_CENTER + $SS_SUNKEN)
 ;	GUICtrlSetBkColor(-1, 0xF0F0F0)
 	#EndRegion
-#cs
-	#Region ; Options Tab
 
+	#Region ; Options Tab
+#cs
 	GUICtrlCreateTabItem("Options")
 
 	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 35, 220, 15)
@@ -209,10 +209,10 @@ Func Main()
 
 	GUICtrlCreateLabel("Processes to Always Exclude", 5, 170, 270, 20, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
-#ce
+
 	GUICtrlCreateListView("", 5, 190, 270, 120, $LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$ES_READONLY)
 #ce
-
+#ce
 	#EndRegion
 
 	#Region ; Specs Tab
