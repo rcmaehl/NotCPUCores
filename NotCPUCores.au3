@@ -93,7 +93,7 @@ Func Main()
 	Local $iProcessCores = 0
 	Local $iBroadcasterCores = 0
 
-	Local $hGUI = GUICreate("NotCPUCores", 640, 500, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 
 	#Region ; File Menu
 	Local $hMenu1 = GUICtrlCreateMenu("File")
@@ -116,7 +116,7 @@ Func Main()
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
 
-	GUICtrlCreateTab(0, 0, 280, 320, 0)
+	GUICtrlCreateTab(0, 0, 280, 300, 0)
 
 	#Region ; Optimize Tab
 	GUICtrlCreateTabItem("Optimize")
@@ -133,6 +133,24 @@ Func Main()
 	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
 		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+
+	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 150, 270, 15, $SS_CENTER + $SS_SUNKEN)
+		GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	GUICtrlCreateLabel("Core(s):", 10, 175, 190, 15)
+
+	Local $hCores = GUICtrlCreateInput("1", 170, 170, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
+			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
+			"Example: 1,3,4" & @CRLF & _
+			"Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON, $TIP_BALLOON)
+
+	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 135, 20)
+	Local $hReset = GUICtrlCreateButton("RESTORE", 140, 275, 135, 20)
+	#EndRegion
+
+	#Region ; Stream Tab
+	GUICtrlCreateTabItem("Stream")
 
 	GUICtrlCreateLabel("Streaming Mode", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -151,24 +169,6 @@ Func Main()
 	Local $hBroadcaster = GUICtrlCreateCombo("", 170, 125, 100, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
 		GUICtrlSetState(-1, $GUI_DISABLE)
-
-	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 150, 270, 15, $SS_CENTER + $SS_SUNKEN)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateLabel("Core(s):", 10, 175, 190, 15)
-
-	Local $hCores = GUICtrlCreateInput("1", 170, 170, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
-		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
-			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
-			"Example: 1,3,4" & @CRLF & _
-			"Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON, $TIP_BALLOON)
-
-	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 295, 135, 20)
-	Local $hReset = GUICtrlCreateButton("RESTORE TO DEFAULT", 140, 295, 135, 20)
-	#EndRegion
-
-	#Region ; Stream Tab
-	GUICtrlCreateTabItem("Stream")
 
 	#EndRegion
 
@@ -292,7 +292,7 @@ Func Main()
 	$bCHidden = True
 	#EndRegion
 
-	WinMove($hGUI, "", Default, Default, 285, 365, 1)
+	WinMove($hGUI, "", Default, Default, 285, 345, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
 	While 1
@@ -335,16 +335,16 @@ Func Main()
 					GUICtrlSetState($hConsole, $GUI_SHOW)
 					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
-					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 500)
-					GUICtrlSetPos($hConsole, 0, 320, 635, 135)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 320)
+					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 480)
+					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
+					GUICtrlSetPos($hProcesses, 280, 0, 355, 300)
 					$bCHidden = False
 					$bPHidden = False
 				Else
 					GUICtrlSetState($hConsole, $GUI_HIDE)
 					GUICtrlSetState($hProcesses, $GUI_HIDE)
 					$aPos = WinGetPos($hGUI)
-					WinMove($hGUI, "", $aPos[0], $aPos[1], 285, 365)
+					WinMove($hGUI, "", $aPos[0], $aPos[1], 285, 345)
 					$bCHidden = True
 					$bPHidden = True
 				EndIf
@@ -396,7 +396,7 @@ Func Main()
 					$bPHidden = False
 				Else
 					$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
-					GUICtrlSetData($hTask, $aTask[0])
+					If Not $aTask = 0 Then GUICtrlSetData($hTask, $aTask[0])
 				EndIf
 				GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
