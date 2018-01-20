@@ -121,12 +121,12 @@ Func Main()
 	#Region ; Optimize Tab
 	GUICtrlCreateTabItem("Optimize")
 
-	GUICtrlCreateLabel("Type/Select the Process Name", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Game/App Optimization", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Game Process:", 10, 50, 140, 15)
+	GUICtrlCreateLabel("Process:", 10, 50, 140, 15)
 
-	Local $hTask = GUICtrlCreateInput("", 170, 45, 80, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & _
 			"Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
@@ -134,16 +134,18 @@ Func Main()
 		GUICtrlSetFont(-1, 12)
 		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-	GUICtrlCreateLabel("Which Cores Do You Want to Run On?", 5, 150, 270, 15, $SS_CENTER + $SS_SUNKEN)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
+	GUICtrlCreateLabel("Core Assignment:", 10, 75, 140, 15)
 
-	GUICtrlCreateLabel("Core(s):", 10, 175, 190, 15)
-
-	Local $hCores = GUICtrlCreateInput("1", 170, 170, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hCores = GUICtrlCreateInput("1", 150, 70, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
 			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
 			"Example: 1,3,4" & @CRLF & _
 			"Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON, $TIP_BALLOON)
+
+	GUICtrlCreateLabel("Process Priority:", 10, 100, 140, 15)
+
+	Local $hPriortiy = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
+		GUICtrlSetData(-1, "Normal|Above Normal|High|Realtime", "High")
 
 	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 135, 20)
 	Local $hReset = GUICtrlCreateButton("RESTORE", 140, 275, 135, 20)
@@ -152,21 +154,21 @@ Func Main()
 	#Region ; Stream Tab
 	GUICtrlCreateTabItem("Stream")
 
-	GUICtrlCreateLabel("Streaming Mode", 5, 80, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Streaming Optimization", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Allocation Mode:", 10, 105, 140, 15)
+	GUICtrlCreateLabel("Allocation Mode:", 10, 50, 140, 15)
 
-	Local $hSplitMode = GUICtrlCreateCombo("", 170, 100, 100, 20, $CBS_DROPDOWNLIST)
+	Local $hSplitMode = GUICtrlCreateCombo("", 150, 45, 120, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
 			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Even Cores|Odd Cores|Last AMD CCX", "OFF")
 		Else
 			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Physical Cores|Non-Physical Cores|Every Other Pair|Last AMD CCX", "OFF")
 		EndIf
 
-	GUICtrlCreateLabel("Broadcast Software:", 10, 130, 140, 15) ; 105
+	GUICtrlCreateLabel("Broadcast Software:", 10, 75, 140, 15)
 
-	Local $hBroadcaster = GUICtrlCreateCombo("", 170, 125, 100, 20, $CBS_DROPDOWNLIST)
+	Local $hBroadcaster = GUICtrlCreateCombo("", 150, 70, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
