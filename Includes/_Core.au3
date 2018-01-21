@@ -3,6 +3,7 @@
 #include <Array.au3>
 #include <WinAPI.au3>
 #include <Constants.au3>
+#include <StringConstants.au3>
 #include "./_WMIC.au3"
 
 ; #FUNCTION# ====================================================================================================================
@@ -68,20 +69,21 @@ EndFunc
 ;                  $hProcess            - Process handle
 ;                  $hCores              - Cores to set affinity to
 ;                  $iSleepTime          - [optional] Internal Sleep Timer. Default is 100.
-;                  $bRealtime           - [optional] Use Realtime Priority. Default is False.
+;                  $sPriority           - [optional] Priority to Use. Default is High.
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - An Error Occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/11/2018
+; Modified ......: 1/19/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $bRealtime = False, $hOutput = False)
+Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
 
 	Dim $iThreads = _GetCPUInfo(1)
+	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $iThreads - 1
@@ -101,11 +103,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $bRealtime = 
 				Sleep($iSleepTime)
 				For $iLoop = 0 to $aProcesses[0][0] Step 1
 					If $aProcesses[$iLoop][0] = $hProcess Then
-						If $bRealtime Then
-							ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_REALTIME)
-						Else
-							ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
-						EndIf
+						ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 						$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
 						_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
@@ -130,6 +128,9 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $bRealtime = 
 			Case $hCores = $hAllCores
 				_ConsoleWrite("!> You've left no cores for other Processes" & @CRLF, $hOutput)
 				Return 1
+			Case Not _ArraySearch($aPriorities, $sPriority)
+				_ConsoleWrite("!> " & $sPriority & " is not a valid priority level" & @CRLF, $hOutput)
+				Return 1
 			Case Else
 				_ConsoleWrite("Optimizing " & $hProcess & " in the background until it closes..." & @CRLF, $hOutput)
 				If ProcessExists($hProcess) Then
@@ -140,12 +141,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $bRealtime = 
 					Sleep($iSleepTime)
 					For $iLoop = 0 to $aProcesses[0][0] Step 1
 						If $aProcesses[$iLoop][0] = $hProcess Then
-							If $bRealtime Then
-								ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_REALTIME)
-							Else
-								_ConsoleWrite("Set " & $hProcess & " to Realtime Priority..." & @CRLF, $hOutput)
-								ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
-							EndIf
+							ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
 							_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
@@ -168,22 +164,22 @@ EndFunc
 ; Parameters ....: $hProcess            - Process handle
 ;                  $hCores              - Cores to set affinity to
 ;                  $iSleepTime          - [optional] Internal Sleep Timer. Default is 100.
-;                  $bRealtime           - [optional] Use Realtime Priority. Default is False.
+;                  $sPriority           - [optional] Priority to Use. Default is High.
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - An Error Occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/11/2018
+; Modified ......: 1/19/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeAll($hProcess, $hCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
+Func _OptimizeAll($hProcess, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
 
 	_StopServices("True", $hOutput)
 	_SetPowerPlan("True", $hOutput)
-	Return _Optimize(0, $hProcess, $hCores, $iSleepTime, $hRealtime, $hOutput)
+	Return _Optimize(0, $hProcess, $hCores, $iSleepTime, $sPriority, $hOutput)
 
 EndFunc
 
@@ -194,20 +190,21 @@ EndFunc
 ; Parameters ....: $aProcesses          - Array of Processes to Optimize
 ;                  $hCores              - Cores to set affinity to
 ;                  $iSleepTime          - [optional] Internal Sleep Timer. Default is 100.
-;                  $bRealtime           - [optional] Use Realtime Priority. Default is False.
+;                  $sPriority           - [optional] Priority to Use. Default is High.
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/11/2018
+; Modified ......: 1/19/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeBroadcaster($aProcesses, $hCores, $iSleepTime = 100, $hRealtime = False, $hOutput = False)
+Func _OptimizeBroadcaster($aProcesses, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
 
 	Dim $iThreads = _GetCPUInfo(1)
+	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
 
 	Select
 		Case Not IsInt($hCores)
@@ -226,11 +223,7 @@ Func _OptimizeBroadcaster($aProcesses, $hCores, $iSleepTime = 100, $hRealtime = 
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			For $iLoop = 0 to $aProcesses[0][0] Step 1
 				If _ArraySearch($aProcesses, $aProcesses[$iLoop][0]) Then
-					If $hRealtime Then
-						ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_REALTIME)
-					Else
-						ProcessSetPriority($aProcesses[$iLoop][0],$PROCESS_HIGH) ; Self Explanatory
-					EndIf
+					ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
 					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
@@ -297,7 +290,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/11/2018
+; Modified ......: 1/19/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -305,7 +298,7 @@ EndFunc
 ; ===============================================================================================================================
 Func _Restore($hCores = _GetCPUInfo(1), $hOutput = False)
 
-	_ConsoleWrite("Restoring Previous State..." & @CRLF & @CRLF, $hOutput)
+	_ConsoleWrite("Restoring Previous State..." & @CRLF, $hOutput)
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $hCores - 1
@@ -322,6 +315,7 @@ Func _Restore($hCores = _GetCPUInfo(1), $hOutput = False)
 	Next
 	_ConsoleWrite("Done!" & @CRLF, $hOutput)
 	_StopServices("False", $hOutput) ; Additional Clean Up
+	_ConsoleWrite("---" & @CRLF, $hOutput)
 
 EndFunc
 

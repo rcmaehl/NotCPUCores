@@ -144,7 +144,7 @@ Func Main()
 
 	GUICtrlCreateLabel("Process Priority:", 10, 100, 140, 15)
 
-	Local $hPriortiy = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
+	Local $hPPriority = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "Normal|Above Normal|High|Realtime", "High")
 
 	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 135, 20)
@@ -286,7 +286,7 @@ Func Main()
 
 	#Region ; Debug Console
 	Local $bCHidden = False
-	$hConsole = GUICtrlCreateEdit("Debug Console Initialized" & @CRLF, 0, 300, 640, 160, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY))
+	$hConsole = GUICtrlCreateEdit("Debug Console Initialized" & @CRLF & "---" & @CRLF, 0, 300, 640, 160, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY))
 		GUICtrlSetColor(-1, 0xFFFFFF)
 		GUICtrlSetBkColor(-1, 0x000000)
 
@@ -315,9 +315,9 @@ Func Main()
 			Else
 				If Not (UBound(ProcessList()) = $iProcesses) Then
 					$aProcesses[0] = GUICtrlRead($hTask)
-					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,_IsChecked($hRealtime),$hConsole)
+					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
 					If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), $iSleep, $hConsole) Then $iProcesses = 1
-					If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, _IsChecked($hRealtime), $hConsole) Then $iProcesses = 1
+					If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
 				EndIf
 			EndIf
 		EndIf
@@ -516,14 +516,14 @@ Func Main()
 					$aCores = StringSplit(GUICtrlRead($hCores), ",", $STR_NOCOUNT)
 					$iProcessCores = 0
 					For $iLoop1 = 0 To UBound($aCores) - 1 Step 1
-						If StringInStr($aCores[$iLoop], "-") Then
+						If StringInStr($aCores[$iLoop1], "-") Then
 							$aRange = StringSplit($aCores[$iLoop1], "-", $STR_NOCOUNT)
-							If Not $aRange[0] < $aRange[1] Then
-								For $iLoop2 = $aRange[1] To $aRange[0]
+							If $aRange[0] < $aRange[1] Then
+								For $iLoop2 = $aRange[0] To $aRange[1] Step 1
 									$iProcessCores += 2^($iLoop2-1)
 								Next
 							Else
-								For $iLoop2 = $aRange[0] To $aRange[1]
+								For $iLoop2 = $aRange[1] To $aRange[0] Step 1
 									$iProcessCores += 2^($iLoop2-1)
 								Next
 							EndIf
@@ -535,9 +535,9 @@ Func Main()
 					$iProcessCores = 2^(GUICtrlRead($hCores)-1)
 				EndIf
 				$aProcesses[0] = GUICtrlRead($hTask)
-				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,_IsChecked($hRealtime),$hConsole)
+				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
 				If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), $iSleep, $hConsole) Then $iProcesses = 1
-				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, _IsChecked($hRealtime), $hConsole) Then $iProcesses = 1
+				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
 
 			Case $hMsg = $HPETDisable
 				_ToggleHPET("TRUE", $hConsole)
