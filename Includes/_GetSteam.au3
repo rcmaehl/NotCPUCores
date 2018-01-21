@@ -14,6 +14,7 @@ Func _GetSteamLibraries()
 		$SteamDir = StringReplace($SteamDir, "/", "\")
 	EndIf
 
+	If FileExists($SteamDir & "\steamapps\libraryfolders.vdf") Then
 		$hLibraryFile = FileOpen($SteamDir & "\steamapps\libraryfolders.vdf")
 		If @error Then Return 1
 	Else
