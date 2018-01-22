@@ -311,6 +311,7 @@ Func Main()
 		_GUICtrlListView_RegisterSortCallBack($hProcesses)
 
 	_GetProcessList($hProcesses)
+	_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
 
 	GUICtrlSetState($hProcesses, $GUI_HIDE)
 	$bPHidden = True
@@ -677,9 +678,13 @@ Func _GetProcessList($hControl)
 	_GUICtrlListView_DeleteAllItems($hControl)
 	Local $aWindows = WinList()
 	Do
-		$Delete = _ArraySearch($aWindows, "Default IME")
-		_ArrayDelete($aWindows, $Delete)
+		$iDelete = _ArraySearch($aWindows, "Default IME")
+		_ArrayDelete($aWindows, $iDelete)
 	Until _ArraySearch($aWindows, "Default IME") = -1
+	Do
+		$iDelete = _ArraySearch($aWindows, "")
+		_ArrayDelete($aWindows, $iDelete)
+	Until _ArraySearch($aWindows, "") = -1
 	$aWindows[0][0] = UBound($aWindows)
 	For $Loop = 1 To $aWindows[0][0] - 1
 		$aWindows[$Loop][1] = _ProcessGetName(WinGetProcess($aWindows[$Loop][1]))
