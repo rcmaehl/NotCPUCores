@@ -539,10 +539,15 @@ Func Main()
 				If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), $iSleep, $hConsole) Then $iProcesses = 1
 				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
 
-			Case $hMsg = $HPETDisable
-				_ToggleHPET("TRUE", $hConsole)
+			Case $hMsg = $hDefrag
+				Run(@ComSpec & " /c " & 'defrag C: /V', "")
 
-			Case $hMsg = $HPETDisable
+			Case $hMsg = $hCleanup
+				Run(@ComSpec & " /c " & 'cleanmgr', "")
+
+;			Case $hMsg = $HPETDisable
+;				_ToggleHPET("TRUE", $hConsole)
+
 				_ToggleHPET("FALSE", $hConsole)
 
 			Case Else
