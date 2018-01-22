@@ -110,7 +110,7 @@ Func Main()
 	GUICtrlSetState($hGetTimer, $GUI_DISABLE)
 	GUICtrlCreateMenuItem("", $hTimer)
 	Local $hSetTimer = GUICtrlCreateMenuItem("Set Sleep Timer", $hTimer)
-	Local $hRealtime = GUICtrlCreateMenuItem("Use Realtime Priority", $hMenu2)
+;	Local $hRealtime = GUICtrlCreateMenuItem("Use Realtime Priority", $hMenu2)
 	#EndRegion
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
@@ -126,25 +126,32 @@ Func Main()
 
 	GUICtrlCreateLabel("Process:", 10, 50, 140, 15)
 
-	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hTask = GUICtrlCreateCombo("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & _
-			"Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+			"Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON)
 
 	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
-		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON, $TIP_BALLOON)
+		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON)
 
-	GUICtrlCreateLabel("Core Assignment:", 10, 75, 140, 15)
+	GUICtrlCreateLabel("Include Children:", 10, 75, 140, 20)
 
-	Local $hCores = GUICtrlCreateInput("1", 150, 70, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hChildren = GUICtrlCreateCheckbox("", 150, 70, 120, 20, $BS_RIGHTBUTTON)
+		GUICtrlSetTip(-1, "Include other Processes the Game/App starts" & @CRLF & _
+			"Coming Soon", "USAGE", $TIP_NOICON)
+		GUICtrlSetState(-1, $GUI_DISABLE)
+
+	GUICtrlCreateLabel("Core Assignment:", 10, 100, 140, 15)
+
+	Local $hCores = GUICtrlCreateInput("1", 150, 95, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
 			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
-			"Example: 1,3,4" & @CRLF & _
-			"Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON, $TIP_BALLOON)
+			"Ranges seperated by a dash are supported." & @CRLF & _
+			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON)
 
-	GUICtrlCreateLabel("Process Priority:", 10, 100, 140, 15)
+	GUICtrlCreateLabel("Process Priority:", 10, 125, 140, 15)
 
-	Local $hPPriority = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
+	Local $hPPriority = GUICtrlCreateCombo("", 150, 120, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "Normal|Above Normal|High|Realtime", "High")
 
 	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 135, 20)
@@ -172,16 +179,41 @@ Func Main()
 		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
+	GUICtrlCreateLabel("Include Children:", 10, 100, 140, 20)
+
+	Local $hBroChild = GUICtrlCreateCheckbox("", 150, 95, 120, 20, $BS_RIGHTBUTTON)
+		GUICtrlSetTip(-1, "Include other Processes the Broadcaster starts" & @CRLF & _
+			"Coming Soon", "USAGE", $TIP_NOICON)
+		GUICtrlSetState(-1, $GUI_DISABLE)
+
 	#EndRegion
 
 	#Region ; Tweaks Tab
 	GUICtrlCreateTabItem("PC Tweaks")
 
-	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel("Game Performance", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $HPETEnable = GUICtrlCreateButton("Enable HPET", 5, 85, 135, 20)
-	Local $HPETDisable = GUICtrlCreateButton("Disable HPET", 140, 85, 135, 20)
+	Local $hHPET = GUICtrlCreateButton("  HPET", 5, 40, 80, 40)
+		GUICtrlSetImage(-1, "shell32.dll", -13)
+
+	GUICtrlCreateLabel("Disk Performance", 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
+		GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	Local $hDefrag = GUICtrlCreateButton("  Defrag", 5, 100, 80, 40)
+		GUICtrlSetImage(-1, "shell32.dll", -81)
+
+	GUICtrlCreateLabel("Disk Space", 5, 145, 270, 15, $SS_CENTER + $SS_SUNKEN)
+		GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	Local $hCleanup = GUICtrlCreateButton("  Clean", 5, 160, 80, 40)
+		GUICtrlSetImage(-1, "shell32.dll", -32)
+
+;	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER + $SS_SUNKEN)
+;		GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+;	Local $HPETEnable = GUICtrlCreateButton("Enable HPET", 5, 85, 135, 20)
+;	Local $HPETDisable = GUICtrlCreateButton("Disable HPET", 140, 85, 135, 20)
 
 ;	GUICtrlCreateLabel("Below you can run some Windows Maintenance Tools", 5, 115, 270, 20, $SS_CENTER + $SS_SUNKEN)
 ;	GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -351,12 +383,12 @@ Func Main()
 					$bPHidden = True
 				EndIf
 
-			Case $hMsg = $hRealtime
-				If _IsChecked($hRealtime) Then
-					GUICtrlSetState($hRealtime, $GUI_UNCHECKED)
-				Else
-					GUICtrlSetState($hRealtime, $GUI_CHECKED)
-				EndIf
+;			Case $hMsg = $hRealtime
+;				If _IsChecked($hRealtime) Then
+;					GUICtrlSetState($hRealtime, $GUI_UNCHECKED)
+;				Else
+;					GUICtrlSetState($hRealtime, $GUI_CHECKED)
+;				EndIf
 
 			;Case $hMsg = $hSetTimer
 				;InputBox("Set Sleep Timer", "
@@ -368,10 +400,12 @@ Func Main()
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
 				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
-				GUICtrlSetData($hTask       , String(IniRead($hFile, "General"  , "Process" ,    "")))
-				GUICtrlSetData($hCores      , String(IniRead($hFile, "General"  , "Threads" ,   "1")))
-				GUICtrlSetData($hSplitMode  , String(IniRead($hFile, "Streaming", "SplitAs" , "OFF")))
-				GUICtrlSetData($hBroadcaster, String(IniRead($hFile, "Streaming", "Software", "OBS")))
+				GUICtrlSetData($hTask       , String(IniRead($hFile, "General"  , "Process" ,            "")))
+				GUICtrlSetData($hCores      , String(IniRead($hFile, "General"  , "Threads" ,           "1")))
+				GUICtrlSetState($hChildren  , Number(IniRead($hFile, "General"  , "Children",$GUI_UNCHECKED)))
+				GUICtrlSetData($hPPriority  , String(IniRead($hFile, "General"  , "Priority",        "High")))
+				GUICtrlSetData($hSplitMode  , String(IniRead($hFile, "Streaming", "SplitAs" ,         "OFF")))
+				GUICtrlSetData($hBroadcaster, String(IniRead($hFile, "Streaming", "Software",         "OBS")))
 
 			Case $hMsg = $hSave
 				If GUICtrlRead($hTask) = "" Then
@@ -382,6 +416,8 @@ Func Main()
 				$hFile = FileSaveDialog("Save Current Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
 				IniWrite($hFile, "General"  , "Process" , GUICtrlRead($hTask       ))
 				IniWrite($hFile, "General"  , "Threads" , GUICtrlRead($hCores      ))
+				IniWrite($hFile, "General"  , "Children", GUICtrlRead($hChildren   ))
+				IniWrite($hFile, "General"  , "Priority", GUICtrlRead($hPPriority  ))
 				IniWrite($hFile, "Streaming", "SplitAs" , GUICtrlRead($hSplitMode  ))
 				IniWrite($hFile, "Streaming", "Software", GUICtrlRead($hBroadcaster))
 
@@ -398,7 +434,7 @@ Func Main()
 					$bPHidden = False
 				Else
 					$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
-					If Not $aTask = 0 Then GUICtrlSetData($hTask, $aTask[0])
+					If Not $aTask[0] = 0 Then GUICtrlSetData($hTask, $aTask[0])
 				EndIf
 				GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
@@ -548,7 +584,8 @@ Func Main()
 ;			Case $hMsg = $HPETDisable
 ;				_ToggleHPET("TRUE", $hConsole)
 
-				_ToggleHPET("FALSE", $hConsole)
+;			Case $hMsg = $HPETDisable
+;				_ToggleHPET("FALSE", $hConsole)
 
 			Case Else
 				Sleep(10)
