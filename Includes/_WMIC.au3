@@ -126,11 +126,12 @@ Func _GetRAMInfo($iFlag = 0)
             $sSpeed = $Obj_Item.Speed
         Next
 
-		If $iFlag = 0 Then
-			Return String($sSpeed)
-		Else
-			Return 0
-		EndIf
+		Switch $iFlag
+			Case 0
+				Return String($sSpeed)
+			Case Else
+				Return 0
+		EndSwitch
     Else
         Return 0
     EndIf
