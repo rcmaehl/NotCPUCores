@@ -209,13 +209,15 @@ Func Main()
 	Local $hHPET = GUICtrlCreateButton(" HPET", 5, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -13)
 
-	Local $hGameM = GUICtrlCreateButton(" Game" & @CRLF & " Mode", 95, 40, 80, 40, $BS_MULTILINE)
+	Local $hGameM = GUICtrlCreateButton(" Game" & @CRLF & " Mode", 100, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 15007 Then GUICtrlSetState(-1, $GUI_DISABLE)
 		Else
 			GUICtrlSetState($hGameM, $GUI_DISABLE)
 		EndIf
+
+	;GUICtrlCreateButton("Future button", 195, 40, 80, 40, $BS_MULTILINE)
 
 	GUICtrlCreateLabel("Disk Performance", 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
