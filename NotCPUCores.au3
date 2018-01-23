@@ -88,10 +88,18 @@ Func Main()
 	Local $aCores
 	Local $iSleep = 100
 	Local $sVersion = "1.6.0.0"
+	Local $iAllCores
 	Local $aProcesses[1]
 	Local $iProcesses = 0
-	Local $iProcessCores = 0
+	Local $iProcessCores = 1
 	Local $iBroadcasterCores = 0
+	Local $iOtherProcessCores = 1
+
+	$iAllCores = 0
+	For $iLoop = 0 To $iThreads - 1
+		$iAllCores += 2^$iLoop
+	Next
+	$iOtherProcessCores = $iAllCores - $iProcessCores
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 
@@ -110,7 +118,6 @@ Func Main()
 	GUICtrlSetState($hGetTimer, $GUI_DISABLE)
 	GUICtrlCreateMenuItem("", $hTimer)
 	Local $hSetTimer = GUICtrlCreateMenuItem("Set Sleep Timer", $hTimer)
-;	Local $hRealtime = GUICtrlCreateMenuItem("Use Realtime Priority", $hMenu2)
 	#EndRegion
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
@@ -186,6 +193,11 @@ Func Main()
 			"Coming Soon", "USAGE", $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
+	GUICtrlCreateLabel("Assign Other Processes to:", 10, 125, 140, 20)
+
+	Local $hOAssign = GUICtrlCreateCombo("", 150, 120, 120, 20, $CBS_DROPDOWNLIST)
+		GUICtrlSetData(-1, "Broadcaster Cores|Game Cores|Remaining Cores", "Remaining Cores")
+
 	#EndRegion
 
 	#Region ; Tweaks Tab
@@ -194,19 +206,27 @@ Func Main()
 	GUICtrlCreateLabel("Game Performance", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hHPET = GUICtrlCreateButton("  HPET", 5, 40, 80, 40)
+	Local $hHPET = GUICtrlCreateButton(" HPET", 5, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -13)
+
+	Local $hGameM = GUICtrlCreateButton(" Game" & @CRLF & " Mode", 95, 40, 80, 40, $BS_MULTILINE)
+		GUICtrlSetImage(-1, "shell32.dll", -208)
+		If @OSVersion = "WIN_10" Then
+			If @OSBuild < 15007 Then GUICtrlSetState(-1, $GUI_DISABLE)
+		Else
+			GUICtrlSetState($hGameM, $GUI_DISABLE)
+		EndIf
 
 	GUICtrlCreateLabel("Disk Performance", 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hDefrag = GUICtrlCreateButton("  Defrag", 5, 100, 80, 40)
+	Local $hDefrag = GUICtrlCreateButton("Disk" & @CRLF & "Defrag", 5, 100, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -81)
 
 	GUICtrlCreateLabel("Disk Space", 5, 145, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hCleanup = GUICtrlCreateButton("  Clean", 5, 160, 80, 40)
+	Local $hCleanup = GUICtrlCreateButton("Disk" & @CRLF & "Cleanup", 5, 160, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -32)
 
 ;	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER + $SS_SUNKEN)
@@ -230,10 +250,6 @@ Func Main()
 		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & _
 			"Decreasing this value can smooth FPS drops, " & @CRLF & _
 			"at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
-
-	Local $hRealtime = GUICtrlCreateCheckbox("Use Realtime Priority:", 10, 50, 260, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, "Selecting this sets the process to a higher" & @CRLF & _
-			"priority, at the risk of system instability", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
 #cs
 	GUICtrlCreateLabel("Processes to Always Include", 5, 25, 270, 20, $SS_CENTER + $SS_SUNKEN)
@@ -349,7 +365,7 @@ Func Main()
 				If Not (UBound(ProcessList()) = $iProcesses) Then
 					$aProcesses[0] = GUICtrlRead($hTask)
 					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
-					If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), $iSleep, $hConsole) Then $iProcesses = 1
+					If _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) Then $iProcesses = 1
 					If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
 				EndIf
 			EndIf
@@ -521,17 +537,56 @@ Func Main()
 
 				EndSwitch
 
-			Case $hMsg = $hCores ;Depreciated in favor of steaming mode
+			Case $hMsg = $hCores
+				$iProcessCores = 0
 				If Not StringRegExp(GUICtrlRead($hCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then ;\A[0-9]+?(,[0-9]+)*\Z
-					GUICtrlSetColor($hCores, 0xFF0000)
-					GUICtrlSetState($hOptimize, $GUI_DISABLE)
-				ElseIf StringRight(GUICtrlRead($hCores), 1) = "," Then
 					GUICtrlSetColor($hCores, 0xFF0000)
 					GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				Else
 					GUICtrlSetColor($hCores, 0x000000)
 					GUICtrlSetState($hOptimize, $GUI_ENABLE)
+					If StringInStr(GUICtrlRead($hCores), ",") Then ; Convert Multiple Cores if Declared to Magic Number
+						$aCores = StringSplit(GUICtrlRead($hCores), ",", $STR_NOCOUNT)
+						For $iLoop1 = 0 To UBound($aCores) - 1 Step 1
+							If StringInStr($aCores[$iLoop1], "-") Then
+								$aRange = StringSplit($aCores[$iLoop1], "-", $STR_NOCOUNT)
+								If $aRange[0] < $aRange[1] Then
+									For $iLoop2 = $aRange[0] To $aRange[1] Step 1
+										$iProcessCores += 2^($iLoop2-1)
+									Next
+								Else
+									For $iLoop2 = $aRange[1] To $aRange[0] Step 1
+										$iProcessCores += 2^($iLoop2-1)
+									Next
+								EndIf
+							Else
+								$iProcessCores += 2^($aCores[$iLoop1]-1)
+							EndIf
+						Next
+					Else
+						$iProcessCores = 2^(GUICtrlRead($hCores)-1)
+					EndIf
+					ContinueCase
 				EndIf
+
+			Case $hMsg = $hOAssign
+				$iOtherProcessCores = 0
+				Switch GUICtrlRead($hOAssign)
+
+					Case "Broadcaster Cores"
+						$iOtherProcessCores = $iBroadcasterCores
+
+					Case "Game Cores"
+						$iOtherProcessCores = $iProcessCores
+
+					Case "Remaining Cores"
+						$iOtherProcessCores = $iAllCores - BitOR($iProcessCores, $iBroadcasterCores)
+
+					Case Else
+						$iOtherProcessCores = 1
+						_ConsoleWrite("!>Not sure how you did this, but invalid Process Assign Mode!" & @CRLF, $hConsole)
+
+				EndSwitch
 
 			Case $hMsg = $hReset
 				For $Loop = $hTask to $hReset Step 1
@@ -549,31 +604,9 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hOptimize, "Running Optimizations..., Pause/Break to Stop")
-				If StringInStr(GUICtrlRead($hCores), ",") Then ; Convert Multiple Cores if Declared to Magic Number
-					$aCores = StringSplit(GUICtrlRead($hCores), ",", $STR_NOCOUNT)
-					$iProcessCores = 0
-					For $iLoop1 = 0 To UBound($aCores) - 1 Step 1
-						If StringInStr($aCores[$iLoop1], "-") Then
-							$aRange = StringSplit($aCores[$iLoop1], "-", $STR_NOCOUNT)
-							If $aRange[0] < $aRange[1] Then
-								For $iLoop2 = $aRange[0] To $aRange[1] Step 1
-									$iProcessCores += 2^($iLoop2-1)
-								Next
-							Else
-								For $iLoop2 = $aRange[1] To $aRange[0] Step 1
-									$iProcessCores += 2^($iLoop2-1)
-								Next
-							EndIf
-						Else
-							$iProcessCores += 2^($aCores[$iLoop1]-1)
-						EndIf
-					Next
-				Else
-					$iProcessCores = 2^(GUICtrlRead($hCores)-1)
-				EndIf
 				$aProcesses[0] = GUICtrlRead($hTask)
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
-				If _OptimizeOthers($aProcesses, BitOR($iProcessCores, $iBroadcasterCores), $iSleep, $hConsole) Then $iProcesses = 1
+				If _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) Then $iProcesses = 1
 				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
 
 			Case $hMsg = $hDefrag
