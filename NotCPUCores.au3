@@ -135,7 +135,7 @@ Func Main()
 
 	GUICtrlCreateLabel("Process:", 10, 50, 140, 15)
 
-	Local $hTask = GUICtrlCreateCombo("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & _
 			"Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON)
 
@@ -211,6 +211,7 @@ Func Main()
 
 	Local $hHPET = GUICtrlCreateButton(" HPET", 5, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -13)
+		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	Local $hGameM = GUICtrlCreateButton(" Game" & @CRLF & " Mode", 100, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
@@ -236,12 +237,6 @@ Func Main()
 
 ;	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER + $SS_SUNKEN)
 ;		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-;	Local $HPETEnable = GUICtrlCreateButton("Enable HPET", 5, 85, 135, 20)
-;	Local $HPETDisable = GUICtrlCreateButton("Disable HPET", 140, 85, 135, 20)
-
-;	GUICtrlCreateLabel("Below you can run some Windows Maintenance Tools", 5, 115, 270, 20, $SS_CENTER + $SS_SUNKEN)
-;	GUICtrlSetBkColor(-1, 0xF0F0F0)
 	#EndRegion
 
 	#Region ; Options Tab
@@ -632,6 +627,9 @@ Func Main()
 				If _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) Then $iProcesses = 1
 				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
 
+			Case $hMsg = $hGameM
+				ShellExecute("ms-settings:gaming-gamemode")
+
 			Case $hMsg = $hDefrag
 				Run(@ComSpec & " /c " & 'defrag C: /V', "")
 
@@ -765,8 +763,7 @@ EndFunc   ;==>_IsChecked
 Func _IniRead($hFile, $sSection, $sKey, $sValid, $sDefault)
 	Local $sReturn = IniRead($hFile, $sSection, $sKey, $sDefault)
 	Local $aValid = StringSplit($sValid, Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
-	If _ArraySearch($aValid, $sReturn) = =1 Then
-		ConsoleWrite("$sReturn Invalid, Defaulting to: " & $sDefault & @CRLF)
+	If _ArraySearch($aValid, $sReturn) = -1 Then
 		Return $sDefault
 	Else
 		Return $sReturn
