@@ -114,13 +114,18 @@ Func Main()
 	#EndRegion
 
 	#Region ; Options Menu
-	Local $hMenu2 = GUICtrlCreateMenu("Options"    )
+	Local $hMenu2 = GUICtrlCreateMenu("Options")
 	Local $hTimer = GUICtrlCreateMenu("Sleep Timer", $hMenu2)
 	Local $hGetTimer = GUICtrlCreateMenuItem("Current Timer: " & $iSleep & "ms", $hTimer)
 	GUICtrlSetState($hGetTimer, $GUI_DISABLE)
 	GUICtrlCreateMenuItem("", $hTimer)
 	Local $hSetTimer = GUICtrlCreateMenuItem("Set Sleep Timer", $hTimer)
 	#EndRegion
+
+	#Region ; Help Menu
+	Local $hMenu3 = GUICtrlCreateMenu("Help")
+	Local $hGithub = GUICtrlCreateMenuItem("Website"          , $hMenu3)
+	Local $hUpdate = GUICtrlCreateMenuItem("Check for Updates", $hMenu3)
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
