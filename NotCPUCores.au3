@@ -163,8 +163,8 @@ Func Main()
 	Local $hPPriority = GUICtrlCreateCombo("", 150, 120, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "Normal|Above Normal|High|Realtime", "High")
 
-	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 5, 275, 135, 20)
-	Local $hReset = GUICtrlCreateButton("RESTORE", 140, 275, 135, 20)
+	Local $hReset = GUICtrlCreateButton("RESTORE", 5, 275, 135, 20)
+	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 140, 275, 135, 20)
 	#EndRegion
 
 	#Region ; Stream Tab
@@ -210,15 +210,16 @@ Func Main()
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	Local $hHPET = GUICtrlCreateButton(" HPET", 5, 40, 80, 40, $BS_MULTILINE)
-		GUICtrlSetImage(-1, "shell32.dll", -13)
+		GUICtrlSetImage(-1, "imageres.dll", -30)
 		GUICtrlSetState(-1, $GUI_DISABLE)
+		GUICtrlSetTip(-1, "High Precision Event Timer for Windows. On SOME games this may DECREASE performance" & @CRLF & "instead of INCREASE. You can always change it back!")
 
 	Local $hGameM = GUICtrlCreateButton(" Game" & @CRLF & " Mode", 100, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 15007 Then GUICtrlSetState(-1, $GUI_DISABLE)
 		Else
-			GUICtrlSetState($hGameM, $GUI_DISABLE)
+			GUICtrlSetState(-1, $GUI_DISABLE)
 		EndIf
 
 	;GUICtrlCreateButton("Future button", 195, 40, 80, 40, $BS_MULTILINE)
@@ -235,8 +236,22 @@ Func Main()
 	Local $hCleanup = GUICtrlCreateButton("Disk" & @CRLF & "Cleanup", 5, 160, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -32)
 
-;	GUICtrlCreateLabel("Below You Can Enable Or Disable the High Precision Event Timer for Windows. On SOME games this may DECREASE performance instead of INCREASE. You can always change it back!", 5, 25, 270, 60, $SS_CENTER + $SS_SUNKEN)
-;		GUICtrlSetBkColor(-1, 0xF0F0F0)
+	Local $hSSense = GUICtrlCreateButton("Storage" & @CRLF & "Sense", 100, 160, 80, 40, $BS_MULTILINE)
+		GUICtrlSetImage(-1, "shell32.dll", -167)
+		If @OSVersion = "WIN_10" Then
+			If @OSBuild < 16299 Then GUICtrlSetState(-1, $GUI_DISABLE)
+		Else
+			GUICtrlSetState(-1, $GUI_DISABLE)
+		EndIf
+	GUICtrlCreateLabel("System Reliability", 5, 205, 270, 15, $SS_CENTER + $SS_SUNKEN)
+		GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	Local $hEvents = GUICtrlCreateButton(" Recent" & @CRLF & " Events", 5, 220, 80, 40, $BS_MULTILINE)
+		GUICtrlSetImage(-1, "shell32.dll", -208)
+
+	Local $hActions = GUICtrlCreateButton(" Action" & @CRLF & " Center", 100, 220, 80, 40, $BS_MULTILINE)
+		GUICtrlSetImage(-1, "ActionCenter.dll", -5)
+
 	#EndRegion
 
 	#Region ; Options Tab
@@ -251,7 +266,7 @@ Func Main()
 			"Decreasing this value can smooth FPS drops, " & @CRLF & _
 			"at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
 
-#cs
+
 	GUICtrlCreateLabel("Processes to Always Include", 5, 25, 270, 20, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
@@ -261,7 +276,6 @@ Func Main()
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateListView("", 5, 190, 270, 120, $LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$ES_READONLY)
-#ce
 #ce
 	#EndRegion
 
@@ -400,13 +414,6 @@ Func Main()
 					$bPHidden = True
 				EndIf
 
-;			Case $hMsg = $hRealtime
-;				If _IsChecked($hRealtime) Then
-;					GUICtrlSetState($hRealtime, $GUI_UNCHECKED)
-;				Else
-;					GUICtrlSetState($hRealtime, $GUI_CHECKED)
-;				EndIf
-
 			;Case $hMsg = $hSetTimer
 				;InputBox("Set Sleep Timer", "
 
@@ -417,12 +424,13 @@ Func Main()
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
 				$hFile = FileSaveDialog("Save Current Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
-				IniWrite($hFile, "General"  , "Process" , GUICtrlRead($hTask       ))
-				IniWrite($hFile, "General"  , "Threads" , GUICtrlRead($hCores      ))
-				;IniWrite($hFile, "General"  , "Children", GUICtrlRead($hChildren   ))
-				IniWrite($hFile, "General"  , "Priority", GUICtrlRead($hPPriority  ))
-				IniWrite($hFile, "Streaming", "SplitAs" , GUICtrlRead($hSplitMode  ))
-				IniWrite($hFile, "Streaming", "Software", GUICtrlRead($hBroadcaster))
+				IniWrite($hFile, "General"  , "Process"    , GUICtrlRead($hTask       ))
+				IniWrite($hFile, "General"  , "Threads"    , GUICtrlRead($hCores      ))
+;				IniWrite($hFile, "General"  , "Children"   , GUICtrlRead($hChildren   ))
+				IniWrite($hFile, "General"  , "Priority"   , GUICtrlRead($hPPriority  ))
+				IniWrite($hFile, "Streaming", "SplitAs"    , GUICtrlRead($hSplitMode  ))
+				IniWrite($hFile, "Streaming", "Software"   , GUICtrlRead($hBroadcaster))
+				IniWrite($hFile, "Streaming", "Assignement", GUICtrlRead($hOAssign    ))
 
 			Case $hMsg = $hProcesses
 				_GetProcessList($hProcesses)
@@ -450,10 +458,11 @@ Func Main()
 				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
 				GUICtrlSetData($hTask       , String(IniRead($hFile, "General"  , "Process" ,            "")))
 				GUICtrlSetData($hCores      , String(IniRead($hFile, "General"  , "Threads" ,           "1")))
-				;GUICtrlSetState($hChildren  , Number(IniRead($hFile, "General"  , "Children",$GUI_UNCHECKED)))
-				GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority", _GUICtrlComboBox_GetList($hPPriority)  , "High")))
-				GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs" , _GUICtrlComboBox_GetList($hSplitMode)  ,  "OFF")))
-				GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software", _GUICtrlComboBox_GetList($hBroadcaster),  "OBS")))
+;				GUICtrlSetState($hChildren  , Number(IniRead($hFile, "General"  , "Children",$GUI_UNCHECKED)))
+				GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
+				GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
+				GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
+				GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
 				ContinueCase
 
 			Case $hMsg = $hBroadcaster
@@ -621,7 +630,7 @@ Func Main()
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
-				GUICtrlSetData($hOptimize, "Running Optimizations..., Pause/Break to Stop")
+				GUICtrlSetData($hOptimize, "Pause/Break to Stop")
 				$aProcesses[0] = GUICtrlRead($hTask)
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
 				If _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) Then $iProcesses = 1
@@ -636,11 +645,14 @@ Func Main()
 			Case $hMsg = $hCleanup
 				Run(@ComSpec & " /c " & 'cleanmgr', "")
 
-;			Case $hMsg = $HPETDisable
-;				_ToggleHPET("TRUE", $hConsole)
+			Case $hMsg = $hSSense
+				ShellExecute("ms-settings:storagepolicies")
 
-;			Case $hMsg = $HPETDisable
-;				_ToggleHPET("FALSE", $hConsole)
+			Case $hMsg = $hEvents
+				Run(@ComSpec & " /c " & 'perfmon /rel', "", @SW_HIDE)
+
+			Case $hMsg = $hActions
+				Run(@ComSpec & " /c " & 'control wscui.cpl', "", @SW_HIDE)
 
 			Case Else
 				Sleep(10)
