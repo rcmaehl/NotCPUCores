@@ -128,7 +128,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 			Case $hCores = $hAllCores
 				_ConsoleWrite("!> You've left no cores for other Processes" & @CRLF, $hOutput)
 				Return 1
-			Case Not _ArraySearch($aPriorities, $sPriority)
+			Case _ArraySearch($aPriorities, $sPriority) = -1
 				_ConsoleWrite("!> " & $sPriority & " is not a valid priority level" & @CRLF, $hOutput)
 				Return 1
 			Case Else
@@ -223,7 +223,7 @@ Func _OptimizeBroadcaster($aProcesses, $hCores, $iSleepTime = 100, $sPriority = 
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			Sleep($iSleepTime)
 			For $iLoop = 0 to $aProcesses[0][0] Step 1
-				If _ArraySearch($aProcesses, $aProcesses[$iLoop][0]) Then
+				If Not _ArraySearch($aProcesses, $aProcesses[$iLoop][0]) = -1 Then
 					ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
 					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)

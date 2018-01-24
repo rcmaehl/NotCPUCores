@@ -15,6 +15,7 @@
 #include <Process.au3>
 #include <Constants.au3>
 #include <GUIListView.au3>
+#include <GuiComboBox.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
 #include <ComboConstants.au3>
@@ -30,6 +31,7 @@
 ;#include ".\Includes\_ModeSelect.au3"
 #include ".\Includes\_GetEnvironment.au3"
 
+Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
 
 Global $bInterrupt = False
@@ -197,6 +199,7 @@ Func Main()
 
 	Local $hOAssign = GUICtrlCreateCombo("", 150, 120, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "Broadcaster Cores|Game Cores|Remaining Cores", "Remaining Cores")
+		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	#EndRegion
 
@@ -412,20 +415,6 @@ Func Main()
 			;Case $hMsg = $hSetTimer
 				;InputBox("Set Sleep Timer", "
 
-			Case $hMsg = $hLoad
-				If GUICtrlRead($hTask) = "" Then
-					$sFile = "profile.ncc"
-				Else
-					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
-				EndIf
-				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
-				GUICtrlSetData($hTask       , String(IniRead($hFile, "General"  , "Process" ,            "")))
-				GUICtrlSetData($hCores      , String(IniRead($hFile, "General"  , "Threads" ,           "1")))
-				GUICtrlSetState($hChildren  , Number(IniRead($hFile, "General"  , "Children",$GUI_UNCHECKED)))
-				GUICtrlSetData($hPPriority  , String(IniRead($hFile, "General"  , "Priority",        "High")))
-				GUICtrlSetData($hSplitMode  , String(IniRead($hFile, "Streaming", "SplitAs" ,         "OFF")))
-				GUICtrlSetData($hBroadcaster, String(IniRead($hFile, "Streaming", "Software",         "OBS")))
-
 			Case $hMsg = $hSave
 				If GUICtrlRead($hTask) = "" Then
 					$sFile = "profile.ncc"
@@ -435,7 +424,7 @@ Func Main()
 				$hFile = FileSaveDialog("Save Current Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
 				IniWrite($hFile, "General"  , "Process" , GUICtrlRead($hTask       ))
 				IniWrite($hFile, "General"  , "Threads" , GUICtrlRead($hCores      ))
-				IniWrite($hFile, "General"  , "Children", GUICtrlRead($hChildren   ))
+				;IniWrite($hFile, "General"  , "Children", GUICtrlRead($hChildren   ))
 				IniWrite($hFile, "General"  , "Priority", GUICtrlRead($hPPriority  ))
 				IniWrite($hFile, "Streaming", "SplitAs" , GUICtrlRead($hSplitMode  ))
 				IniWrite($hFile, "Streaming", "Software", GUICtrlRead($hBroadcaster))
@@ -457,6 +446,21 @@ Func Main()
 				EndIf
 				GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
+			Case $hMsg = $hLoad
+				If GUICtrlRead($hTask) = "" Then
+					$sFile = "profile.ncc"
+				Else
+					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
+				EndIf
+				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
+				GUICtrlSetData($hTask       , String(IniRead($hFile, "General"  , "Process" ,            "")))
+				GUICtrlSetData($hCores      , String(IniRead($hFile, "General"  , "Threads" ,           "1")))
+				;GUICtrlSetState($hChildren  , Number(IniRead($hFile, "General"  , "Children",$GUI_UNCHECKED)))
+				GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority", _GUICtrlComboBox_GetList($hPPriority)  , "High")))
+				GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs" , _GUICtrlComboBox_GetList($hSplitMode)  ,  "OFF")))
+				GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software", _GUICtrlComboBox_GetList($hBroadcaster),  "OBS")))
+				ContinueCase
+
 			Case $hMsg = $hBroadcaster
 				Switch GUICtrlRead($hBroadcaster)
 					Case "OBS"
@@ -472,7 +476,13 @@ Func Main()
 						$aProcesses[2] = "XGS64.exe"
 						$aProcesses[3] = "XSplit.Core.exe"
 						$aProcesses[4] = "XSplit.xbcbp.exe"
+					Case Else
+						ReDim $aProcesses[1]
+						$aProcesses[0] = GUICtrlRead($hTask)
+						_ConsoleWrite("!>Invalid Broadcaster Software!" & @CRLF, $hConsole)
+
 				EndSwitch
+				ContinueCase
 
 			Case $hMsg = $hSplitMode
 				$iBroadcasterCores = 0
@@ -480,42 +490,49 @@ Func Main()
 
 					Case "OFF"
 						$iBroadcasterCores = 0
+						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						ReDim $aProcesses[1]
 						$aProcesses[0] = GUICtrlRead($hTask)
 
 					Case "Last Core"
 						$iBroadcasterCores = 2^($iThreads - 1)
+						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last 2 Cores"
 						For $iLoop = ($iThreads - 2) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last 4 Cores"
 						For $iLoop = ($iThreads-4) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last Half"
 						For $iLoop = Ceiling(($iThreads - ($iThreads/2))) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Odd Cores", "Non-Physical Cores"
 						For $iLoop = 1 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Even Cores", "Physical Cores"
 						For $iLoop = 0 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Every Other Pair"
@@ -523,21 +540,25 @@ Func Main()
 							$iBroadcasterCores += 2^($iLoop)
 							$iBroadcasterCores += 2^($iLoop + 1)
 						Next
+						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Last AMD CCX"
 						For $iLoop = ($iThreads - _CalculateCCX()) To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
+						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case Else
 						$iBroadcasterCores = 0
+						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						ReDim $aProcesses[1]
-						_ConsoleWrite("!>Not sure how you did this, but invalid Broadcaster Mode!" & @CRLF, $hConsole)
+						_ConsoleWrite("!>Invalid Broadcaster Mode!" & @CRLF, $hConsole)
 
 				EndSwitch
+				ContinueCase
 
 			Case $hMsg = $hCores
 				$iProcessCores = 0
@@ -568,8 +589,8 @@ Func Main()
 					Else
 						$iProcessCores = 2^(GUICtrlRead($hCores)-1)
 					EndIf
-					ContinueCase
 				EndIf
+				ContinueCase
 
 			Case $hMsg = $hOAssign
 				$iOtherProcessCores = 0
@@ -586,7 +607,7 @@ Func Main()
 
 					Case Else
 						$iOtherProcessCores = 1
-						_ConsoleWrite("!>Not sure how you did this, but invalid Process Assign Mode!" & @CRLF, $hConsole)
+						_ConsoleWrite("!>Invalid Process Assign Mode!" & @CRLF, $hConsole)
 
 				EndSwitch
 
@@ -740,6 +761,17 @@ EndFunc
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
+
+Func _IniRead($hFile, $sSection, $sKey, $sValid, $sDefault)
+	Local $sReturn = IniRead($hFile, $sSection, $sKey, $sDefault)
+	Local $aValid = StringSplit($sValid, Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
+	If _ArraySearch($aValid, $sReturn) = =1 Then
+		ConsoleWrite("$sReturn Invalid, Defaulting to: " & $sDefault & @CRLF)
+		Return $sDefault
+	Else
+		Return $sReturn
+	EndIf
+EndFunc
 
 Func _LoadLanguage($iLanguage = @OSLang)
 	$sPath = ".\Lang\" & $iLanguage & ".ini"
