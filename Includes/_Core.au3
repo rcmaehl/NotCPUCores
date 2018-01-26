@@ -195,16 +195,18 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/19/2018
+; Modified ......: 1/25/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeBroadcaster($aProcesses, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
+Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
 
 	Dim $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
+
+	_ArrayDelete($aProcessList, 0)
 
 	Select
 		Case Not IsInt($hCores)
@@ -223,7 +225,9 @@ Func _OptimizeBroadcaster($aProcesses, $hCores, $iSleepTime = 100, $sPriority = 
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			Sleep($iSleepTime)
 			For $iLoop = 0 to $aProcesses[0][0] Step 1
-				If Not _ArraySearch($aProcesses, $aProcesses[$iLoop][0]) = -1 Then
+				If _ArraySearch($aProcessList, $aProcesses[$iLoop][0]) = -1 Then
+					;;;
+				Else
 					ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
 					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
