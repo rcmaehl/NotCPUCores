@@ -239,15 +239,13 @@ Func Main()
 	Local $hPower = GUICtrlCreateButton("Power" & @CRLF & "Options", 195, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "powercpl.dll", 1)
 
-	;GUICtrlCreateButton("Future button", 195, 40, 80, 40, $BS_MULTILINE)
-
 	GUICtrlCreateLabel("Disk Performance", 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	Local $hDefrag = GUICtrlCreateButton("Disk" & @CRLF & "Defrag", 5, 100, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -81)
 
-	Local $hCheck = GUICtrlCreateButton("Disk" & @CRLF & "Check", 100, 100, 80, 40, $BS_MULTILINE)
+	Local $hCheck = GUICtrlCreateButton(" Disk" & @CRLF & " Check", 100, 100, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -271)
 
 	GUICtrlCreateLabel("Disk Space", 5, 145, 270, 15, $SS_CENTER + $SS_SUNKEN)

@@ -74,7 +74,7 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - An Error Occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/19/2018
+; Modified ......: 1/26/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -120,7 +120,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 				_ConsoleWrite("!> " & $hProcess & " is not currently running. Please run the program first" & @CRLF, $hOutput)
 				Return 1
 			Case Not IsInt($hCores)
-				_ConsoleWrite("!> " & $hCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
+				_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hOutput)
 				Return 1
 			Case $hCores > $hAllCores
 				_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hOutput)
@@ -195,7 +195,7 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/25/2018
+; Modified ......: 1/26/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -210,7 +210,7 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 
 	Select
 		Case Not IsInt($hCores)
-			_ConsoleWrite("!> " & $hCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
+			_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hOutput)
 			Return 1
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
@@ -354,12 +354,12 @@ EndFunc
 ; Name ..........: _StopServices
 ; Description ...: Stop services that won't be needing during gaming
 ; Syntax ........: _StopServices($bState[, $hOutput = False])
-; Parameters ....: $bState              - Stop services
+; Parameters ....: $bState              - "True" to stop services, "False" to start services
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
 ; Modified ......: 1/11/2018
-; Remarks .......: TO DO: Return values
+; Remarks .......: TO DO: Return values, Accept Array of Services to Start/Stop
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
