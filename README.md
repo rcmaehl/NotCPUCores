@@ -1,5 +1,5 @@
 # NotCPUCores
-Functionally the Same, but Free. Soon to be even better than the Original ;). Download under Releases
+Work, Stream, Play - Without the Stutter. Download Under Releases
 
 ![Version 1.5.0.0](https://i.imgur.com/NSZQc0b.gif)
 
