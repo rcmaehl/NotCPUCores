@@ -378,6 +378,13 @@ Func Main()
 	WinMove($hGUI, "", Default, Default, 285, 345, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
+	$hTimerGUI = GUICreate("Set Sleep Timer", 120, 40, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
+	GUICtrlCreateLabel("ms", 50, 15, 20, 15)
+	$hSleepTime = GUICtrlCreateInput($iSleep, 5, 10, 40, 20, $ES_RIGHT + $ES_NUMBER)
+	GUICtrlSetLimit(-1, 3, 1)
+	$hOK = GUICtrlCreateButton("OK", 70, 10, 40, 20)
+
+
 	While 1
 
 		; Optimize first, always
@@ -433,8 +440,12 @@ Func Main()
 					$bPHidden = True
 				EndIf
 
-			;Case $hMsg = $hSetTimer
-				;InputBox("Set Sleep Timer", "
+			Case $hMsg = $hSetTimer
+				GUISetState(@SW_SHOW, $hTimerGUI)
+
+			Case $hMsg = $hOK
+				$iSleep = GUICtrlRead($hSleepTime)
+				GUISetState(@SW_HIDE, $hTimerGUI)
 
 			Case $hMsg = $hSave
 				If GUICtrlRead($hTask) = "" Then
