@@ -35,8 +35,12 @@ Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
 
 Global $bInterrupt = False
+Global $bRefresh = False
+
+HotKeySet("{F5}", "_Refresh")
 HotKeySet("{PAUSE}", "_Interrupt")
 HotKeySet("{BREAK}", "_Interrupt")
+
 
 #cs
 
@@ -357,9 +361,10 @@ Func Main()
 	Local $bPHidden = False
 	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 300, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hProcesses)
+		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
 
 	_GetProcessList($hProcesses)
-	_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
+	_GUICtrlListView_SortItems($hProcesses, 0)
 
 	GUICtrlSetState($hProcesses, $GUI_HIDE)
 	$bPHidden = True
@@ -464,7 +469,14 @@ Func Main()
 				IniWrite($hFile, "Streaming", "Assignement", GUICtrlRead($hOAssign    ))
 
 			Case $hMsg = $hProcesses
+				$bRefresh = False
 				_GetProcessList($hProcesses)
+				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
+
+			Case $bRefresh = True
+				$bRefresh = False
+				_GetProcessList($hProcesses)
+				_GUICtrlListView_SortItems($hProcesses, 0)
 
 			Case $hMsg = $hSearch
 				GUICtrlSetState($hDToggle, $GUI_DISABLE)
@@ -879,7 +891,7 @@ Func _GetProcessList($hControl)
 	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
 		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
 	Next
-	_GUICtrlListView_SortItems($hControl, GUICtrlGetState($hControl))
+;	_GUICtrlListView_SortItems($hControl, GUICtrlGetState($hControl))
 
 EndFunc
 
@@ -943,4 +955,8 @@ Func _LoadLanguage($iLanguage = @OSLang)
 		#EndRegion
 
 	EndIf
+EndFunc
+
+Func _Refresh()
+	$bRefresh = True
 EndFunc
