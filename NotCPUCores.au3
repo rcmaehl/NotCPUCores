@@ -166,6 +166,7 @@ Func Main()
 			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
 			"Ranges seperated by a dash are supported." & @CRLF & _
 			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON)
+		If $iThreads > 2 Then GUICtrlSetData(-1, "1-" & Ceiling($iThreads/2))
 
 	GUICtrlCreateLabel("Process Priority:", 10, 125, 140, 15)
 
