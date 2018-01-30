@@ -129,6 +129,7 @@ Func Main()
 	#Region ; Help Menu
 	Local $hMenu3 = GUICtrlCreateMenu("Help")
 	Local $hGithub = GUICtrlCreateMenuItem("Website"          , $hMenu3)
+	GUICtrlCreateMenuItem("", $hMenu3)
 	Local $hUpdate = GUICtrlCreateMenuItem("Check for Updates", $hMenu3)
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
@@ -200,6 +201,13 @@ Func Main()
 			"Ranges seperated by a dash are supported." & @CRLF & _
 			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
+		If $iThreads > 2 Then
+			If $iThreads = 3 Then
+				GUICtrlSetData(-1, "3")
+			Else
+				GUICtrlSetData(-1, Ceiling($iThreads/2) + 1 & "-" & $iThreads)
+			EndIf
+		EndIf
 
 	GUICtrlCreateLabel("Broadcast Software:", 10, 100, 140, 15)
 
@@ -451,6 +459,7 @@ Func Main()
 
 			Case $hMsg = $hOK
 				$iSleep = GUICtrlRead($hSleepTime)
+				GUICtrlSetData($hGetTimer, "Current Timer: " & $iSleep & "ms")
 				GUISetState(@SW_HIDE, $hTimerGUI)
 
 			Case $hMsg = $hSave
