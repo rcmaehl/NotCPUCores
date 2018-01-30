@@ -505,7 +505,7 @@ Func Main()
 				Else
 					GUICtrlSetColor($hBCores, 0x000000)
 					If StringRegExp(GUICtrlRead($hCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then GUICtrlSetState($hOptimize, $GUI_ENABLE)
-					If StringInStr(GUICtrlRead($hBCores), ",") Then ; Convert Multiple Cores if Declared to Magic Number
+					If StringInStr(GUICtrlRead($hBCores), ",") Or StringInStr(GUICtrlRead($hBCores), "-") Then ; Convert Multiple Cores if Declared to Magic Number
 						$aBCores = StringSplit(GUICtrlRead($hBCores), ",", $STR_NOCOUNT)
 						For $iLoop1 = 0 To UBound($aBCores) - 1 Step 1
 							If StringInStr($aBCores[$iLoop1], "-") Then
@@ -678,7 +678,7 @@ Func Main()
 				Else
 					GUICtrlSetColor($hCores, 0x000000)
 					If StringRegExp(GUICtrlRead($hBCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then GUICtrlSetState($hOptimize, $GUI_ENABLE)
-					If StringInStr(GUICtrlRead($hCores), ",") Then ; Convert Multiple Cores if Declared to Magic Number
+					If StringInStr(GUICtrlRead($hCores), ",") Or StringInStr(GUICtrlRead($hCores), "-") Then ; Convert Multiple Cores if Declared to Magic Number
 						$aCores = StringSplit(GUICtrlRead($hCores), ",", $STR_NOCOUNT)
 						For $iLoop1 = 0 To UBound($aCores) - 1 Step 1
 							If StringInStr($aCores[$iLoop1], "-") Then
