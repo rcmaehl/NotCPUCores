@@ -74,7 +74,7 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - An Error Occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/26/2018
+; Modified ......: 1/30/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -125,12 +125,12 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 			Case $hCores > $hAllCores
 				_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hOutput)
 				Return 1
-			Case $hCores = $hAllCores
-				_ConsoleWrite("!> You've left no cores for other Processes" & @CRLF, $hOutput)
-				Return 1
 			Case _ArraySearch($aPriorities, $sPriority) = -1
 				_ConsoleWrite("!> " & $sPriority & " is not a valid priority level" & @CRLF, $hOutput)
 				Return 1
+			Case $hCores = $hAllCores
+				_ConsoleWrite("!> All Cores used for Assignment, abnormal performance may occur" & @CRLF, $hOutput)
+				ContinueCase
 			Case Else
 				_ConsoleWrite("Optimizing " & $hProcess & " in the background until it closes..." & @CRLF, $hOutput)
 				If ProcessExists($hProcess) Then
@@ -249,7 +249,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/11/2018
+; Modified ......: 1/30/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -269,8 +269,8 @@ Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = 
 			_ConsoleWrite("!> You've specified more combined cores than available on your system" & @CRLF, $hOutput)
 			Return 1
 		Case $hCores <= 0
-			_ConsoleWrite("!> You've left no cores for other Processes" & @CRLF, $hOutput)
-			Return 1
+			$hCores = 2^($iThreads - 1)
+			ContinueCase
 		Case Else
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			Sleep($iSleepTime)
