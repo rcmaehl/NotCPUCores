@@ -75,7 +75,7 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - An Error Occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/30/2018
+; Modified ......: 1/31/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -132,7 +132,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 				_ConsoleWrite("!> " & $sPriority & " is not a valid priority level" & @CRLF, $hOutput)
 				Return 1
 			Case $hCores = $hAllCores
-				_ConsoleWrite("!> All Cores used for Assignment, abnormal performance may occur" & @CRLF, $hOutput)
+				_ConsoleWrite("!> All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance" & @CRLF, $hOutput)
 				ContinueCase
 			Case Else
 				_ConsoleWrite("Optimizing in the background until the process closes..." & @CRLF, $hOutput)

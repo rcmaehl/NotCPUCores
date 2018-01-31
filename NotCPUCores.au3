@@ -291,13 +291,6 @@ Func Main()
 
 	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 35, 220, 15)
 
-	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 30, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
-		GUICtrlSetLimit(-1, 3,1)
-		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & _
-			"Decreasing this value can smooth FPS drops, " & @CRLF & _
-			"at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
-
-
 	GUICtrlCreateLabel("Processes to Always Include", 5, 25, 270, 20, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
@@ -394,13 +387,12 @@ Func Main()
 
 	#Region ; Sleep Timer GUI
 	$hTimerGUI = GUICreate("Set Sleep Timer", 240, 120, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
-	GUICtrlCreateLabel("Decreasing this value can smooth FPS drops, at the risk of NotCPUCores having more CPU usage itself", 10, 10, 220, 45, $SS_SUNKEN)
-	GUICtrlCreateLabel("Current Sleep Timer:", 10, 60, 110, 20)
-	$hSleepCurr = GUICtrlCreateInput($iSleep, 120, 60, 40, 20, $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
-	$hSleepTime = GUICtrlCreateInput($iSleep, 10, 90, 40, 20, $ES_RIGHT + $ES_NUMBER)
+	GUICtrlCreateLabel("Decreasing this value can smooth FPS drops, at the risk of NotCPUCores having more CPU usage itself", 10, 10, 220, 45)
+	GUICtrlCreateLabel("New Sleep Timer:", 10, 60, 110, 20)
+	$hSleepTime = GUICtrlCreateInput($iSleep, 120, 55, 40, 20, $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-1, 3, 1)
-	GUICtrlCreateLabel("ms", 55, 95, 20, 15)
-	$hOK = GUICtrlCreateButton("OK", 110, 90, 40, 20)
+	GUICtrlCreateLabel("ms", 165, 60, 20, 15)
+	$hOK = GUICtrlCreateButton("OK", 170, 90, 60, 20)
 	#EndRegion
 
 	While 1
