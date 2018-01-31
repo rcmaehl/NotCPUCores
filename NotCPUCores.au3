@@ -160,18 +160,34 @@ Func Main()
 			"Coming Soon", "USAGE", $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Core Assignment:", 10, 100, 140, 15)
+	GUICtrlCreateLabel("Allocation Mode:", 10, 100, 140, 15)
 
-	Local $hCores = GUICtrlCreateInput("1", 150, 95, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hAssignMode = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
+		If $iCores = $iThreads Then
+			GUICtrlSetData(-1, "All Cores|First Core|First 2 Cores|First 4 Cores|First Half|Even Cores|Odd Cores|First AMD CCX|Custom", "All Cores")
+		Else
+			GUICtrlSetData(-1, "All Cores|First Core|First 2 Cores|First 4 Cores|First Half|Physical Cores|Non-Physical Cores|Every Other Pair|First AMD CCX|Custom", "All Cores")
+		EndIf
+
+	GUICtrlCreateLabel("Custom Assignment:", 10, 125, 140, 15)
+
+	Local $hCores = GUICtrlCreateInput("", 150, 120, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
 			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
 			"Ranges seperated by a dash are supported." & @CRLF & _
 			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON)
-		If $iThreads > 2 Then GUICtrlSetData(-1, "1-" & Ceiling($iThreads/2))
+		If $iThreads <= 4 Then
+			GUICtrlSetData(-1, "1-" & $iThreads)
+		ElseIf $iThreads <= 6 Then
+			GUICtrlSetData(-1, "1-4")
+		Else
+			GUICtrlSetData(-1, "1-" & Ceiling($iThreads/2))
+		EndIf
+		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Process Priority:", 10, 125, 140, 15)
+	GUICtrlCreateLabel("Process Priority:", 10, 150, 140, 15)
 
-	Local $hPPriority = GUICtrlCreateCombo("", 150, 120, 120, 20, $CBS_DROPDOWNLIST)
+	Local $hPPriority = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "Normal|Above Normal|High|Realtime", "High")
 
 	Local $hReset = GUICtrlCreateButton("RESTORE", 5, 275, 135, 20)
@@ -193,7 +209,7 @@ Func Main()
 			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Physical Cores|Non-Physical Cores|Every Other Pair|Last AMD CCX|Custom", "OFF")
 		EndIf
 
-	GUICtrlCreateLabel("Custom Cores:", 10, 75, 140, 15)
+	GUICtrlCreateLabel("Custom Assignment:", 10, 75, 140, 15)
 
 	Local $hBCores = GUICtrlCreateInput("2", 150, 70, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
@@ -387,7 +403,7 @@ Func Main()
 
 	#Region ; Sleep Timer GUI
 	$hTimerGUI = GUICreate("Set Sleep Timer", 240, 120, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
-	GUICtrlCreateLabel("Decreasing this value can smooth FPS drops, at the risk of NotCPUCores having more CPU usage itself", 10, 10, 220, 45)
+	GUICtrlCreateLabel("Decreasing this value can smooth FPS drops when new programs start, at the risk of NotCPUCores having more CPU usage itself", 10, 5, 220, 45)
 	GUICtrlCreateLabel("New Sleep Timer:", 10, 60, 110, 20)
 	$hSleepTime = GUICtrlCreateInput($iSleep, 120, 55, 40, 20, $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-1, 3, 1)
@@ -569,7 +585,7 @@ Func Main()
 					Case Else
 						ReDim $aProcesses[1]
 						$aProcesses[0] = GUICtrlRead($hTask)
-						_ConsoleWrite("!>Invalid Broadcaster Software!" & @CRLF, $hConsole)
+						_ConsoleWrite("!> Invalid Broadcaster Software!" & @CRLF, $hConsole)
 
 				EndSwitch
 				ContinueCase
@@ -687,7 +703,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						ReDim $aProcesses[1]
-						_ConsoleWrite("!>Invalid Broadcaster Mode!" & @CRLF, $hConsole)
+						_ConsoleWrite("!> Invalid Broadcaster Mode!" & @CRLF, $hConsole)
 
 				EndSwitch
 				ContinueCase
@@ -724,6 +740,95 @@ Func Main()
 				EndIf
 				ContinueCase
 
+			Case $hMsg = $hAssignMode
+				$iProcessCores = 0
+				Switch GUICtrlRead($hAssignMode)
+
+					Case "All Cores"
+						$iProcessCores = $iAllCores
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case "First Core"
+						$iProcessCores = 2^($iThreads - 1)
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case "First 2 Cores"
+						For $iLoop = ($iThreads - 2) To $iThreads - 1
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case "First 4 Cores"
+						For $iLoop = ($iThreads-4) To $iThreads - 1
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case "First Half"
+						For $iLoop = Ceiling(($iThreads - ($iThreads/2))) To $iThreads - 1
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case "Odd Cores", "Non-Physical Cores"
+						For $iLoop = 1 To $iThreads - 1 Step 2
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case "Even Cores", "Physical Cores"
+						For $iLoop = 0 To $iThreads - 1 Step 2
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case "Every Other Pair"
+						For $iLoop = 0 To $iThreads - 1 Step 4
+							$iProcessCores += 2^($iLoop)
+							$iProcessCores += 2^($iLoop + 1)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case "First AMD CCX"
+						For $iLoop = ($iThreads - _CalculateCCX()) To $iThreads - 1 Step 2
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case "Custom"
+						GUICtrlSetState($hCores, $GUI_ENABLE)
+						If Not StringRegExp(GUICtrlRead($hCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then ;\A[0-9]+?(,[0-9]+)*\Z
+							GUICtrlSetColor($hCores, 0xFF0000)
+							GUICtrlSetState($hOptimize, $GUI_DISABLE)
+						Else
+							GUICtrlSetColor($hCores, 0x000000)
+							If StringRegExp(GUICtrlRead($hBCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then GUICtrlSetState($hOptimize, $GUI_ENABLE)
+							If StringInStr(GUICtrlRead($hCores), ",") Or StringInStr(GUICtrlRead($hCores), "-") Then ; Convert Multiple Cores if Declared to Magic Number
+								$aCores = StringSplit(GUICtrlRead($hCores), ",", $STR_NOCOUNT)
+								For $iLoop1 = 0 To UBound($aCores) - 1 Step 1
+									If StringInStr($aCores[$iLoop1], "-") Then
+										$aRange = StringSplit($aCores[$iLoop1], "-", $STR_NOCOUNT)
+										If $aRange[0] < $aRange[1] Then
+											For $iLoop2 = $aRange[0] To $aRange[1] Step 1
+												$iProcessCores += 2^($iLoop2-1)
+											Next
+										Else
+											For $iLoop2 = $aRange[1] To $aRange[0] Step 1
+												$iProcessCores += 2^($iLoop2-1)
+											Next
+										EndIf
+									Else
+										$iProcessCores += 2^($aCores[$iLoop1]-1)
+									EndIf
+								Next
+							Else
+								$iProcessCores = 2^(GUICtrlRead($hCores)-1)
+							EndIf
+						EndIf
+
+				EndSwitch
+				ContinueCase
+
 			Case $hMsg = $hOAssign
 				$iOtherProcessCores = 0
 				Switch GUICtrlRead($hOAssign)
@@ -739,7 +844,7 @@ Func Main()
 
 					Case Else
 						$iOtherProcessCores = 1
-						_ConsoleWrite("!>Invalid Process Assign Mode!" & @CRLF, $hConsole)
+						_ConsoleWrite("!> Invalid Process Assign Mode!" & @CRLF, $hConsole)
 
 				EndSwitch
 
