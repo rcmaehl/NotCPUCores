@@ -90,6 +90,8 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 		$hAllCores += 2^$iLoop
 	Next
 
+	If $hProcess = "ACTIVE" Then $hProcess = WinGetProcess("[ACTIVE]")
+
 	If $iProcesses > 0 Then
 		If Not ProcessExists($hProcess) Then
 			_ConsoleWrite($hProcess & " exited. Restoring..." & @CRLF, $hOutput)
@@ -263,6 +265,8 @@ Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = 
 	For $iLoop = 0 To $iThreads - 1
 		$hAllCores += 2^$iLoop
 	Next
+
+	If $aExclusions[0] = "ACTIVE" Then $aExclusions[0] = WinGetProcess("[ACTIVE]")
 
 	Select
 		Case $hCores > $hAllCores
