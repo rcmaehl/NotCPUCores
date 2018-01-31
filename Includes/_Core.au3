@@ -2,6 +2,7 @@
 
 #include <Array.au3>
 #include <WinAPI.au3>
+#include <Process.au3>
 #include <Constants.au3>
 #include <StringConstants.au3>
 #include "./_WMIC.au3"
@@ -82,13 +83,15 @@ EndFunc
 ; ===============================================================================================================================
 Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
 
-	Dim $iThreads = _GetCPUInfo(1)
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $iThreads - 1
 		$hAllCores += 2^$iLoop
 	Next
+
+	If $hProcess = "ACTIVE" Then $hProcess = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 
 	If $iProcesses > 0 Then
 		If Not ProcessExists($hProcess) Then
@@ -132,12 +135,10 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 				_ConsoleWrite("!> All Cores used for Assignment, abnormal performance may occur" & @CRLF, $hOutput)
 				ContinueCase
 			Case Else
-				_ConsoleWrite("Optimizing " & $hProcess & " in the background until it closes..." & @CRLF, $hOutput)
+				_ConsoleWrite("Optimizing in the background until the process closes..." & @CRLF, $hOutput)
 				If ProcessExists($hProcess) Then
 					Sleep($iSleepTime)
 					$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-					Sleep($iSleepTime)
-					_ConsoleWrite("Process Count Changed, Rerunning Optimization...", $hOutput)
 					Sleep($iSleepTime)
 					For $iLoop = 0 to $aProcesses[0][0] Step 1
 						If $aProcesses[$iLoop][0] = $hProcess Then
@@ -203,7 +204,7 @@ EndFunc
 ; ===============================================================================================================================
 Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
 
-	Dim $iThreads = _GetCPUInfo(1)
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
 
 	_ArrayDelete($aProcessList, 0)
@@ -255,14 +256,16 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
+Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
-	Dim $iThreads = _GetCPUInfo(1)
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 
 	For $iLoop = 0 To $iThreads - 1
 		$hAllCores += 2^$iLoop
 	Next
+
+	If $aExclusions[0] = "ACTIVE" Then $aExclusions[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 
 	Select
 		Case $hCores > $hAllCores
