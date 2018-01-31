@@ -82,7 +82,7 @@ EndFunc
 ; ===============================================================================================================================
 Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
 
-	Dim $iThreads = _GetCPUInfo(1)
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
@@ -205,7 +205,7 @@ EndFunc
 ; ===============================================================================================================================
 Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
 
-	Dim $iThreads = _GetCPUInfo(1)
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
 
 	_ArrayDelete($aProcessList, 0)
@@ -259,7 +259,7 @@ EndFunc
 ; ===============================================================================================================================
 Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
-	Dim $iThreads = _GetCPUInfo(1)
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 
 	For $iLoop = 0 To $iThreads - 1
