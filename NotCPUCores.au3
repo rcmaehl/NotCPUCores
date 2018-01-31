@@ -5,9 +5,9 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=N
-#AutoIt3Wrapper_Res_Comment=Compiled 01/30/2018 @ 15:15 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 01/31/2018 @ 13:35 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.6.0.0
+#AutoIt3Wrapper_Res_Fileversion=1.6.2.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -92,8 +92,9 @@ Func Main()
 
 	; One Time Variable Setting
 	Local $aCores
+	Local $bInit = True
 	Local $iSleep = 100
-	Local $sVersion = "1.6.0.0"
+	Local $sVersion = "1.6.2.0"
 	Local $iAllCores
 	Local $aProcesses[1]
 	Local $iProcesses = 0
@@ -101,11 +102,9 @@ Func Main()
 	Local $iBroadcasterCores = 0
 	Local $iOtherProcessCores = 1
 
-	$iAllCores = 0
 	For $iLoop = 0 To $iThreads - 1
 		$iAllCores += 2^$iLoop
 	Next
-	$iOtherProcessCores = $iAllCores - $iProcessCores
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 
@@ -131,6 +130,7 @@ Func Main()
 	Local $hGithub = GUICtrlCreateMenuItem("Website"          , $hMenu3)
 	GUICtrlCreateMenuItem("", $hMenu3)
 	Local $hUpdate = GUICtrlCreateMenuItem("Check for Updates", $hMenu3)
+	#EndRegion
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
@@ -392,12 +392,16 @@ Func Main()
 	WinMove($hGUI, "", Default, Default, 285, 345, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
-	$hTimerGUI = GUICreate("Set Sleep Timer", 120, 40, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
-	GUICtrlCreateLabel("ms", 50, 15, 20, 15)
-	$hSleepTime = GUICtrlCreateInput($iSleep, 5, 10, 40, 20, $ES_RIGHT + $ES_NUMBER)
+	#Region ; Sleep Timer GUI
+	$hTimerGUI = GUICreate("Set Sleep Timer", 240, 120, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
+	GUICtrlCreateLabel("Decreasing this value can smooth FPS drops, at the risk of NotCPUCores having more CPU usage itself", 10, 10, 220, 45, $SS_SUNKEN)
+	GUICtrlCreateLabel("Current Sleep Timer:", 10, 60, 110, 20)
+	$hSleepCurr = GUICtrlCreateInput($iSleep, 120, 60, 40, 20, $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
+	$hSleepTime = GUICtrlCreateInput($iSleep, 10, 90, 40, 20, $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-1, 3, 1)
-	$hOK = GUICtrlCreateButton("OK", 70, 10, 40, 20)
-
+	GUICtrlCreateLabel("ms", 55, 95, 20, 15)
+	$hOK = GUICtrlCreateButton("OK", 110, 90, 40, 20)
+	#EndRegion
 
 	While 1
 
@@ -517,6 +521,10 @@ Func Main()
 				GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
 				GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
 				GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
+				ContinueCase
+
+			Case $bInit = True
+				$bInit = False
 				ContinueCase
 
 			Case $hMsg = $hBCores
