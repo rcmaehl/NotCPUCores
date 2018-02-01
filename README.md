@@ -5,7 +5,7 @@ Work, Stream, Play - Without the Stutter. Download Under Releases
 
 ## What is NotCPUCores?
 
-What NotCPUCores is is called a lot of things. A lot of them are **snake oil** terms, so let's get them out of the way first, before we get technical. "Game Booster", "FPS Booster", "System Stabilizer", "Process Tweaker", "Game Tweaker" among terms we don't like. NotCPUCores uses Windows' own tools to tell it how to give CPU cores, disk usage priority, and other tasks to a game or application, compared to how it handles them by default. NotCPUCores does the same or similar tweaks compared to non-free alternatives as well as providing additional features
+What NotCPUCores is is called a lot of things. A lot of them are **snake oil** terms, so let's get them out of the way first, before we get technical. "Game Booster", "FPS Booster", "System Stabilizer", "Process Tweaker", "Game Tweaker" among other terms we don't like. NotCPUCores uses Windows' own tools to tell it how to give CPU cores, disk usage priority, and other tasks to a game or application, compared to how it handles them by default. NotCPUCores does the same or similar tweaks compared to non-free alternatives as well as providing additional features
 
 ## Is it worth using NotCPUCores/CPUCores/(Insert Other Optimizer/Booster Here)?
 
