@@ -135,7 +135,7 @@ Func Main()
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
 
-	GUICtrlCreateTab(0, 0, 280, 300, 0)
+	GUICtrlCreateTab(0, 0, 280, 300)
 
 	#Region ; Optimize Tab
 	GUICtrlCreateTabItem("Optimize")
@@ -383,15 +383,15 @@ Func Main()
 
 	_GetProcessList($hProcesses)
 	_GUICtrlListView_SortItems($hProcesses, 0)
+	#EndRegion
 
+	#Region ; Games List
 	Local $hGames = GUICtrlCreateListView("Game|Process", 280, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hGames)
 		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
 
-	GUICtrlSetState($hProcesses, $GUI_HIDE)
-	GUICtrlSetState($hGames, $GUI_HIDE)
-	$bPHidden = True
 	#EndRegion
+	$bPHidden = True
 
 	#Region ; Debug Console
 	Local $bCHidden = False
@@ -399,7 +399,9 @@ Func Main()
 		GUICtrlSetColor(-1, 0xFFFFFF)
 		GUICtrlSetBkColor(-1, 0x000000)
 
+	GUICtrlSetState($hGames, $GUI_HIDE)
 	GUICtrlSetState($hConsole, $GUI_HIDE)
+	GUICtrlSetState($hProcesses, $GUI_HIDE)
 	$bCHidden = True
 	#EndRegion
 
