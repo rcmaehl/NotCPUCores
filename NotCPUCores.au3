@@ -377,14 +377,19 @@ Func Main()
 
 	#Region ; Process List
 	Local $bPHidden = False
-	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 300, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hProcesses)
 		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
 
 	_GetProcessList($hProcesses)
 	_GUICtrlListView_SortItems($hProcesses, 0)
 
+	Local $hGames = GUICtrlCreateListView("Game|Process", 280, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+		_GUICtrlListView_RegisterSortCallBack($hGames)
+		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
+
 	GUICtrlSetState($hProcesses, $GUI_HIDE)
+	GUICtrlSetState($hGames, $GUI_HIDE)
 	$bPHidden = True
 	#EndRegion
 
@@ -449,15 +454,18 @@ Func Main()
 
 			Case $hMsg = $hDToggle
 				If $bCHidden Or $bPHidden Then
+					GUICtrlSetState($hGames, $GUI_SHOW)
 					GUICtrlSetState($hConsole, $GUI_SHOW)
 					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 480)
+					GUICtrlSetPos($hGames, 280, 20, 355, 280)
 					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 300)
+					GUICtrlSetPos($hProcesses, 280, 20, 355, 280)
 					$bCHidden = False
 					$bPHidden = False
 				Else
+					GUICtrlSetState($hGames, $GUI_HIDE)
 					GUICtrlSetState($hConsole, $GUI_HIDE)
 					GUICtrlSetState($hProcesses, $GUI_HIDE)
 					$aPos = WinGetPos($hGUI)
@@ -482,12 +490,14 @@ Func Main()
 				EndIf
 				$hFile = FileSaveDialog("Save Current Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
 				IniWrite($hFile, "General"  , "Process"    , GUICtrlRead($hTask       ))
+				IniWrite($hFile, "General"  , "SplitAs"    , GUICtrlRead($hAssignMode ))
 				IniWrite($hFile, "General"  , "Threads"    , GUICtrlRead($hCores      ))
-;				IniWrite($hFile, "General"  , "Children"   , GUICtrlRead($hChildren   ))
+				IniWrite($hFile, "General"  , "Children"   , GUICtrlRead($hChildren   ))
 				IniWrite($hFile, "General"  , "Priority"   , GUICtrlRead($hPPriority  ))
 				IniWrite($hFile, "Streaming", "SplitAs"    , GUICtrlRead($hSplitMode  ))
 				IniWrite($hFile, "Streaming", "Threads"    , GUICtrlRead($hBCores     ))
 				IniWrite($hFile, "Streaming", "Software"   , GUICtrlRead($hBroadcaster))
+				IniWrite($hFile, "Streaming", "Children"   , GUICtrlRead($hBroChild   ))
 				IniWrite($hFile, "Streaming", "Assignement", GUICtrlRead($hOAssign    ))
 
 			Case $hMsg = $hProcesses
@@ -503,10 +513,12 @@ Func Main()
 			Case $hMsg = $hSearch
 				GUICtrlSetState($hDToggle, $GUI_DISABLE)
 				If $bPHidden Then
+					GUICtrlSetState($hGames, $GUI_SHOW)
 					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 640)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 300)
+					GUICtrlSetPos($hGames, 280, 20, 355, 280)
+					GUICtrlSetPos($hProcesses, 280, 20, 355, 280)
 					$bPHidden = False
 				Else
 					$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
@@ -523,8 +535,10 @@ Func Main()
 				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
 				GUICtrlSetData($hTask       , String(IniRead($hFile, "General"  , "Process" ,            "")))
 				GUICtrlSetData($hCores      , String(IniRead($hFile, "General"  , "Threads" ,           "1")))
-;				GUICtrlSetState($hChildren  , Number(IniRead($hFile, "General"  , "Children",$GUI_UNCHECKED)))
+				GUICtrlSetState($hChildren  , Number(IniRead($hFile, "General"  , "Children",$GUI_UNCHECKED)))
 				GUICtrlSetData($hBCores     , String(IniRead($hFile, "Streaming", "Threads" ,           "2")))
+				GUICtrlSetState($hBroChild  , Number(IniRead($hFile, "Streaming", "Children",$GUI_UNCHECKED)))
+				GUICtrlSetData($hAssignMode , String(_IniRead($hFile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),      "All Coress")))
 				GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
 				GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
 				GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
