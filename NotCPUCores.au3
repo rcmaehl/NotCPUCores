@@ -391,6 +391,8 @@ Func Main()
 		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
 
 	#EndRegion
+	GUICtrlSetState($hGames, $GUI_HIDE)
+	GUICtrlSetState($hProcesses, $GUI_HIDE)
 	$bPHidden = True
 
 	#Region ; Debug Console
@@ -399,9 +401,7 @@ Func Main()
 		GUICtrlSetColor(-1, 0xFFFFFF)
 		GUICtrlSetBkColor(-1, 0x000000)
 
-	GUICtrlSetState($hGames, $GUI_HIDE)
 	GUICtrlSetState($hConsole, $GUI_HIDE)
-	GUICtrlSetState($hProcesses, $GUI_HIDE)
 	$bCHidden = True
 	#EndRegion
 
