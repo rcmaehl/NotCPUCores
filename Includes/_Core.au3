@@ -5,31 +5,8 @@
 #include <Process.au3>
 #include <Constants.au3>
 #include <StringConstants.au3>
-#include "./_WMIC.au3"
-
-; #FUNCTION# ====================================================================================================================
-; Name ..........: _ConsoleWrite
-; Description ...: Allow on the fly writing to a GUI console based on variables passed
-; Syntax ........: _ConsoleWrite($sMessage[, $hOutput = False])
-; Parameters ....: $sMessage            - Message to write.
-;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
-; Return values .: None
-; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/8/2018
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func _ConsoleWrite($sMessage, $hOutput = False)
-
-	If $hOutput = False Then
-		ConsoleWrite($sMessage)
-	Else
-		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sMessage)
-	EndIf
-
-EndFunc
+#include ".\_WMIC.au3"
+#include ".\_ExtendedFunctions.au3"
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _GetHPETState

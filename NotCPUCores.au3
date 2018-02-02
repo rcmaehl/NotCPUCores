@@ -30,6 +30,8 @@
 #include ".\Includes\_WMIC.au3"
 ;#include ".\Includes\_ModeSelect.au3"
 #include ".\Includes\_GetEnvironment.au3"
+#include ".\Includes\_ExtendedFunctions.au3"
+
 
 Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
@@ -375,9 +377,13 @@ Func Main()
 	#EndRegion
 	GUICtrlCreateTabItem("")
 
+	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
+	GUICtrlCreateTab(0, 0, 360, 300)
+
 	#Region ; Process List
+	GUICtrlCreateTabItem("Running")
 	Local $bPHidden = False
-	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$LVS_EX_FLATSB)
 		_GUICtrlListView_RegisterSortCallBack($hProcesses)
 		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
 
@@ -386,14 +392,16 @@ Func Main()
 	#EndRegion
 
 	#Region ; Games List
-	Local $hGames = GUICtrlCreateListView("Game|Process", 280, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	GUICtrlCreateTabItem("Steam Games")
+	Local $hGames = GUICtrlCreateListView("Game|Process", 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hGames)
 		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
 
 	#EndRegion
-	GUICtrlSetState($hGames, $GUI_HIDE)
-	GUICtrlSetState($hProcesses, $GUI_HIDE)
 	$bPHidden = True
+
+	GUICtrlCreateTabItem("")
+	GUISwitch($hGUI)
 
 	#Region ; Debug Console
 	Local $bCHidden = False
@@ -456,20 +464,20 @@ Func Main()
 
 			Case $hMsg = $hDToggle
 				If $bCHidden Or $bPHidden Then
-					GUICtrlSetState($hGames, $GUI_SHOW)
-					GUICtrlSetState($hConsole, $GUI_SHOW)
-					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 480)
-					GUICtrlSetPos($hGames, 280, 20, 355, 280)
+					$aPos = WinGetPos($hQuickTabs)
+					WinMove($hQuickTabs, "", $aPos[0], $aPos[1], 355, 300)
+					GUICtrlSetState($hConsole, $GUI_SHOW)
+					GUISetState(@SW_SHOW, $hQuickTabs)
+					GUICtrlSetPos($hGames, 0, 20, 355, 280)
 					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
-					GUICtrlSetPos($hProcesses, 280, 20, 355, 280)
+					GUICtrlSetPos($hProcesses, 0, 20, 355, 280)
 					$bCHidden = False
 					$bPHidden = False
 				Else
-					GUICtrlSetState($hGames, $GUI_HIDE)
 					GUICtrlSetState($hConsole, $GUI_HIDE)
-					GUICtrlSetState($hProcesses, $GUI_HIDE)
+					GUISetState(@SW_HIDE, $hQuickTabs)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 285, 345)
 					$bCHidden = True
@@ -535,15 +543,15 @@ Func Main()
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
 				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
-				GUICtrlSetData($hTask       , String(IniRead($hFile, "General"  , "Process" ,            "")))
-				GUICtrlSetData($hCores      , String(IniRead($hFile, "General"  , "Threads" ,           "1")))
-				GUICtrlSetState($hChildren  , Number(IniRead($hFile, "General"  , "Children",$GUI_UNCHECKED)))
-				GUICtrlSetData($hBCores     , String(IniRead($hFile, "Streaming", "Threads" ,           "2")))
-				GUICtrlSetState($hBroChild  , Number(IniRead($hFile, "Streaming", "Children",$GUI_UNCHECKED)))
-				GUICtrlSetData($hAssignMode , String(_IniRead($hFile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),      "All Coress")))
+				GUICtrlSetData($hTask       , String(_IniRead($hFile, "General"  , "Process"   ,                                      "",                "")))
+				GUICtrlSetState($hChildren  , Number(_IniRead($hFile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
+				GUICtrlSetData($hAssignMode , String(_IniRead($hFile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
+				GUICtrlSetData($hCores      , String(_IniRead($hFile, "General"  , "Threads"   ,                                      "",               "1")))
 				GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
 				GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
+				GUICtrlSetData($hBCores     , String(_IniRead($hFile, "Streaming", "Threads"   ,                                      "",               "2")))
 				GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
+				GUICtrlSetState($hBroChild  , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
 				GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
 				ContinueCase
 
@@ -765,23 +773,19 @@ Func Main()
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case "First Core"
-						$iProcessCores = 2^($iThreads - 1)
+						$iProcessCores = 1
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case "First 2 Cores"
-						For $iLoop = ($iThreads - 2) To $iThreads - 1
-							$iProcessCores += 2^($iLoop)
-						Next
+						$iProcessCores = 3
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case "First 4 Cores"
-						For $iLoop = ($iThreads-4) To $iThreads - 1
-							$iProcessCores += 2^($iLoop)
-						Next
+						$iProcessCores = 15
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
-					Case "First Half"
-						For $iLoop = Ceiling(($iThreads - ($iThreads/2))) To $iThreads - 1
+					Case "First Half" ; To Fix
+						For $iLoop = 0 To (Floor(($iThreads - ($iThreads/2))) - 1)
 							$iProcessCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hCores, $GUI_DISABLE)
@@ -805,7 +809,7 @@ Func Main()
 						Next
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
-					Case "First AMD CCX"
+					Case "First AMD CCX" ; To Fix
 						For $iLoop = ($iThreads - _CalculateCCX()) To $iThreads - 1 Step 2
 							$iProcessCores += 2^($iLoop)
 						Next
@@ -1033,16 +1037,6 @@ EndFunc
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
-
-Func _IniRead($hFile, $sSection, $sKey, $sValid, $sDefault)
-	Local $sReturn = IniRead($hFile, $sSection, $sKey, $sDefault)
-	Local $aValid = StringSplit($sValid, Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
-	If _ArraySearch($aValid, $sReturn) = -1 Then
-		Return $sDefault
-	Else
-		Return $sReturn
-	EndIf
-EndFunc
 
 Func _LoadLanguage($iLanguage = @OSLang)
 	$sPath = ".\Lang\" & $iLanguage & ".ini"
