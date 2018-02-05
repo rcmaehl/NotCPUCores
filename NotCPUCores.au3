@@ -515,9 +515,16 @@ Func Main()
 				_GetProcessList($hProcesses)
 				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
 
+			Case $hMsg = $hGames
+				$bRefresh = False
+				_GetSteamGames($hGames)
+				_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
+
 			Case $bRefresh = True
 				$bRefresh = False
+				_GetSteamGames($hGames)
 				_GetProcessList($hProcesses)
+				_GUICtrlListView_SortItems($hGames, 0)
 				_GUICtrlListView_SortItems($hProcesses, 0)
 
 			Case $hMsg = $hSearch
@@ -1028,6 +1035,10 @@ Func _GetProcessList($hControl)
 	Next
 ;	_GUICtrlListView_SortItems($hControl, GUICtrlGetState($hControl))
 
+EndFunc
+
+Func _GetSteamGames()
+	;;;
 EndFunc
 
 Func _Interrupt()
