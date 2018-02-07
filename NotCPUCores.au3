@@ -28,8 +28,9 @@
 
 #include ".\Includes\_Core.au3"
 #include ".\Includes\_WMIC.au3"
+#include ".\Includes\_GetSteam.au3"
 ;#include ".\Includes\_ModeSelect.au3"
-#include ".\Includes\_GetEnvironment.au3"
+#include ".\Includes\_GetLanugage.au3"
 #include ".\Includes\_ExtendedFunctions.au3"
 
 
@@ -42,7 +43,6 @@ Global $bRefresh = False
 HotKeySet("{F5}", "_Refresh")
 HotKeySet("{PAUSE}", "_Interrupt")
 HotKeySet("{BREAK}", "_Interrupt")
-
 
 #cs
 
@@ -88,6 +88,8 @@ Optimize PC
 Global $iCores = _GetCPUInfo(0)
 Global $iThreads = _GetCPUInfo(1)
 
+_LoadLanguage()
+
 Main()
 
 Func Main()
@@ -111,27 +113,27 @@ Func Main()
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
 
 	#Region ; File Menu
-	Local $hMenu1 = GUICtrlCreateMenu("File")
-	Local $hLoad = GUICtrlCreateMenuItem("Load Profile", $hMenu1)
-	Local $hSave = GUICtrlCreateMenuItem("Save Profile", $hMenu1)
+	Local $hMenu1 = GUICtrlCreateMenu($_sLang_FileMenu)
+	Local $hLoad = GUICtrlCreateMenuItem($_sLang_FileLoad, $hMenu1)
+	Local $hSave = GUICtrlCreateMenuItem($_sLang_FileSave, $hMenu1)
 	GUICtrlCreateMenuItem("", $hMenu1)
-	Local $hQuit = GUICtrlCreateMenuItem("Quit"        , $hMenu1)
+	Local $hQuit = GUICtrlCreateMenuItem($_sLang_FileQuit, $hMenu1)
 	#EndRegion
 
 	#Region ; Options Menu
-	Local $hMenu2 = GUICtrlCreateMenu("Options")
-	Local $hTimer = GUICtrlCreateMenu("Sleep Timer", $hMenu2)
-	Local $hGetTimer = GUICtrlCreateMenuItem("Current Timer: " & $iSleep & "ms", $hTimer)
+	Local $hMenu2 = GUICtrlCreateMenu($_sLang_OptionsMenu)
+	Local $hTimer = GUICtrlCreateMenu($_sLang_SleepMenu, $hMenu2)
+	Local $hGetTimer = GUICtrlCreateMenuItem($_sLang_SleepCurrent & ": " & $iSleep & "ms", $hTimer)
 	GUICtrlSetState($hGetTimer, $GUI_DISABLE)
 	GUICtrlCreateMenuItem("", $hTimer)
-	Local $hSetTimer = GUICtrlCreateMenuItem("Set Sleep Timer", $hTimer)
+	Local $hSetTimer = GUICtrlCreateMenuItem($_sLang_SleepSet, $hTimer)
 	#EndRegion
 
 	#Region ; Help Menu
-	Local $hMenu3 = GUICtrlCreateMenu("Help")
-	Local $hGithub = GUICtrlCreateMenuItem("Website"          , $hMenu3)
+	Local $hMenu3 = GUICtrlCreateMenu($_sLang_HelpMenu)
+	Local $hGithub = GUICtrlCreateMenuItem($_sLang_HelpSite, $hMenu3)
 	GUICtrlCreateMenuItem("", $hMenu3)
-	Local $hUpdate = GUICtrlCreateMenuItem("Check for Updates", $hMenu3)
+	Local $hUpdate = GUICtrlCreateMenuItem($_sLang_HelpUpdate, $hMenu3)
 	#EndRegion
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
@@ -791,7 +793,7 @@ Func Main()
 						$iProcessCores = 15
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
-					Case "First Half" ; To Fix
+					Case "First Half"
 						For $iLoop = 0 To (Floor(($iThreads - ($iThreads/2))) - 1)
 							$iProcessCores += 2^($iLoop)
 						Next
@@ -816,8 +818,8 @@ Func Main()
 						Next
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
-					Case "First AMD CCX" ; To Fix
-						For $iLoop = ($iThreads - _CalculateCCX()) To $iThreads - 1 Step 2
+					Case "First AMD CCX"
+						For $iLoop = 0 To (_CalculateCCX() - 1) Step 2
 							$iProcessCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hCores, $GUI_DISABLE)
@@ -1037,8 +1039,23 @@ Func _GetProcessList($hControl)
 
 EndFunc
 
-Func _GetSteamGames()
-	;;;
+Func _GetSteamGames($hControl)
+
+	Return ; Return as code isn't ready yet
+
+	Local $aSteamLibraries = _GetSteamLibraries()
+	Local $aSteamGames
+
+	$aSteamGames[0][0] = UBound($aSteamGames)
+	For $Loop = 1 To $aSteamGames[0][0] - 1
+		$aSteamGames[$Loop][1] = _ProcessGetName(WinGetProcess($aSteamGames[$Loop][1]))
+		GUICtrlCreateListViewItem($aSteamGames[$Loop][1] & "|" & $aSteamGames[$Loop][0], $hControl)
+	Next
+	_ArrayDelete($aSteamGames, 0)
+	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
+		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
+	Next
+
 EndFunc
 
 Func _Interrupt()
@@ -1048,50 +1065,6 @@ EndFunc
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
-
-Func _LoadLanguage($iLanguage = @OSLang)
-	$sPath = ".\Lang\" & $iLanguage & ".ini"
-	If FileExists($sPath) Then
-
-		#Region ; File Info
-;		$_sLang_Version     = IniRead($sPath, "File", "Version" , $sVersion)
-		$_sLang_Language    = IniRead($sPath, "File", "Name"    , "Default")
-		#EndRegion
-
-		#Region ; Global Word Usage
-		$_sLang_Example     = IniRead($sPath, "Global", "Example", "Example")
-		$_sLang_Usage       = IniRead($sPath, "Global", "Usage"  , "Usage"  )
-		$_sLang_Done        = IniRead($sPath, "Global", "Done"   , "Done"   )
-		#EndRegion
-
-		#Region ; Main GUI
-		$_sLang_DebugTip        = IniRead($sPath, "GUI", "DebugTip"     , "Toggle Debug Mode"           )
-		$_sLang_ProcessList     = IniRead($sPath, "GUI", "ProcessList"  , "Window Process"              )
-		$_sLang_ProcessTitle    = IniRead($sPath, "GUI", "ProcessTitle" , "Window Title"                )
-		$_sLang_FileMenu        = IniRead($sPath, "GUI", "FileMenu"     , "File"                        )
-		$_sLang_OptionsMenu     = IniRead($sPath, "GUI", "OptionsMenu"  , "Options"                     )
-		#EndRegion
-
-		#Region ; Console Output
-		$_sLang_DebugStart       = IniRead($sPath, "Console", "DebugStart"      , "Debug Console Initialized"                                )
-		$_sLang_Optimizing1      = IniRead($sPath, "Console", "Optimizing1"     , "Optimizing "                                              )
-		$_sLang_Optimizing2      = IniRead($sPath, "Console", "Optimizing2"     , " in the background until it closes..."                    )
-		$_sLang_RestoringState   = IniRead($sPath, "Console", "RestoringState"  , "Restoring Previous State..."                              )
-		$_sLang_RestoringProcess = IniRead($sPath, "Console", "RestoringProcess", "Restoring Priority and Affinity of all Other Processes...")
-		$_sLang_ProcessChange    = IniRead($sPath, "Console", "ProcessChange"   , "Process Count Changed, Rerunning Optimization..."         )
-		$_sLang_StoppingServices = IniRead($sPath, "Console", "StoppingServices", "Temporarily Pausing Game Impacting Services..."           )
-		$_sLang_StartingServices = IniRead($sPath, "Console", "StartingServices", "Restarting Any Stopped Services..."                       )
-		$_sLang_HPETChange       = IniRead($sPath, "Console", "HPETChange"      , "HPET State Changed, Please Reboot to Apply Changes"       )
-		#EndRegion
-
-		#Region ; Errors
-		$_sLang_NotRunning   = IniRead($sPath, "Errors", "NotRunning"  , " is not currently running. Please run the program first"  )
-		$_sLang_CoreError    = IniRead($sPath, "Errors", "CoreError"   , " is not a proper declaration of what cores to run on"     )
-		$_sLang_TooManyCores = IniRead($sPath, "Errors", "TooManyCores", "You've specified more cores than available on your system")
-		#EndRegion
-
-	EndIf
-EndFunc
 
 Func _Refresh()
 	$bRefresh = True
