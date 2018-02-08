@@ -30,7 +30,7 @@
 #include ".\Includes\_WMIC.au3"
 #include ".\Includes\_GetSteam.au3"
 ;#include ".\Includes\_ModeSelect.au3"
-#include ".\Includes\_GetLanugage.au3"
+#include ".\Includes\_GetLanguage.au3"
 #include ".\Includes\_ExtendedFunctions.au3"
 
 
@@ -137,7 +137,7 @@ Func Main()
 	#EndRegion
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
-		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
+		GUICtrlSetTip($hDToggle, $_sLang_DebugTip)
 
 	GUICtrlCreateTab(0, 0, 280, 300)
 
@@ -383,21 +383,21 @@ Func Main()
 	GUICtrlCreateTab(0, 0, 360, 300)
 
 	#Region ; Process List
-	GUICtrlCreateTabItem("Running")
+	GUICtrlCreateTabItem($_sLang_RunningTab)
 	Local $bPHidden = False
-	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$LVS_EX_FLATSB)
+	Local $hProcesses = GUICtrlCreateListView($_sLang_ProcessList & "|" & $_sLang_ProcessTitle, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$LVS_EX_FLATSB)
 		_GUICtrlListView_RegisterSortCallBack($hProcesses)
-		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
+		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
 	_GetProcessList($hProcesses)
 	_GUICtrlListView_SortItems($hProcesses, 0)
 	#EndRegion
 
 	#Region ; Games List
-	GUICtrlCreateTabItem("Steam Games")
-	Local $hGames = GUICtrlCreateListView("Game|Process", 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	GUICtrlCreateTabItem($_sLang_GamesTab)
+	Local $hGames = GUICtrlCreateListView($_sLang_GameName & "|" & $_sLang_GameProcess, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hGames)
-		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
+		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
 	#EndRegion
 	$bPHidden = True
@@ -407,7 +407,7 @@ Func Main()
 
 	#Region ; Debug Console
 	Local $bCHidden = False
-	$hConsole = GUICtrlCreateEdit("Debug Console Initialized" & @CRLF & "---" & @CRLF, 0, 300, 640, 160, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY))
+	$hConsole = GUICtrlCreateEdit($_sLang_DebugStart & @CRLF & "---" & @CRLF, 0, 300, 640, 160, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY))
 		GUICtrlSetColor(-1, 0xFFFFFF)
 		GUICtrlSetBkColor(-1, 0x000000)
 
@@ -419,9 +419,9 @@ Func Main()
 	GUISetState(@SW_SHOW, $hGUI)
 
 	#Region ; Sleep Timer GUI
-	$hTimerGUI = GUICreate("Set Sleep Timer", 240, 120, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
-	GUICtrlCreateLabel("Decreasing this value can smooth FPS drops when new programs start, at the risk of NotCPUCores having more CPU usage itself", 10, 5, 220, 45)
-	GUICtrlCreateLabel("New Sleep Timer:", 10, 60, 110, 20)
+	$hTimerGUI = GUICreate($_sLang_SleepSet, 240, 120, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
+	GUICtrlCreateLabel($_sLang_SleepText, 10, 5, 220, 45)
+	GUICtrlCreateLabel($_sLang_NewSleep & ":", 10, 60, 110, 20)
 	$hSleepTime = GUICtrlCreateInput($iSleep, 120, 55, 40, 20, $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-1, 3, 1)
 	GUICtrlCreateLabel("ms", 165, 60, 20, 15)
