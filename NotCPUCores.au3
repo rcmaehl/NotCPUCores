@@ -7,7 +7,7 @@
 #AutoIt3Wrapper_Change2CUI=N
 #AutoIt3Wrapper_Res_Comment=Compiled 01/31/2018 @ 13:35 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.6.2.0
+#AutoIt3Wrapper_Res_Fileversion=1.7.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -98,7 +98,7 @@ Func Main()
 	Local $aCores
 	Local $bInit = True
 	Local $iSleep = 100
-	Local $sVersion = "1.6.2.0"
+	Local $sVersion = "1.7.0.0"
 	Local $iAllCores
 	Local $aProcesses[1]
 	Local $iProcesses = 0
