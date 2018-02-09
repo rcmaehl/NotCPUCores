@@ -139,19 +139,24 @@ Func Main()
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
 		GUICtrlSetTip($hDToggle, $_sLang_DebugTip)
 
-	GUICtrlCreateTab(0, 0, 280, 300)
+	GUICtrlCreateTab(0, 0, 280, 275)
 
-	#Region ; Optimize Tab
-	GUICtrlCreateTabItem("Optimize")
+	#Region ; Work Tab
+	;GUICtrlCreateTabItem($_sLang_WorkTab)
 
-	GUICtrlCreateLabel("Game/App Optimization", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	#EndRegion
+
+	#Region ; Play Tab
+	GUICtrlCreateTabItem($_sLang_PlayTab)
+
+	GUICtrlCreateLabel($_sLang_PlayText, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Process:", 10, 50, 140, 15)
+	GUICtrlCreateLabel($_sLang_OptimizeProcess & ":", 10, 50, 140, 15)
 
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & _
-			"Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON)
+			"Example: NOTEPAD.EXE", $_sLang_Usage, $TIP_NOICON)
 
 	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
@@ -161,7 +166,7 @@ Func Main()
 
 	Local $hChildren = GUICtrlCreateCheckbox("", 150, 70, 120, 20, $BS_RIGHTBUTTON)
 		GUICtrlSetTip(-1, "Include other Processes the Game/App starts" & @CRLF & _
-			"Coming Soon", "USAGE", $TIP_NOICON)
+			"Coming Soon", $_sLang_Usage, $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	GUICtrlCreateLabel("Allocation Mode:", 10, 100, 140, 15)
@@ -179,7 +184,7 @@ Func Main()
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
 			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
 			"Ranges seperated by a dash are supported." & @CRLF & _
-			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON)
+			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, $_sLang_Usage, $TIP_NOICON)
 		If $iThreads <= 4 Then
 			GUICtrlSetData(-1, "1-" & $iThreads)
 		ElseIf $iThreads <= 6 Then
@@ -193,9 +198,6 @@ Func Main()
 
 	Local $hPPriority = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "Normal|Above Normal|High|Realtime", "High")
-
-	Local $hReset = GUICtrlCreateButton("RESTORE", 5, 275, 135, 20)
-	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 140, 275, 135, 20)
 	#EndRegion
 
 	#Region ; Stream Tab
@@ -250,8 +252,8 @@ Func Main()
 
 	#EndRegion
 
-	#Region ; Tweaks Tab
-	GUICtrlCreateTabItem("PC Tweaks")
+	#Region ; Tools Tab
+	GUICtrlCreateTabItem("PC Tools")
 
 	GUICtrlCreateLabel("Game Performance", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
@@ -357,7 +359,7 @@ Func Main()
 
 	GUICtrlCreateLabel(@CRLF & "NotCPUCores" & @TAB & "v" & $sVersion & @CRLF & _
 		"Developed by Robert Maehl" & @CRLF & _
-		"Icon by /u/ImRealNow", 5, 35, 270, 70, $SS_CENTER)
+		"Icon by /u/ImRealNow", 5, 25, 270, 60, $SS_CENTER)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("What it does:" & @CRLF & _
@@ -365,7 +367,7 @@ Func Main()
 		"1. Find the Game Process" & @CRLF & _
 		"2. Change Game Priority to High" & @CRLF & _
 		"3. Change Affinity to the Selected Core(s)" & @CRLF & _
-		"4. Set all other Processes Affinity off the Selected Core(s)", 5, 115, 270, 90)
+		"4. Set all other Processes Affinity off the Selected Core(s)", 5, 95, 270, 90)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel("How To Do It Yourself:" & @CRLF & _
@@ -373,11 +375,14 @@ Func Main()
 		"1. Open Task Manager" & @CRLF & _
 		"2. Find the Game Process under Processes or Details" &  @CRLF & _
 		"3. Right Click, Set Priority, High" & @CRLF & _
-		"4. Right Click, Set Affinity, Select Your Core(s)", 5, 215, 270, 100)
+		"4. Right Click, Set Affinity, Select Your Core(s)", 5, 190, 270, 80)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	#EndRegion
 	GUICtrlCreateTabItem("")
+
+	Local $hReset = GUICtrlCreateButton("RESTORE", 5, 275, 135, 20)
+	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 140, 275, 135, 20)
 
 	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
 	GUICtrlCreateTab(0, 0, 360, 300)
@@ -438,7 +443,7 @@ Func Main()
 				$iProcesses = 1
 			ElseIf $iProcesses = 1 Then
 				_Restore($iThreads, $hConsole) ; Do Clean Up
-				GUICtrlSetData($hOptimize, "OPTIMIZE")
+				GUICtrlSetData($hOptimize, $_sLang_Optimize)
 				For $iLoop = $hTask to $hOptimize Step 1
 					If $iLoop = $hChildren Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
@@ -491,7 +496,7 @@ Func Main()
 
 			Case $hMsg = $hOK
 				$iSleep = GUICtrlRead($hSleepTime)
-				GUICtrlSetData($hGetTimer, "Current Timer: " & $iSleep & "ms")
+				GUICtrlSetData($hGetTimer, $_sLang_SleepCurrent & ": " & $iSleep & "ms")
 				GUISetState(@SW_HIDE, $hTimerGUI)
 
 			Case $hMsg = $hSave
@@ -881,9 +886,9 @@ Func Main()
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
-				GUICtrlSetData($hReset, "Restoring PC...")
+				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
 				_Restore($iThreads, $hConsole)
-				GUICtrlSetData($hReset, "RESTORE")
+				GUICtrlSetData($hReset, $_sLang_Restore)
 				For $iLoop = $hTask to $hOptimize Step 1
 					If $iLoop = $hChildren Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
@@ -893,7 +898,7 @@ Func Main()
 				For $Loop = $hTask to $hOptimize Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
-				GUICtrlSetData($hOptimize, "Pause/Break to Stop")
+				GUICtrlSetData($hOptimize, $_sLang_OptimizeAlt)
 				$aProcesses[0] = GUICtrlRead($hTask)
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
 				If _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) Then $iProcesses = 1

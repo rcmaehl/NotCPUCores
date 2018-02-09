@@ -1,5 +1,3 @@
-
-
 Func _GetLanguage($iFlag = 0)
 	Local $sLang = "Unknown"
 	Switch @OSLang
@@ -446,24 +444,36 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	#EndRegion
 
 	#Region ; Main GUI
-	Global $_sLang_DebugTip     = IniRead($sPath, "GUI", "Debug Tip "    , "Toggle Debug Mode"    )
-	Global $_sLang_RunningTab   = IniRead($sPath, "GUI", "Running Tab "  , "Running"              )
-	Global $_sLang_ProcessList  = IniRead($sPath, "GUI", "Process List"  , "Window Process"       )
-	Global $_sLang_ProcessTitle = IniRead($sPath, "GUI", "Process Title" , "Window Title"         )
-	Global $_sLang_RefreshTip   = IniRead($sPath, "GUI", "Refresh Tip"   , "F5 or Sort to Refresh")
-	Global $_sLang_GamesTab     = IniRead($sPath, "GUI", "Games Tab"     , "Steam Games"          )
-	Global $_sLang_GameName     = IniRead($sPath, "GUI", "Game Name"     , "Game Name"            )
-	Global $_sLang_GameProcess  = IniRead($sPath, "GUI", "Game Process"  , "Game Process"         )
+	Global $_sLang_DebugTip     = IniRead($sPath, "GUI", "Debug Tip"    , "Toggle Debug Mode"    )
+	Global $_sLang_RunningTab   = IniRead($sPath, "GUI", "Running Tab " , "Running"              )
+	Global $_sLang_ProcessList  = IniRead($sPath, "GUI", "Process List" , "Window Process"       )
+	Global $_sLang_ProcessTitle = IniRead($sPath, "GUI", "Process Title", "Window Title"         )
+	Global $_sLang_RefreshTip   = IniRead($sPath, "GUI", "Refresh Tip"  , "F5 or Sort to Refresh")
+	Global $_sLang_GamesTab     = IniRead($sPath, "GUI", "Games Tab"    , "Steam Games"          )
+	Global $_sLang_GameName     = IniRead($sPath, "GUI", "Game Name"    , "Game Name"            )
+	Global $_sLang_GameProcess  = IniRead($sPath, "GUI", "Game Process" , "Game Process"         )
 	#EndRegion
 
 	#Region ; Sleep Timer GUI
 	Global $_sLang_SleepText = IniRead($sPath, "SleepUI", "Set Sleep Text", "Decreasing this value can smooth FPS drops when new programs start, at the risk of NotCPUCores having more CPU usage itself")
 	Global $_sLang_NewSleep  = IniRead($sPath, "SleepUI", "New Sleep Text", "New Sleep Timer"                                                                                                            )
 
-	#Region ; Console Output
+	#Region ; Debug Output
 	Global $_sLang_DebugStart       = IniRead($sPath, "Console", "Debug Started"   , "Debug Console Initialized"  )
-	Global $_sLang_
+	#EndRegion
 
+	#Region ; Optimze Tab
+	Global $_sLang_PlayTab         = IniRead($sPath, "Play", "Work/Play Tab"    , "Work/Play"          )
+	Global $_sLang_PlayText        = IniRead($sPath, "Play", "Work/Play Text"   , "Game/App Settings"  )
+	Global $_sLang_OptimizeProcess = IniRead($sPath, "Play", "Process Select"   , "Process"            )
+	Global $_sLang_Optimize        = IniRead($sPath, "Play", "Optimize Text"    , "GO!"                )
+	Global $_sLang_OptimizeAlt     = IniRead($sPath, "Play", "Optimize Alt Text", "Pause/Break to Stop")
+	Global $_sLang_Restore         = IniRead($sPath, "Play", "Restore Text"     , "RESTORE"            )
+	Global $_sLang_RestoreAlt      = IniRead($sPath, "Play", "Restore Alt Text" , "Restoring PC..."    )
+
+	#EndRegion
+
+	#Region ; TO DO
 	$_sLang_Optimizing1      = IniRead($sPath, "Console", "Optimizing1"     , "Optimizing "                                              )
 	$_sLang_Optimizing2      = IniRead($sPath, "Console", "Optimizing2"     , " in the background until it closes..."                    )
 	$_sLang_RestoringState   = IniRead($sPath, "Console", "RestoringState"  , "Restoring Previous State..."                              )
@@ -472,9 +482,6 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	$_sLang_StoppingServices = IniRead($sPath, "Console", "StoppingServices", "Temporarily Pausing Game Impacting Services..."           )
 	$_sLang_StartingServices = IniRead($sPath, "Console", "StartingServices", "Restarting Any Stopped Services..."                       )
 	$_sLang_HPETChange       = IniRead($sPath, "Console", "HPETChange"      , "HPET State Changed, Please Reboot to Apply Changes"       )
-	#EndRegion
-
-	#Region ; Errors
 	$_sLang_NotRunning   = IniRead($sPath, "Errors", "NotRunning"  , " is not currently running. Please run the program first"  )
 	$_sLang_CoreError    = IniRead($sPath, "Errors", "CoreError"   , " is not a proper declaration of what cores to run on"     )
 	$_sLang_TooManyCores = IniRead($sPath, "Errors", "TooManyCores", "You've specified more cores than available on your system")
