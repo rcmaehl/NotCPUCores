@@ -132,6 +132,7 @@ Func Main()
 	#Region ; Help Menu
 	Local $hMenu3 = GUICtrlCreateMenu($_sLang_HelpMenu)
 	Local $hGithub = GUICtrlCreateMenuItem($_sLang_HelpSite, $hMenu3)
+	Local $hHowTo = GUICtrlCreateMenuItem($_sLang_HelpHowTo, $hMenu3)
 	GUICtrlCreateMenuItem("", $hMenu3)
 	Local $hUpdate = GUICtrlCreateMenuItem($_sLang_HelpUpdate, $hMenu3)
 	#EndRegion
@@ -155,21 +156,20 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_OptimizeProcess & ":", 10, 50, 140, 15)
 
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
-		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & _
-			"Example: NOTEPAD.EXE", $_sLang_Usage, $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_OptimizeTip & @CRLF & _
+			$_sLang_Example & ": NOTEPAD.EXE", $_sLang_Usage, $TIP_NOICON)
 
 	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
-		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_ImportTip, $_sLang_Usage, $TIP_NOICON)
 
-	GUICtrlCreateLabel("Include Children:", 10, 75, 140, 20)
+	GUICtrlCreateLabel($_sLang_IncludeChildren, 10, 75, 140, 20)
 
 	Local $hChildren = GUICtrlCreateCheckbox("", 150, 70, 120, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, "Include other Processes the Game/App starts" & @CRLF & _
-			"Coming Soon", $_sLang_Usage, $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_ChildrenTip, $_sLang_Usage, $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Allocation Mode:", 10, 100, 140, 15)
+	GUICtrlCreateLabel($_sLang_AllocationMode & ":", 10, 100, 140, 15)
 
 	Local $hAssignMode = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
@@ -178,13 +178,13 @@ Func Main()
 			GUICtrlSetData(-1, "All Cores|First Core|First 2 Cores|First 4 Cores|First Half|Physical Cores|Non-Physical Cores|Every Other Pair|First AMD CCX|Custom", "All Cores")
 		EndIf
 
-	GUICtrlCreateLabel("Custom Assignment:", 10, 125, 140, 15)
+	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 125, 140, 15)
 
 	Local $hCores = GUICtrlCreateInput("", 150, 120, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
 			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
 			"Ranges seperated by a dash are supported." & @CRLF & _
-			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, $_sLang_Usage, $TIP_NOICON)
+			$_sLang_Example & ": 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, $_sLang_Usage, $TIP_NOICON)
 		If $iThreads <= 4 Then
 			GUICtrlSetData(-1, "1-" & $iThreads)
 		ElseIf $iThreads <= 6 Then
@@ -194,19 +194,19 @@ Func Main()
 		EndIf
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Process Priority:", 10, 150, 140, 15)
+	GUICtrlCreateLabel($_sLang_OptimizePriority & ":", 10, 150, 140, 15)
 
 	Local $hPPriority = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "Normal|Above Normal|High|Realtime", "High")
 	#EndRegion
 
 	#Region ; Stream Tab
-	GUICtrlCreateTabItem("Stream")
+	GUICtrlCreateTabItem($_sLang_StreamTab)
 
-	GUICtrlCreateLabel("Streaming Optimization", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_StreamText, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Allocation Mode:", 10, 50, 140, 15)
+	GUICtrlCreateLabel($_sLang_AllocationMode & ":", 10, 50, 140, 15)
 
 	Local $hSplitMode = GUICtrlCreateCombo("", 150, 45, 120, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
@@ -215,13 +215,13 @@ Func Main()
 			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Physical Cores|Non-Physical Cores|Every Other Pair|Last AMD CCX|Custom", "OFF")
 		EndIf
 
-	GUICtrlCreateLabel("Custom Assignment:", 10, 75, 140, 15)
+	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 75, 140, 15)
 
 	Local $hBCores = GUICtrlCreateInput("2", 150, 70, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
 			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
 			"Ranges seperated by a dash are supported." & @CRLF & _
-			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON)
+			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, $_sLang_Usage, $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 		If $iThreads > 2 Then
 			If $iThreads = 3 Then
@@ -231,20 +231,19 @@ Func Main()
 			EndIf
 		EndIf
 
-	GUICtrlCreateLabel("Broadcast Software:", 10, 100, 140, 15)
+	GUICtrlCreateLabel($_sLang_StreamSoftware & ":", 10, 100, 140, 15)
 
 	Local $hBroadcaster = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Include Children:", 10, 125, 140, 20)
+	GUICtrlCreateLabel($_sLang_IncludeChildren, 10, 125, 140, 20)
 
 	Local $hBroChild = GUICtrlCreateCheckbox("", 150, 120, 120, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, "Include other Processes the Broadcaster starts" & @CRLF & _
-			"Coming Soon", "USAGE", $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_ChildrenTip, $_sLang_Usage, $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Assign Other Processes to:", 10, 150, 140, 20)
+	GUICtrlCreateLabel($_sLang_StreamOtherAssign & ":", 10, 150, 140, 20)
 
 	Local $hOAssign = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "Broadcaster Cores|Game Cores|Remaining Cores", "Remaining Cores")
@@ -253,9 +252,9 @@ Func Main()
 	#EndRegion
 
 	#Region ; Tools Tab
-	GUICtrlCreateTabItem("PC Tools")
+	GUICtrlCreateTabItem($_sLang_ToolTab)
 
-	GUICtrlCreateLabel("Game Performance", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_GameSection, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	Local $hHPET = GUICtrlCreateButton(" HPET", 5, 40, 80, 40, $BS_MULTILINE)
@@ -274,7 +273,7 @@ Func Main()
 	Local $hPower = GUICtrlCreateButton("Power" & @CRLF & "Options", 195, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "powercpl.dll", 1)
 
-	GUICtrlCreateLabel("Disk Performance", 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_DiskSection, 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	Local $hDefrag = GUICtrlCreateButton("Disk" & @CRLF & "Defrag", 5, 100, 80, 40, $BS_MULTILINE)
@@ -283,7 +282,7 @@ Func Main()
 	Local $hCheck = GUICtrlCreateButton(" Disk" & @CRLF & " Check", 100, 100, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -271)
 
-	GUICtrlCreateLabel("Disk Space", 5, 145, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_StorageSection, 5, 145, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	Local $hCleanup = GUICtrlCreateButton("Disk" & @CRLF & "Cleanup", 5, 160, 80, 40, $BS_MULTILINE)
@@ -296,7 +295,7 @@ Func Main()
 		Else
 			GUICtrlSetState(-1, $GUI_DISABLE)
 		EndIf
-	GUICtrlCreateLabel("System Reliability", 5, 205, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_ReliabilitySection, 5, 205, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	Local $hEvents = GUICtrlCreateButton(" Recent" & @CRLF & " Events", 5, 220, 80, 40, $BS_MULTILINE)
@@ -307,82 +306,48 @@ Func Main()
 
 	#EndRegion
 
-	#Region ; Options Tab
-#cs
-	GUICtrlCreateTabItem("Options")
-
-	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 35, 220, 15)
-
-	GUICtrlCreateLabel("Processes to Always Include", 5, 25, 270, 20, $SS_CENTER + $SS_SUNKEN)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateListView("", 5, 45, 270, 120, $LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$ES_READONLY)
-
-	GUICtrlCreateLabel("Processes to Always Exclude", 5, 170, 270, 20, $SS_CENTER + $SS_SUNKEN)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateListView("", 5, 190, 270, 120, $LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$ES_READONLY)
-#ce
-	#EndRegion
-
 	#Region ; Specs Tab
-	GUICtrlCreateTabItem("My PC")
+	GUICtrlCreateTabItem($_sLang_SpecsTab)
 
-	GUICtrlCreateLabel("Operating System", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_SpecsOSSection, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("OS:", 10, 45, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsOS & ":", 10, 45, 70, 15)
 		GUICtrlCreateLabel(_GetOSInfo(0) & " " & _GetOSInfo(1), 80, 45, 190, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("Language:", 10, 65, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsLanguage & ":", 10, 65, 70, 15)
 		GUICtrlCreateLabel(_GetLanguage(), 80, 65, 190, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("Hardware", 5, 90, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_SpecsHardwareSection, 5, 90, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Motherboard:", 10, 110, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsMobo & ":", 10, 110, 70, 15)
 		GUICtrlCreateLabel(_GetMotherboardInfo(0) & " " & _GetMotherboardInfo(1), 60, 130, 210, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("CPU:", 10, 150, 50, 15)
+	GUICtrlCreateLabel($_sLang_SpecsCPU & ":", 10, 150, 50, 15)
 		GUICtrlCreateLabel(_GetCPUInfo(2), 60, 170, 210, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("RAM:", 10, 190, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsRAM & ":", 10, 190, 70, 15)
 		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & " MHz", 80, 210, 190, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("GPU:", 10, 230, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsGPU & ":", 10, 230, 70, 15)
 		GUICtrlCreateLabel(_GetGPUInfo(0), 80, 250, 190, 20, $ES_RIGHT)
 
 	#EndRegion
 
 	#Region ; About Tab
-	GUICtrlCreateTabItem("About")
+	GUICtrlCreateTabItem($_sLang_AboutTab)
 
 	GUICtrlCreateLabel(@CRLF & "NotCPUCores" & @TAB & "v" & $sVersion & @CRLF & _
-		"Developed by Robert Maehl" & @CRLF & _
-		"Icon by /u/ImRealNow", 5, 25, 270, 60, $SS_CENTER)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateLabel("What it does:" & @CRLF & _
-		@CRLF & _
-		"1. Find the Game Process" & @CRLF & _
-		"2. Change Game Priority to High" & @CRLF & _
-		"3. Change Affinity to the Selected Core(s)" & @CRLF & _
-		"4. Set all other Processes Affinity off the Selected Core(s)", 5, 95, 270, 90)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateLabel("How To Do It Yourself:" & @CRLF & _
-		@CRLF & _
-		"1. Open Task Manager" & @CRLF & _
-		"2. Find the Game Process under Processes or Details" &  @CRLF & _
-		"3. Right Click, Set Priority, High" & @CRLF & _
-		"4. Right Click, Set Affinity, Select Your Core(s)", 5, 190, 270, 80)
+		$_sLang_AboutDeveloper & " Robert Maehl" & @CRLF & _
+		$_sLang_AboutIcon & " /u/ImRealNow", 5, 25, 270, 60, $SS_CENTER)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	#EndRegion
 	GUICtrlCreateTabItem("")
 
-	Local $hReset = GUICtrlCreateButton("RESTORE", 5, 275, 135, 20)
-	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 140, 275, 135, 20)
+	Local $hReset = GUICtrlCreateButton($_sLang_Restore, 5, 275, 135, 20)
+	Local $hOptimize = GUICtrlCreateButton($_sLang_Optimize, 140, 275, 135, 20)
 
 	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
 	GUICtrlCreateTab(0, 0, 360, 300)
@@ -930,6 +895,9 @@ Func Main()
 
 			Case $hMsg = $hGithub
 				ShellExecute("http://www.github.com/rcmaehl/NotCPUCores")
+
+			Case $hMsg = $hHowTo
+				ShellExecute("https://github.com/rcmaehl/NotCPUCores/blob/master/FAQ.md#is-it-possible-to-get-the-benefits-of-notcpucores-without-installing-it")
 
 			Case $hMsg = $hUpdate
 				ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases/latest")

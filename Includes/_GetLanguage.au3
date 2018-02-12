@@ -429,6 +429,12 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	Global $_sLang_Done        = IniRead($sPath, "Global", "Done"   , "Done"   )
 	#EndRegion
 
+	#Region ; Global UI Usage
+	Global $_sLang_IncludeChildren = IniRead($sPath, "Global UI", "Include Children" , "Include Children" )
+	Global $_sLang_AllocationMode  = IniRead($sPath, "Global UI", "Allocation Mode"  , "Allocation Mode"  )
+	Global $_sLang_Assignments     = IniRead($sPath, "Global UI", "Custom Assignment", "Custom Assignment")
+	#EndRegion
+
 	#Region ; Menus
 	Global $_sLang_FileMenu     = IniRead($sPath, "Menu", "File Menu"        , "File"             )
 	Global $_sLang_FileLoad     = IniRead($sPath, "Menu", "Load Option"      , "Load Profile"     )
@@ -440,38 +446,89 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	Global $_sLang_SleepSet     = IniRead($sPath, "Menu", "Set Sleep"        , "Set Sleep Timer"  )
 	Global $_sLang_HelpMenu     = IniRead($sPath, "Menu", "Help Menu"        , "Help"             )
 	Global $_sLang_HelpSite     = IniRead($sPath, "Menu", "Website Option"   , "Website"          )
+	Global $_sLang_HelpHowTo    = IniRead($sPath, "Menu", "HowTo Option"     , "How It Works"     )
 	Global $_sLang_HelpUpdate   = IniRead($sPath, "Menu", "Update Option"    , "Check for Updates")
 	#EndRegion
 
-	#Region ; Main GUI
-	Global $_sLang_DebugTip     = IniRead($sPath, "GUI", "Debug Tip"    , "Toggle Debug Mode"    )
-	Global $_sLang_RunningTab   = IniRead($sPath, "GUI", "Running Tab " , "Running"              )
-	Global $_sLang_ProcessList  = IniRead($sPath, "GUI", "Process List" , "Window Process"       )
-	Global $_sLang_ProcessTitle = IniRead($sPath, "GUI", "Process Title", "Window Title"         )
-	Global $_sLang_RefreshTip   = IniRead($sPath, "GUI", "Refresh Tip"  , "F5 or Sort to Refresh")
-	Global $_sLang_GamesTab     = IniRead($sPath, "GUI", "Games Tab"    , "Steam Games"          )
-	Global $_sLang_GameName     = IniRead($sPath, "GUI", "Game Name"    , "Game Name"            )
-	Global $_sLang_GameProcess  = IniRead($sPath, "GUI", "Game Process" , "Game Process"         )
+	#Region ; Running Processes Tab
+	Global $_sLang_RunningTab   = IniRead($sPath, "Running", "Running Tab " , "Running"       )
+	Global $_sLang_ProcessList  = IniRead($sPath, "Running", "Process List" , "Window Process")
+	Global $_sLang_ProcessTitle = IniRead($sPath, "Running", "Process Title", "Window Title"  )
+	#EndRegion
+
+	#Region ; Steam Games Tab
+	Global $_sLang_GamesTab     = IniRead($sPath, "Steam Games", "Games Tab"   , "Steam Games" )
+	Global $_sLang_GameName     = IniRead($sPath, "Steam Games", "Game Name"   , "Game Name"   )
+	Global $_sLang_GameProcess  = IniRead($sPath, "Steam Games", "Game Process", "Game Process")
 	#EndRegion
 
 	#Region ; Sleep Timer GUI
 	Global $_sLang_SleepText = IniRead($sPath, "SleepUI", "Set Sleep Text", "Decreasing this value can smooth FPS drops when new programs start, at the risk of NotCPUCores having more CPU usage itself")
 	Global $_sLang_NewSleep  = IniRead($sPath, "SleepUI", "New Sleep Text", "New Sleep Timer"                                                                                                            )
+	#EndRegion
 
 	#Region ; Debug Output
-	Global $_sLang_DebugStart       = IniRead($sPath, "Console", "Debug Started"   , "Debug Console Initialized"  )
+	Global $_sLang_DebugTip         = IniRead($sPath, "Console", "Debug Tip"    , "Toggle Debug Mode"        )
+	Global $_sLang_DebugStart       = IniRead($sPath, "Console", "Debug Started", "Debug Console Initialized")
+	#EndRegion
+
+	#Region ; Single Line Tooltips
+	Global $_sLang_RefreshTip  = IniRead($sPath, "Simple Tips", "Refresh Tip" , "F5 or Sort to Refresh"                          )
+	Global $_sLang_OptimizeTip = IniRead($sPath, "Simple Tips", "Process Tip" , "Enter the name of the process here"             )
+	Global $_sLang_ImportTip   = IniRead($sPath, "Simple Tips", "Import Tip"  , "Import Selected Process from Process List"      )
+	Global $_sLang_ChildrenTip = IniRead($sPath, "Simple Tips", "Children Tip", "Include other Processes started by this Program")
+
+	#EndRegion
+
+	#Region ; Multi Line Tooltips
+
 	#EndRegion
 
 	#Region ; Optimze Tab
-	Global $_sLang_PlayTab         = IniRead($sPath, "Play", "Work/Play Tab"    , "Work/Play"          )
-	Global $_sLang_PlayText        = IniRead($sPath, "Play", "Work/Play Text"   , "Game/App Settings"  )
-	Global $_sLang_OptimizeProcess = IniRead($sPath, "Play", "Process Select"   , "Process"            )
-	Global $_sLang_Optimize        = IniRead($sPath, "Play", "Optimize Text"    , "GO!"                )
-	Global $_sLang_OptimizeAlt     = IniRead($sPath, "Play", "Optimize Alt Text", "Pause/Break to Stop")
-	Global $_sLang_Restore         = IniRead($sPath, "Play", "Restore Text"     , "RESTORE"            )
-	Global $_sLang_RestoreAlt      = IniRead($sPath, "Play", "Restore Alt Text" , "Restoring PC..."    )
+	Global $_sLang_PlayTab          = IniRead($sPath, "Play", "Work/Play Tab"    , "Work/Play"          )
+	Global $_sLang_PlayText         = IniRead($sPath, "Play", "Work/Play Text"   , "Game/App Settings"  )
+	Global $_sLang_OptimizeProcess  = IniRead($sPath, "Play", "Process Select"   , "Process"            )
+	Global $_sLang_OptimizePriority = IniRead($sPath, "Play", "Priority Select"  , "Process Priority"   )
+	Global $_sLang_Optimize         = IniRead($sPath, "Play", "Optimize Text"    , "ASSIGN"             )
+	Global $_sLang_OptimizeAlt      = IniRead($sPath, "Play", "Optimize Alt Text", "Pause/Break to Stop")
+	Global $_sLang_Restore          = IniRead($sPath, "Play", "Restore Text"     , "RESTORE"            )
+	Global $_sLang_RestoreAlt       = IniRead($sPath, "Play", "Restore Alt Text" , "Restoring PC..."    )
+	#EndRegion
+
+	#Region ; Stream Tab
+	Global $_sLang_StreamTab          = IniRead($sPath, "Stream", "Stream Tab"     , "Stream"                )
+	Global $_sLang_StreamText         = IniRead($sPath, "Stream", "Stream Text"    , "Streaming Settings"    )
+	Global $_sLang_StreamSoftware     = IniRead($sPath, "Stream", "Stream Software", "Broadcast Software"    )
+	Global $_sLang_StreamOtherAssign  = IniRead($sPath, "Stream", "Other Processes", "Assign Other Processes")
+	#EndRegion
+
+	#Region ; Tools Tab
+	Global $_sLang_ToolTab            = IniRead($sPath, "Tools", "Tools Tab"          , "Tools"             )
+	Global $_sLang_GameSection        = IniRead($sPath, "Tools", "Games Section"      , "Game Performance"  )
+	Global $_sLang_DiskSection        = IniRead($sPath, "Tools", "Disk Section"       , "Disk Performance"  )
+	Global $_sLang_StorageSection     = IniRead($sPath, "Tools", "Storage Section"    , "Disk Space"        )
+	Global $_sLang_ReliabilitySection = IniRead($sPath, "Tools", "Reliability Section", "System Reliability")
 
 	#EndRegion
+
+	#Region ; Specs Tab
+	Global $_sLang_SpecsTab             = IniRead($sPath, "Specs", "Specs Tab"          , "Specs"             )
+	Global $_sLang_SpecsOSSection       = IniRead($sPath, "Specs", "OS Section"         , "Operating System"  )
+	Global $_sLang_SpecsOS              = IniRead($sPath, "Specs", "OS"                 , "OS"                )
+	Global $_sLang_SpecsLanguage        = IniRead($sPath, "Specs", "Lanugage"           , "Language"          )
+	Global $_sLang_SpecsHardwareSection = IniRead($sPath, "Specs", "Hardware Section"   , "Hardware"          )
+	Global $_sLang_SpecsMobo            = IniRead($sPath, "Specs", "Motherboard"        , "Motherboard"       )
+	Global $_sLang_SpecsCPU             = IniRead($sPath, "Specs", "CPU"                , "CPU"               )
+	Global $_sLang_SpecsRAM             = IniRead($sPath, "Specs", "RAM"                , "RAM"               )
+	Global $_sLang_SpecsGPU             = IniRead($sPath, "Specs", "GPU"                , "GPU"               )
+	#EndRegion
+
+	#Region ; About Tab
+	Global $_sLang_AboutTab         = IniRead($sPath, "About", "About Tab"          , "About"             )
+	Global $_sLang_AboutDeveloper   = IniRead($sPath, "About", "Developer"          , "Developed by"      )
+	Global $_sLang_AboutIcon        = IniRead($sPath, "About", "Icon By"            , "Icon by"           )
+
+
 
 	#Region ; TO DO
 	$_sLang_Optimizing1      = IniRead($sPath, "Console", "Optimizing1"     , "Optimizing "                                              )
