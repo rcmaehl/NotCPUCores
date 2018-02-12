@@ -1,19 +1,12 @@
 ## How would you best describe NotCPUCores?
 
-NotCPUCores uses Windows' own tools to tell it how to give CPU cores, disk usage priority, and other tasks to a game or application, compared to how it handles them by default. NotCPUCores is made to take the hassle out of manually adjusting CPU threads, priority, and other resources, and to give you more control over your PC.
-
-
-## Certain terms were called "snake oil" in the Overview, can I still call NotCPUCores them?
-
-I'd rather you didn't, but I'm hard pressed for terms that people in the IT field wouldn't be appalled at, but that also don't completely confuse people NOT in the IT field.
-
+NotCPUCores is a GUI for quick CPU Resource Assignment and Priority adjustment, along with other minor tweaks. NotCPUCores uses Windows' own tools to tell it how to give CPU cores, disk usage priority, and other tasks to a game or application, compared to how it handles them by default. NotCPUCores is made to take the hassle out of manually adjusting CPU threads, priority, and other resources, and to give you more control over your PC.
 
 ## Who all benefits from using NotCPUCores?
 
 * Anyone that doesn't want to reinstall Windows
 * Anyone that doesn't want to do a couple hours of PC cleanup
-* Soon, Streamers that run multiple CPU intensive tasks at once (1.6.0.0)
-
+* Streamers that run multiple CPU intensive tasks at once as of 1.6.0.0
 
 ## Where does the increase in FPS, quicker loading, more stability, etc come from?
 
@@ -38,7 +31,7 @@ Additionally, using the "Power Options" in Control Panel
 
 1. Change your Power Plan to "High Performance"
 
-**WEW!** That's a 5-10 minutes of manual work for potentially not much return, isn't it?
+**WEW!** That's 5-10 minutes of manual work for potentially not much return, isn't it?
 
 ## What if I want more performance than what I get with NotCPUCores?
 
