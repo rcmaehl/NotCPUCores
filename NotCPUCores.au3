@@ -100,6 +100,7 @@ Func Main()
 	Local $iSleep = 100
 	Local $sVersion = "1.7.0.0"
 	Local $iAllCores
+	Local $sPriority = "High"
 	Local $aProcesses[1]
 	Local $iProcesses = 0
 	Local $iProcessCores = 1
@@ -181,10 +182,10 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 125, 140, 15)
 
 	Local $hCores = GUICtrlCreateInput("", 150, 120, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
-		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
-			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
-			"Ranges seperated by a dash are supported." & @CRLF & _
-			$_sLang_Example & ": 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, $_sLang_Usage, $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_AssignTip1 & @CRLF & _
+			$_sLang_AssignTip2 & @CRLF & _
+			$_sLang_AssignTip3 & @CRLF & _
+			$_sLang_Example & ": 1,3,4-6" & @TAB & @TAB & $_sLang_AssignTip4 & ": " & $iThreads, $_sLang_Usage, $TIP_NOICON)
 		If $iThreads <= 4 Then
 			GUICtrlSetData(-1, "1-" & $iThreads)
 		ElseIf $iThreads <= 6 Then
@@ -210,7 +211,7 @@ Func Main()
 
 	Local $hSplitMode = GUICtrlCreateCombo("", 150, 45, 120, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
-			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Even Cores|Odd Cores|Last AMD CCX|Custom", "OFF")
+			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Even Cores|Odd Cores|Every Other Pair|Last AMD CCX|Custom", "OFF")
 		Else
 			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Physical Cores|Non-Physical Cores|Every Other Pair|Last AMD CCX|Custom", "OFF")
 		EndIf
@@ -218,10 +219,10 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 75, 140, 15)
 
 	Local $hBCores = GUICtrlCreateInput("2", 150, 70, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
-		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
-			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
-			"Ranges seperated by a dash are supported." & @CRLF & _
-			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, $_sLang_Usage, $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_AssignTip1 & @CRLF & _
+			$_sLang_AssignTip2 & @CRLF & _
+			$_sLang_AssignTip3 & @CRLF & _
+			$_sLang_Example & ": 1,3,4-6" & @TAB & @TAB & $_sLang_AssignTip4 & ": " & $iThreads, $_sLang_Usage, $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 		If $iThreads > 2 Then
 			If $iThreads = 3 Then
@@ -257,12 +258,11 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_GameSection, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hHPET = GUICtrlCreateButton(" HPET", 5, 40, 80, 40, $BS_MULTILINE)
+	Local $hHPET = GUICtrlCreateButton($_sLang_HPET, 5, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "imageres.dll", -30)
 		GUICtrlSetState(-1, $GUI_DISABLE)
-		GUICtrlSetTip(-1, "High Precision Event Timer for Windows. On SOME games this may DECREASE performance" & @CRLF & "instead of INCREASE. You can always change it back!")
 
-	Local $hGameM = GUICtrlCreateButton(" Game" & @CRLF & " Mode", 100, 40, 80, 40, $BS_MULTILINE)
+	Local $hGameM = GUICtrlCreateButton($_sLang_GameMode, 100, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 15007 Then GUICtrlSetState(-1, $GUI_DISABLE)
@@ -270,25 +270,25 @@ Func Main()
 			GUICtrlSetState(-1, $GUI_DISABLE)
 		EndIf
 
-	Local $hPower = GUICtrlCreateButton("Power" & @CRLF & "Options", 195, 40, 80, 40, $BS_MULTILINE)
+	Local $hPower = GUICtrlCreateButton($_sLang_PowerOptions, 195, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "powercpl.dll", 1)
 
 	GUICtrlCreateLabel($_sLang_DiskSection, 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hDefrag = GUICtrlCreateButton("Disk" & @CRLF & "Defrag", 5, 100, 80, 40, $BS_MULTILINE)
+	Local $hDefrag = GUICtrlCreateButton($_sLang_DiskDefrag, 5, 100, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -81)
 
-	Local $hCheck = GUICtrlCreateButton(" Disk" & @CRLF & " Check", 100, 100, 80, 40, $BS_MULTILINE)
+	Local $hCheck = GUICtrlCreateButton($_sLang_DiskCheck, 100, 100, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -271)
 
 	GUICtrlCreateLabel($_sLang_StorageSection, 5, 145, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hCleanup = GUICtrlCreateButton("Disk" & @CRLF & "Cleanup", 5, 160, 80, 40, $BS_MULTILINE)
+	Local $hCleanup = GUICtrlCreateButton($_sLang_DiskCleanup, 5, 160, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -32)
 
-	Local $hSSense = GUICtrlCreateButton("Storage" & @CRLF & "Sense", 100, 160, 80, 40, $BS_MULTILINE)
+	Local $hSSense = GUICtrlCreateButton($_sLang_StorageSense, 100, 160, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -167)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 16299 Then GUICtrlSetState(-1, $GUI_DISABLE)
@@ -298,10 +298,10 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_ReliabilitySection, 5, 205, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hEvents = GUICtrlCreateButton(" Recent" & @CRLF & " Events", 5, 220, 80, 40, $BS_MULTILINE)
+	Local $hEvents = GUICtrlCreateButton($_sLang_RecentEvents, 5, 220, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
 
-	Local $hActions = GUICtrlCreateButton(" Action" & @CRLF & " Center", 100, 220, 80, 40, $BS_MULTILINE)
+	Local $hActions = GUICtrlCreateButton($_sLang_ActionCenter, 100, 220, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "ActionCenter.dll", 1)
 
 	#EndRegion
@@ -404,7 +404,7 @@ Func Main()
 		If Not $iProcesses = 0 Then
 			If $bInterrupt = True Then
 				$bInterrupt = False
-				_ConsoleWrite("Exiting Optimizations via Interrupt...", $hConsole)
+				_ConsoleWrite($_sLang_Interrupt, $hConsole)
 				$iProcesses = 1
 			ElseIf $iProcesses = 1 Then
 				_Restore($iThreads, $hConsole) ; Do Clean Up
@@ -430,10 +430,21 @@ Func Main()
 		Select
 
 			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hQuit
+				_GUICtrlListView_UnRegisterSortCallBack($hGames)
 				_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
+				GUIDelete($hQuickTabs)
+				GUIDelete($hTimerGUI)
 				GUIDelete($hGUI)
 				Exit
-
+#cs
+			Case $hMsg = $LoadLanguage ; LAZINESS!!! D:<
+				_GUICtrlListView_UnRegisterSortCallBack($hGames)
+				_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
+				GUIDelete($hQuickTabs)
+				GUIDelete($hTimerGUI)
+				GUIDelete($hGUI)
+				Main()
+#ce
 			Case $hMsg = $hDToggle
 				If $bCHidden Or $bPHidden Then
 					$aPos = WinGetPos($hGUI)
@@ -470,7 +481,7 @@ Func Main()
 				Else
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
-				$hFile = FileSaveDialog("Save Current Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
+				$hFile = FileSaveDialog($_sLang_SaveProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
 				IniWrite($hFile, "General"  , "Process"    , GUICtrlRead($hTask       ))
 				IniWrite($hFile, "General"  , "SplitAs"    , GUICtrlRead($hAssignMode ))
 				IniWrite($hFile, "General"  , "Threads"    , GUICtrlRead($hCores      ))
@@ -521,7 +532,7 @@ Func Main()
 				Else
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
-				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
+				$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
 				GUICtrlSetData($hTask       , String(_IniRead($hFile, "General"  , "Process"   ,                                      "",                "")))
 				GUICtrlSetState($hChildren  , Number(_IniRead($hFile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
 				GUICtrlSetData($hAssignMode , String(_IniRead($hFile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
@@ -588,7 +599,7 @@ Func Main()
 					Case Else
 						ReDim $aProcesses[1]
 						$aProcesses[0] = GUICtrlRead($hTask)
-						_ConsoleWrite("!> Invalid Broadcaster Software!" & @CRLF, $hConsole)
+						_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
 
 				EndSwitch
 				ContinueCase
@@ -652,7 +663,7 @@ Func Main()
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case "Every Other Pair"
-						For $iLoop = 0 To $iThreads - 1 Step 4
+						For $iLoop = 2 To $iThreads - 1 Step 4
 							$iBroadcasterCores += 2^($iLoop)
 							$iBroadcasterCores += 2^($iLoop + 1)
 						Next
@@ -706,7 +717,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						ReDim $aProcesses[1]
-						_ConsoleWrite("!> Invalid Broadcaster Mode!" & @CRLF, $hConsole)
+						_ConsoleWrite("!> " & $_sLang_InvalidBroadcastCores & @CRLF, $hConsole)
 
 				EndSwitch
 				ContinueCase
@@ -825,6 +836,11 @@ Func Main()
 							EndIf
 						EndIf
 
+					Case Else
+					_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+					GUICtrlSetState($hOptimize, $GUI_DISABLE)
+					GUICtrlSetState($hCores, $GUI_DISABLE)
+
 				EndSwitch
 				ContinueCase
 
@@ -843,7 +859,7 @@ Func Main()
 
 					Case Else
 						$iOtherProcessCores = 1
-						_ConsoleWrite("!> Invalid Process Assign Mode!" & @CRLF, $hConsole)
+						_ConsoleWrite("!> " & $_sLang_InvalidOtherCores & @CRLF, $hConsole)
 
 				EndSwitch
 
@@ -903,7 +919,7 @@ Func Main()
 				ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases/latest")
 
 			Case Else
-				Sleep(10)
+				Sleep($iSleep /  10)
 
 		EndSelect
 	WEnd

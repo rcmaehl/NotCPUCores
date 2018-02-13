@@ -414,13 +414,19 @@ Func _GetLanguage($iFlag = 0)
 	Return $sLang
 EndFunc
 
-Func _LoadLanguage($iLanguage = @OSLang)
-	Local $sPath = ".\Lang\" & $iLanguage & ".ini"
-	If Not FileExists($sPath) And $iLanguage = @OSLang Then $sPath = ".\Lang\" & StringRight(@OSLang, 2) & ".ini"
+Func _LoadLanguage($sPath = @OSLang)
+
+	If Not FileExists($sPath) And $sPath = @OSLang Then
+		If FileExists(".\Lang\" & @OSLang & ".ini") Then
+			$sPath = ".\Lang\" & @OSLang & ".ini"
+		Else
+			$sPath = ".\Lang\" & StringRight(@OSLang, 2) & ".ini"
+		EndIf
+	EndIf
 
 	#Region ; File Info
 	$_sLang_Version     = IniRead($sPath, "File", "Version" , "0"      )
-	$_sLang_Language    = IniRead($sPath, "File", "Name"    , "Default")
+	$_sLang_Language    = IniRead($sPath, "File", "Langauge", "Default")
 	#EndRegion
 
 	#Region ; Global Word Usage
@@ -435,19 +441,28 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	Global $_sLang_Assignments     = IniRead($sPath, "Global UI", "Custom Assignment", "Custom Assignment")
 	#EndRegion
 
-	#Region ; Menus
-	Global $_sLang_FileMenu     = IniRead($sPath, "Menu", "File Menu"        , "File"             )
-	Global $_sLang_FileLoad     = IniRead($sPath, "Menu", "Load Option"      , "Load Profile"     )
-	Global $_sLang_FileSave     = IniRead($sPath, "Menu", "Save Option"      , "Save Profile"     )
-	Global $_sLang_FileQuit     = IniRead($sPath, "Menu", "Quit Option"      , "Quit"             )
-	Global $_sLang_OptionsMenu  = IniRead($sPath, "Menu", "Options Menu"     , "Options"          )
-	Global $_sLang_SleepMenu    = IniRead($sPath, "Menu", "Sleep Menu"       , "Sleep Timer"      )
-	Global $_sLang_SleepCurrent = IniRead($sPath, "Menu", "Current Sleep"    , "Current Timer"    )
-	Global $_sLang_SleepSet     = IniRead($sPath, "Menu", "Set Sleep"        , "Set Sleep Timer"  )
-	Global $_sLang_HelpMenu     = IniRead($sPath, "Menu", "Help Menu"        , "Help"             )
-	Global $_sLang_HelpSite     = IniRead($sPath, "Menu", "Website Option"   , "Website"          )
-	Global $_sLang_HelpHowTo    = IniRead($sPath, "Menu", "HowTo Option"     , "How It Works"     )
-	Global $_sLang_HelpUpdate   = IniRead($sPath, "Menu", "Update Option"    , "Check for Updates")
+	#Region ; File Menu
+	Global $_sLang_FileMenu     = IniRead($sPath, "File Menu", "File Menu"  , "File"        )
+	Global $_sLang_FileLoad     = IniRead($sPath, "File Menu", "Load Option", "Load Profile")
+	Global $_sLang_FileSave     = IniRead($sPath, "File Menu", "Save Option", "Save Profile")
+	Global $_sLang_FileQuit     = IniRead($sPath, "File Menu", "Quit Option", "Quit"        )
+	#EndRegion
+
+	#Region ; Options Menu
+	Global $_sLang_OptionsMenu  = IniRead($sPath, "Options Menu", "Options Menu"    , "Options"           )
+	Global $_sLang_TextMenu     = IniRead($sPath, "Options Menu", "Language Menu"   , "Language"          )
+	Global $_sLang_TextCurrent  = IniRead($sPath, "Options Menu", "Current Language", "Current"           )
+	Global $_sLang_TextLoad     = IniRead($sPath, "Options Menu", "Load Language"   , "Load Lanugage File")
+	Global $_sLang_SleepMenu    = IniRead($sPath, "Options Menu", "Sleep Menu"      , "Sleep Timer"       )
+	Global $_sLang_SleepCurrent = IniRead($sPath, "Options Menu", "Current Sleep"   , "Current Timer"     )
+	Global $_sLang_SleepSet     = IniRead($sPath, "Options Menu", "Set Sleep"       , "Set Sleep Timer"   )
+	#EndRegion
+
+	#Region ; Help Menu
+	Global $_sLang_HelpMenu     = IniRead($sPath, "Help Menu", "Help Menu"     , "Help"             )
+	Global $_sLang_HelpSite     = IniRead($sPath, "Help Menu", "Website Option", "Website"          )
+	Global $_sLang_HelpHowTo    = IniRead($sPath, "Help Menu", "HowTo Option"  , "How It Works"     )
+	Global $_sLang_HelpUpdate   = IniRead($sPath, "Help Menu", "Update Option" , "Check for Updates")
 	#EndRegion
 
 	#Region ; Running Processes Tab
@@ -467,21 +482,30 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	Global $_sLang_NewSleep  = IniRead($sPath, "SleepUI", "New Sleep Text", "New Sleep Timer"                                                                                                            )
 	#EndRegion
 
+	#Region ; File Dialogs
+	Global $_sLang_LoadProfile  = IniRead($sPath, "Files", "Load Profile" , "Load Saved Settings"  )
+	Global $_sLang_SaveProfile  = IniRead($sPath, "Files", "Save Profile" , "Save Current Settings")
+	Global $_sLang_LoadLanguage = IniRead($sPath, "Files", "Load Language", "Load Language File"   )
+	#EndRegion
+
 	#Region ; Debug Output
-	Global $_sLang_DebugTip         = IniRead($sPath, "Console", "Debug Tip"    , "Toggle Debug Mode"        )
-	Global $_sLang_DebugStart       = IniRead($sPath, "Console", "Debug Started", "Debug Console Initialized")
+	Global $_sLang_DebugStart       = IniRead($sPath, "Console", "Debug Started", "Debug Console Initialized"             )
+	Global $_sLang_Interrupt        = IniRead($sPath, "Console", "Interrupted"  , "Exiting Optimizations via Interrupt...")
 	#EndRegion
 
 	#Region ; Single Line Tooltips
+	Global $_sLang_DebugTip    = IniRead($sPath, "Simple Tips", "Debug Tip"   , "Toggle Debug Mode"                              )
 	Global $_sLang_RefreshTip  = IniRead($sPath, "Simple Tips", "Refresh Tip" , "F5 or Sort to Refresh"                          )
 	Global $_sLang_OptimizeTip = IniRead($sPath, "Simple Tips", "Process Tip" , "Enter the name of the process here"             )
 	Global $_sLang_ImportTip   = IniRead($sPath, "Simple Tips", "Import Tip"  , "Import Selected Process from Process List"      )
 	Global $_sLang_ChildrenTip = IniRead($sPath, "Simple Tips", "Children Tip", "Include other Processes started by this Program")
-
 	#EndRegion
 
 	#Region ; Multi Line Tooltips
-
+	Global $_sLang_AssignTip1 = IniRead($sPath, "MultiTips", "Assign Line 1", "To run on a Single Core, enter the number of that core.")
+	Global $_sLang_AssignTip2 = IniRead($sPath, "MultiTips", "Assign Line 2", "To run on Multiple Cores, seperate them with commas."   )
+	Global $_sLang_AssignTip3 = IniRead($sPath, "MultiTips", "Assign Line 3", "Ranges seperated by a dash are supported."              )
+	Global $_sLang_AssignTip4 = IniRead($sPath, "MultiTips", "Assign Line 4", "Maximum Cores"                                          )
 	#EndRegion
 
 	#Region ; Optimze Tab
@@ -505,10 +529,30 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	#Region ; Tools Tab
 	Global $_sLang_ToolTab            = IniRead($sPath, "Tools", "Tools Tab"          , "Tools"             )
 	Global $_sLang_GameSection        = IniRead($sPath, "Tools", "Games Section"      , "Game Performance"  )
+	Global $_sLang_HPET               = IniRead($sPath, "Tools", "HPET Tool"          , " HPET"             )
+	Global $_sLang_GameMode           = IniRead($sPath, "Tools", "Game Mode"          , " Game\n Mode"      )
+	Global $_sLang_PowerOptions       = IniRead($sPath, "Tools", "Power Options"      , "Power\nOptions"    )
 	Global $_sLang_DiskSection        = IniRead($sPath, "Tools", "Disk Section"       , "Disk Performance"  )
+	Global $_sLang_DiskDefrag         = IniRead($sPath, "Tools", "Disk Defrag"        , "Disk\nDefrag"      )
+	Global $_sLang_DiskCheck          = IniRead($sPath, "Tools", "Disk Check"         , " Disk\n Check"     )
 	Global $_sLang_StorageSection     = IniRead($sPath, "Tools", "Storage Section"    , "Disk Space"        )
+	Global $_sLang_DiskCleanup        = IniRead($sPath, "Tools", "Disk Cleanup"       , "Disk\nCleanup"     )
+	Global $_sLang_StorageSense       = IniRead($sPath, "Tools", "Storage Sense"      , "Storage\nSense"    )
 	Global $_sLang_ReliabilitySection = IniRead($sPath, "Tools", "Reliability Section", "System Reliability")
+	Global $_sLang_RecentEvents       = IniRead($sPath, "Tools", "Recent Events"      , " Recent\n Events"  )
+	Global $_sLang_ActionCenter       = IniRead($sPath, "Tools", "Action Center"      , " Action\n Center"  )
+	#EndRegion
 
+	#Region ; Tools Tab Conversions
+	$_sLang_HPET         = StringReplace($_sLang_HPET        , "\n", @CRLF)
+	$_sLang_GameMode     = StringReplace($_sLang_GameMode    , "\n", @CRLF)
+	$_sLang_PowerOptions = StringReplace($_sLang_PowerOptions, "\n", @CRLF)
+	$_sLang_DiskDefrag   = StringReplace($_sLang_DiskDefrag  , "\n", @CRLF)
+	$_sLang_DiskCheck    = StringReplace($_sLang_DiskCheck   , "\n", @CRLF)
+	$_sLang_DiskCleanup  = StringReplace($_sLang_DiskCleanup , "\n", @CRLF)
+	$_sLang_StorageSense = StringReplace($_sLang_StorageSense, "\n", @CRLF)
+	$_sLang_RecentEvents = StringReplace($_sLang_RecentEvents, "\n", @CRLF)
+	$_sLang_ActionCenter = StringReplace($_sLang_ActionCenter, "\n", @CRLF)
 	#EndRegion
 
 	#Region ; Specs Tab
@@ -524,9 +568,16 @@ Func _LoadLanguage($iLanguage = @OSLang)
 	#EndRegion
 
 	#Region ; About Tab
-	Global $_sLang_AboutTab         = IniRead($sPath, "About", "About Tab"          , "About"             )
-	Global $_sLang_AboutDeveloper   = IniRead($sPath, "About", "Developer"          , "Developed by"      )
-	Global $_sLang_AboutIcon        = IniRead($sPath, "About", "Icon By"            , "Icon by"           )
+	Global $_sLang_AboutTab         = IniRead($sPath, "About", "About Tab", "About"       )
+	Global $_sLang_AboutDeveloper   = IniRead($sPath, "About", "Developer", "Developed by")
+	Global $_sLang_AboutIcon        = IniRead($sPath, "About", "Icon By"  , "Icon by"     )
+	#EndRegion
+
+	#Region ;Errors
+	Global $_sLang_InvalidBroadcast      = IniRead($sPath, "Errors", "Broadcaster"             , "Invalid Broadcaster Software!"        )
+	Global $_sLang_InvalidBroadcastCores = IniRead($sPath, "Errors", "Broadcast Assignment"    , "Invalid Broadcaster Assignment Mode!" )
+	Global $_sLang_InvalidProcessCores   = IniRead($sPath, "Errors", "Process Assignment"      , "Invalid App/Game Assigment Mode!"     )
+	Global $_sLang_InvalidOtherCores     = IniRead($sPath, "Errors", "Other Process Assignment", "Invalid Other Process Assigment Mode!")
 
 
 
