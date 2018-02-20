@@ -174,9 +174,29 @@ Func Main()
 
 	Local $hAssignMode = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
-			GUICtrlSetData(-1, "All Cores|First Core|First 2 Cores|First 4 Cores|First Half|Even Cores|Odd Cores|First AMD CCX|Custom", "All Cores")
+			GUICtrlSetData(-1, _
+			$_sLang_AllocAll & "|" & _
+			$_sLang_AllocFirst & "|" & _
+			$_sLang_AllocFirstTwo & "|" & _
+			$_sLang_AllocFirstFour & "|" & _
+			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocEven & "|" & _
+			$_sLang_AllocOdd & "|" & _
+			$_sLang_AllocPairs & "|" & _
+			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocCustom & "|", $_sLang_AllocAll)
 		Else
-			GUICtrlSetData(-1, "All Cores|First Core|First 2 Cores|First 4 Cores|First Half|Physical Cores|Non-Physical Cores|Every Other Pair|First AMD CCX|Custom", "All Cores")
+			GUICtrlSetData(-1, _
+			$_sLang_AllocAll & "|" & _
+			$_sLang_AllocFirst & "|" & _
+			$_sLang_AllocFirstTwo & "|" & _
+			$_sLang_AllocFirstFour & "|" & _
+			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocPhysical & "|" & _
+			$_sLang_AllocVirtual & "|" & _
+			$_sLang_AllocPairs & "|" & _
+			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocCustom & "|", $_sLang_AllocAll)
 		EndIf
 
 	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 125, 140, 15)
