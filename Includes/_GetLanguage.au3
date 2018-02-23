@@ -425,8 +425,9 @@ Func _LoadLanguage($sPath = @OSLang)
 	EndIf
 
 	#Region ; File Info
-	$_sLang_Version     = IniRead($sPath, "File", "Version" , "0"      )
-	$_sLang_Language    = IniRead($sPath, "File", "Langauge", "Default")
+	$_sLang_Version     = IniRead($sPath, "File", "Version"   , "0"      )
+	$_sLang_Language    = IniRead($sPath, "File", "Langauge"  , "Default")
+	$_sLang_Translator  = IniRead($sPath, "File", "Translator", "rcmaehl")
 	#EndRegion
 
 	#Region ; Global Word Usage
@@ -568,9 +569,33 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; About Tab
-	Global $_sLang_AboutTab         = IniRead($sPath, "About", "About Tab", "About"       )
-	Global $_sLang_AboutDeveloper   = IniRead($sPath, "About", "Developer", "Developed by")
-	Global $_sLang_AboutIcon        = IniRead($sPath, "About", "Icon By"  , "Icon by"     )
+	Global $_sLang_AboutTab         = IniRead($sPath, "About", "About Tab"     , "About"         )
+	Global $_sLang_AboutDeveloper   = IniRead($sPath, "About", "Developer"     , "Developed by"  )
+	Global $_sLang_AboutIcon        = IniRead($sPath, "About", "Icon By"       , "Icon by"       )
+	Global $_sLang_AboutLanugage    = IniRead($sPath, "About", "Translation By", "Translation By")
+	#EndRegion
+
+	#Region ; Drop Downs
+	Global $_sLang_AllocAll          = IniRead($sPath, "Dropdowns", "All Cores"         , "All Cores"         )
+	Global $_sLang_AllocFirst        = IniRead($sPath, "Dropdowns", "First Core"        , "First Core"        )
+	Global $_sLang_AllocFirstTwo     = IniRead($sPath, "Dropdowns", "First Two Cores"   , "First 2 Cores"     )
+	Global $_sLang_AllocFirstFour    = IniRead($sPath, "Dropdowns", "First Four Cores"  , "First 4 Cores"     )
+	Global $_sLang_AllocFirstHalf    = IniRead($sPath, "Dropdowns", "First Half"        , "First Half"        )
+	Global $_sLang_AllocFirstAMD     = IniRead($sPath, "Dropdowns", "First AMD CCX"     , "First AMD CCX"     )
+	Global $_sLang_AllocEven         = IniRead($sPath, "Dropdowns", "Even Cores"        , "Even Cores"        )
+	Global $_sLang_AllocPhysical     = IniRead($sPath, "Dropdowns", "Physcial Cores"    , "Physcial Cores"    )
+	Global $_sLang_AllocOdd          = IniRead($sPath, "Dropdowns", "Odd Cores"         , "Odd Cores"         )
+	Global $_sLang_AllocVirtual      = IniRead($sPath, "Dropdowns", "Non-Physical Cores", "Non-Physical Cores")
+	Global $_sLang_AllocLast         = IniRead($sPath, "Dropdowns", "Last Core"         , "Last Core"         )
+	Global $_sLang_AllocLastTwo      = IniRead($sPath, "Dropdowns", "Last Two Cores"    , "Last 2 Cores"      )
+	Global $_sLang_AllocLastFour     = IniRead($sPath, "Dropdowns", "Last Four Cores"   , "Last 4 Cores"      )
+	Global $_sLang_AllocLastHalf     = IniRead($sPath, "Dropdowns", "Last Half"         , "Last Half"         )
+	Global $_sLang_AllocLastAMD      = IniRead($sPath, "Dropdowns", "Last AMD CCX"      , "Last AMD CCX"      )
+	Global $_sLang_AllocPairs        = IniRead($sPath, "Dropdowns", "Pairs"             , "Every Other Pair"  )
+	Global $_sLang_AllocCustom       = IniRead($sPath, "Dropdowns", "Custom"            , "Custom"            )
+	Global $_sLang_AllocBroadcaster  = IniRead($sPath, "Dropdowns", "Broadcaster Cores" , "Broadcaster Cores" )
+	Global $_sLang_AllocProcess      = IniRead($sPath, "Dropdowns", "Process Cores"     , "Game/App Cores"    )
+	Global $_sLang_AllocRemaining    = IniRead($sPath, "Dropdowns", "Remaining Cores"   , "Remaining Cores"   )
 	#EndRegion
 
 	#Region ;Errors
@@ -578,8 +603,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_InvalidBroadcastCores = IniRead($sPath, "Errors", "Broadcast Assignment"    , "Invalid Broadcaster Assignment Mode!" )
 	Global $_sLang_InvalidProcessCores   = IniRead($sPath, "Errors", "Process Assignment"      , "Invalid App/Game Assigment Mode!"     )
 	Global $_sLang_InvalidOtherCores     = IniRead($sPath, "Errors", "Other Process Assignment", "Invalid Other Process Assigment Mode!")
-
-
+	#EndRegion
 
 	#Region ; TO DO
 	$_sLang_Optimizing1      = IniRead($sPath, "Console", "Optimizing1"     , "Optimizing "                                              )
