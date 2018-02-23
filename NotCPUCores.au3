@@ -184,7 +184,7 @@ Func Main()
 			$_sLang_AllocOdd & "|" & _
 			$_sLang_AllocPairs & "|" & _
 			$_sLang_AllocFirstAMD & "|" & _
-			$_sLang_AllocCustom & "|", $_sLang_AllocAll)
+			$_sLang_AllocCustom, $_sLang_AllocAll)
 		Else
 			GUICtrlSetData(-1, _
 			$_sLang_AllocAll & "|" & _
@@ -196,7 +196,7 @@ Func Main()
 			$_sLang_AllocVirtual & "|" & _
 			$_sLang_AllocPairs & "|" & _
 			$_sLang_AllocFirstAMD & "|" & _
-			$_sLang_AllocCustom & "|", $_sLang_AllocAll)
+			$_sLang_AllocCustom, $_sLang_AllocAll)
 		EndIf
 
 	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 125, 140, 15)
@@ -218,7 +218,11 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_OptimizePriority & ":", 10, 150, 140, 15)
 
 	Local $hPPriority = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
-		GUICtrlSetData(-1, "Normal|Above Normal|High|Realtime", "High")
+		GUICtrlSetData(-1, _
+		$_sLang_PriorityNormal & "|" & _
+		$_sLang_PriorityANormal & "|" & _
+		$_sLang_PriorityHigh & "|" & _
+		$_sLang_PriorityRealtime, $_sLang_PriorityHigh)
 	#EndRegion
 
 	#Region ; Stream Tab
@@ -231,9 +235,29 @@ Func Main()
 
 	Local $hSplitMode = GUICtrlCreateCombo("", 150, 45, 120, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
-			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Even Cores|Odd Cores|Every Other Pair|Last AMD CCX|Custom", "OFF")
+			GUICtrlSetData(-1, _
+			$_sLang_AllocAll & "|" & _
+			$_sLang_AllocFirst & "|" & _
+			$_sLang_AllocFirstTwo & "|" & _
+			$_sLang_AllocFirstFour & "|" & _
+			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocEven & "|" & _
+			$_sLang_AllocOdd & "|" & _
+			$_sLang_AllocPairs & "|" & _
+			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocCustom, $_sLang_AllocAll)
 		Else
-			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Physical Cores|Non-Physical Cores|Every Other Pair|Last AMD CCX|Custom", "OFF")
+			GUICtrlSetData(-1, _
+			$_sLang_AllocAll & "|" & _
+			$_sLang_AllocFirst & "|" & _
+			$_sLang_AllocFirstTwo & "|" & _
+			$_sLang_AllocFirstFour & "|" & _
+			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocPhysical & "|" & _
+			$_sLang_AllocVirtual & "|" & _
+			$_sLang_AllocPairs & "|" & _
+			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocCustom, $_sLang_AllocAll)
 		EndIf
 
 	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 75, 140, 15)
@@ -267,7 +291,10 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_StreamOtherAssign & ":", 10, 150, 140, 20)
 
 	Local $hOAssign = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
-		GUICtrlSetData(-1, "Broadcaster Cores|Game Cores|Remaining Cores", "Remaining Cores")
+		GUICtrlSetData(-1, _
+			$_sLang_AllocBroadcaster & "|" & _
+			$_sLang_AllocProcess & "|" & _
+			$_sLang_AllocRemaining & "|", $_sLang_AllocRemaining)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	#EndRegion
@@ -537,8 +564,11 @@ Func Main()
 					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 640)
-					GUICtrlSetPos($hGames, 280, 20, 355, 280)
-					GUICtrlSetPos($hProcesses, 280, 20, 355, 280)
+					$aPos = WinGetPos($hQuickTabs)
+					WinMove($hQuickTabs, "", $aPos[0], $aPos[1], 355, 300)
+					GUISetState(@SW_SHOW, $hQuickTabs)
+					GUICtrlSetPos($hGames, 0, 20, 355, 280)
+					GUICtrlSetPos($hProcesses, 0, 20, 355, 280)
 					$bPHidden = False
 				Else
 					$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
