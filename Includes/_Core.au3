@@ -50,15 +50,17 @@ EndFunc
 ;                  $sPriority           - [optional] Priority to Use. Default is High.
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: > 1                  - Success, Last Polled Process Count
-;                  1                    - An Error Occured
+;                  1                    - Optimization Exiting, Do not Continue
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/31/2018
+; Modified ......: 03/02/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
+
+	Local $iExtended = 0
 
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
@@ -72,14 +74,12 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 
 	If $iProcesses > 0 Then
 		If Not ProcessExists($hProcess) Then
-			_ConsoleWrite($hProcess & " exited. Restoring..." & @CRLF, $hOutput)
-			Return 1
+			SetError(0, 1, 1)
 		ElseIf ProcessExists($hProcess) Then
+			$iExtended = 1
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			Sleep($iSleepTime)
 			If Not (UBound(ProcessList()) = $iProcesses) Then
-				Sleep($iSleepTime)
-				_ConsoleWrite("Process Count Changed, Rerunning Optimization...", $hOutput)
 				Sleep($iSleepTime)
 				For $iLoop = 0 to $aProcesses[0][0] Step 1
 					If $aProcesses[$iLoop][0] = $hProcess Then
@@ -90,29 +90,22 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 					EndIf
 				Next
 				Sleep($iSleepTime)
-				_ConsoleWrite("Done!" & @CRLF, $hOutput)
-				Sleep($iSleepTime)
 			EndIf
 		EndIf
 	Else
 		Select
 			Case Not ProcessExists($hProcess)
-				_ConsoleWrite("!> " & $hProcess & " is not currently running. Please run the program first" & @CRLF, $hOutput)
-				Return 1
+				SetError(1,1,1)
 			Case Not IsInt($hCores)
-				_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hOutput)
-				Return 1
+				SetError(1,2,1)
 			Case $hCores > $hAllCores
-				_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hOutput)
-				Return 1
+				SetError(1,3,1)
 			Case _ArraySearch($aPriorities, $sPriority) = -1
-				_ConsoleWrite("!> " & $sPriority & " is not a valid priority level" & @CRLF, $hOutput)
-				Return 1
+				SetError(1,4,1)
 			Case $hCores = $hAllCores
-				_ConsoleWrite("!> All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance" & @CRLF, $hOutput)
+				$iExtended = 2
 				ContinueCase
 			Case Else
-				_ConsoleWrite("Optimizing in the background until the process closes..." & @CRLF, $hOutput)
 				If ProcessExists($hProcess) Then
 					Sleep($iSleepTime)
 					$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
@@ -126,12 +119,10 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 						EndIf
 					Next
 					Sleep($iSleepTime)
-					_ConsoleWrite("Done!" & @CRLF, $hOutput)
-					Sleep($iSleepTime)
 				EndIf
 		EndSelect
 	EndIf
-	Return UBound($aProcesses)
+	SetError(0, $iExtended, UBound($aProcesses))
 
 EndFunc
 
