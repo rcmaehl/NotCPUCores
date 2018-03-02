@@ -523,6 +523,7 @@ Func Main()
 
 			Case $hMsg = $GUI_EVENT_MINIMIZE
 				Opt("TrayIconHide", 0)
+				TraySetToolTip("NotCPUCores")
 				GUISetState(@SW_HIDE, $hGUI)
 
 			Case $hTMsg = $TRAY_EVENT_PRIMARYUP
