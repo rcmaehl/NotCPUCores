@@ -75,9 +75,9 @@ EndFunc
 ; Description ...: Obtains a list of Games from a specified Steam Library
 ; Syntax ........: _SteamGetGamesFromLibrary($sLibrary)
 ; Parameters ....: $sLibrary            - Path to a valid Steam Library
-; Return values .: Success - Returns an array of Steam library locations
+; Return values .: Success - Returns an array of Steam games
 ;                  Failure - Returns 0 and sets @error:
-;                  |1 - Steam Library Error
+;                  |1 - Steam Library Empty
 ; Author ........: rcmaehl (Robert Maehl)
 ; Modified ......: 03/08/19
 ; Remarks .......:
@@ -102,6 +102,7 @@ Func _SteamGetGamesFromLibrary($sLibrary)
 		ReDim $aGames[UBound($aGames) + 1][2]
 
 		$hManifestFile = FileOpen($sLibrary & "\steamapps\" & $sFile)
+		If $hManifestFile = -1 Then ContinueLoop
 
 		Local $iLines = _FileCountLines($sLibrary & "\steamapps\" & $sFile)
 
@@ -121,6 +122,78 @@ Func _SteamGetGamesFromLibrary($sLibrary)
 			If $aLine[0] = 2 And $aLine[1] = "installdir" Then
 				$aGames[UBound($aGames) - 1][1] = "\steamapps\common\" & $aLine[2]
 			EndIf
+		Next
+
+		$aGames[0][0] = UBound($aGames) - 1
+
+		FileClose($hManifestFile)
+
+	WEnd
+
+EndFunc
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _SteamGetGamesDetailsFromLibrary
+; Description ...: Obtains a list of Details from a specified Steam Library
+; Syntax ........: _SteamGetGamesDetailsFromLibrary($sLibrary, $sDetails)
+; Parameters ....: $sLibrary            - Path to a valid Steam Library
+;                  $sDetails            - a Opt("GUIDataSeparatorChar") seperated list of details to get
+; Return values .: Success - Returns an array of Steam game details
+;                  Failure - Returns 0 and sets @error:
+;                  |1 - Steam Library Empty
+; Author ........: rcmaehl (Robert Maehl)
+; Modified ......: 03/08/19
+; Modified ......:
+; Remarks .......: Steam manifests do no include the location of the executable
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _SteamGetGamesDetailsFromLibrary($sLibrary, $sDetails)
+
+	Local $aGames[1][2]
+
+	$aDetails = StringSplit($sDetails, Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
+
+	$aGames[0][0] = "0"
+
+	Local $hSearch = FileFindFirstFile($sLibrary & "\steamapps\appmanifest_*.acf")
+
+	ReDim $aGames[0][UBound($aDetails)]
+
+	If $hSearch = -1 Then SetError(1,0,0)
+
+	While 1
+		$sFile = FileFindNextFile($hSearch)
+		If @error Then Return $aGames
+
+		ReDim $aGames[UBound($aGames) + 1][UBound($aDetails)]
+
+		$hManifestFile = FileOpen($sLibrary & "\steamapps\" & $sFile)
+		If $hManifestFile = -1 Then ContinueLoop
+
+		Local $iLines = _FileCountLines($sLibrary & "\steamapps\" & $sFile)
+
+		For $iLine = 1 to $iLines Step 1
+			$sLine = FileReadLine($hManifestFile, $iLine)
+			If @error = -1 Then ExitLoop
+			ConsoleWrite("1" & @CRLF)
+			$sLine = StringStripWS($sLine, $STR_STRIPLEADING)
+			$sLine = StringRegExpReplace($sLine, '"\s*"', "?")
+			$sLine = StringReplace($sLine, '"', "")
+			;ConsoleWrite($sLine & @CRLF)
+			$aLine = StringSplit($sLine, '?')
+
+			For $iDetail = 0 To UBound($aDetails) - 1
+
+				ConsoleWrite($aDetails[$iDetail] & @CRLF)
+				If $aLine[0] = 2 And $aLine[1] = $aDetails[$iDetail] Then
+					$aGames[UBound($aGames) - 1][$iDetail] = $aLine[2]
+				EndIf
+
+			Next
+
 		Next
 
 		$aGames[0][0] = UBound($aGames) - 1
