@@ -168,7 +168,7 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/26/2018
+; Modified ......: 03/09/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -183,16 +183,14 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 
 	Select
 		Case Not IsInt($hCores)
-			_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hOutput)
-			Return 1
+			SetError(1,0,1)
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 			For $iLoop = 0 To $iThreads - 1
 				$hAllCores += 2^$iLoop
 			Next
 			If $hCores > $hAllCores Then
-				_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hOutput)
-				Return 1
+				SetError(2,0,1)
 			EndIf
 			$iProcessesLast = 0
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
@@ -222,13 +220,15 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/30/2018
+; Modified ......: 03/09/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
+
+	Local $iExtended = 0
 
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
@@ -241,10 +241,10 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
 	Select
 		Case $hCores > $hAllCores
-			_ConsoleWrite("!> You've specified more combined cores than available on your system" & @CRLF, $hOutput)
-			Return 1
+			SetError(1,0,1)
 		Case $hCores <= 0
 			$hCores = 2^($iThreads - 1)
+			$iExtended = 1
 			ContinueCase
 		Case Else
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
@@ -258,7 +258,7 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 			Next
 			Sleep($iSleepTime)
 	EndSelect
-	Return 0
+	SetError(0, $iExtended, 0)
 
 EndFunc
 

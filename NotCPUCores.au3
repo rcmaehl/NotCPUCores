@@ -501,8 +501,29 @@ Func Main()
 									_ConsoleWrite("!> All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance" & @CRLF, $hConsole)
 							EndSwitch
 					EndSwitch
-					If _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) Then $iProcesses = 1
-					If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
+					Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
+						Case 1
+							$iProcesses = 1
+							Switch @error
+								Case 1
+									_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hConsole)
+								Case 2
+									_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hConsole)
+							EndSwitch
+					EndSwitch
+					Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole)
+						Case 0
+							Switch @extended
+								Case 1
+									_ConsoleWrite("!> No Cores Left for Other Processes, using last core" & @CRLF, $hConsole)
+							EndSwitch
+						Case 1
+							$iProcesses = 1
+							Switch @error
+								Case 1
+									_ConsoleWrite("!> You've specified more combined cores than available on your system" & @CRLF, $hConsole)
+							EndSwitch
+					EndSwitch
 				EndIf
 			EndIf
 		EndIf
@@ -1012,8 +1033,29 @@ Func Main()
 								_ConsoleWrite("!> All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance" & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
-				If _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) Then $iProcesses = 1
-				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
+				Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
+					Case 1
+						$iProcesses = 1
+						Switch @error
+							Case 1
+								_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hConsole)
+							Case 2
+								_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hConsole)
+						EndSwitch
+				EndSwitch
+				Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole)
+					Case 0
+						Switch @extended
+							Case 1
+								_ConsoleWrite("!> No Cores Left for Other Processes, using last core" & @CRLF, $hConsole)
+						EndSwitch
+					Case 1
+						$iProcesses = 1
+						Switch @error
+							Case 1
+								_ConsoleWrite("!> You've specified more combined cores than available on your system" & @CRLF, $hConsole)
+						EndSwitch
+				EndSwitch
 
 			Case $hMsg = $hGameM
 				ShellExecute("ms-settings:gaming-gamemode")

@@ -79,7 +79,7 @@ EndFunc
 ;                  Failure - Returns 0 and sets @error:
 ;                  |1 - Steam Library Empty
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/08/19
+; Modified ......: 03/09/19
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -112,7 +112,6 @@ Func _SteamGetGamesFromLibrary($sLibrary)
 			$sLine = StringStripWS($sLine, $STR_STRIPLEADING)
 			$sLine = StringRegExpReplace($sLine, '"\s*"', "?")
 			$sLine = StringReplace($sLine, '"', "")
-			ConsoleWrite($sLine & @CRLF)
 			$aLine = StringSplit($sLine, '?')
 
 			If $aLine[0] = 2 And $aLine[1] = "name" Then
@@ -143,9 +142,9 @@ EndFunc
 ;                  Failure - Returns 0 and sets @error:
 ;                  |1 - Steam Library Empty
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/08/19
+; Modified ......: 03/09/19
 ; Modified ......:
-; Remarks .......: Steam manifests do no include the location of the executable
+; Remarks .......: Steam manifests do not include the location of the executable
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
@@ -178,16 +177,13 @@ Func _SteamGetGamesDetailsFromLibrary($sLibrary, $sDetails)
 		For $iLine = 1 to $iLines Step 1
 			$sLine = FileReadLine($hManifestFile, $iLine)
 			If @error = -1 Then ExitLoop
-			ConsoleWrite("1" & @CRLF)
 			$sLine = StringStripWS($sLine, $STR_STRIPLEADING)
 			$sLine = StringRegExpReplace($sLine, '"\s*"', "?")
 			$sLine = StringReplace($sLine, '"', "")
-			;ConsoleWrite($sLine & @CRLF)
 			$aLine = StringSplit($sLine, '?')
 
 			For $iDetail = 0 To UBound($aDetails) - 1
 
-				ConsoleWrite($aDetails[$iDetail] & @CRLF)
 				If $aLine[0] = 2 And $aLine[1] = $aDetails[$iDetail] Then
 					$aGames[UBound($aGames) - 1][$iDetail] = $aLine[2]
 				EndIf
