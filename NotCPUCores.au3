@@ -722,6 +722,29 @@ Func Main()
 				EndSwitch
 				ContinueCase
 
+			Case $hMsg = $hPPriority
+				$sPriority = "HIGH"
+				$aPriorities = StringSplit(_GUICtrlComboBox_GetList($hPPriority), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
+				Switch GUICtrlRead($hPPriority)
+
+					Case $aPriorities[0] ; Normal
+						$sPriority = "NORMAL"
+
+					Case $aPriorities[1] ; Above Normal
+						$sPriority = "ABOVENORMAL"
+
+					Case $aPriorities[2] ; High
+						$sPriority = "HIGH"
+
+					Case $aPriorities[3] ; Realtime
+						$sPriority = "REALTIME"
+
+					Case Else
+						$sPriority = "HIGH"
+						_ConsoleWrite("!> " & $_sLang_InvalidPriority & @CRLF, $hConsole)
+
+				EndSwitch
+
 			Case $hMsg = $hSplitMode
 				$iBroadcasterCores = 0
 				$aSplitMode = StringSplit(_GUICtrlComboBox_GetList($hSplitMode), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)

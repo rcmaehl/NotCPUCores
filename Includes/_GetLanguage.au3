@@ -607,6 +607,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_InvalidBroadcastCores = IniRead($sPath, "Errors", "Broadcast Assignment"    , "Invalid Broadcaster Assignment Mode!" )
 	Global $_sLang_InvalidProcessCores   = IniRead($sPath, "Errors", "Process Assignment"      , "Invalid App/Game Assigment Mode!"     )
 	Global $_sLang_InvalidOtherCores     = IniRead($sPath, "Errors", "Other Process Assignment", "Invalid Other Process Assigment Mode!")
+	Global $_sLang_InvalidPriority       = IniRead($sPath, "Errors", "Priority Assignment"     , "Invalid Priority Mode!"               )
 	#EndRegion
 
 	#Region ; TO DO
