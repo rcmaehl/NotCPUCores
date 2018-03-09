@@ -393,7 +393,8 @@ Func Main()
 
 	GUICtrlCreateLabel(@CRLF & "NotCPUCores" & @TAB & "v" & $sVersion & @CRLF & _
 		$_sLang_AboutDeveloper & " Robert Maehl" & @CRLF & _
-		$_sLang_AboutIcon & " /u/ImRealNow", 5, 25, 270, 60, $SS_CENTER)
+		$_sLang_AboutIcon & " /u/ImRealNow" & @CRLF & _
+		$_sLang_AboutLanugage & " " & $_sLang_Translator, 5, 25, 270, 80, $SS_CENTER)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	#EndRegion

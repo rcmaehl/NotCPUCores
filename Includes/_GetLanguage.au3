@@ -425,9 +425,9 @@ Func _LoadLanguage($sPath = @OSLang)
 	EndIf
 
 	#Region ; File Info
-	Global $_sLang_Version     = IniRead($sPath, "File", "Version"   , "0"      )
-	Global $_sLang_Language    = IniRead($sPath, "File", "Langauge"  , "Default")
-	Global $_sLang_Translator  = IniRead($sPath, "File", "Translator", "rcmaehl")
+	Global $_sLang_Version     = IniRead($sPath, "File", "Version"   , "0"           )
+	Global $_sLang_Language    = IniRead($sPath, "File", "Langauge"  , "Default"     )
+	Global $_sLang_Translator  = IniRead($sPath, "File", "Translator", "Robert Maehl")
 	#EndRegion
 
 	#Region ; Global Word Usage
