@@ -74,7 +74,11 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 
 	If $iProcesses > 0 Then
 		If Not ProcessExists($hProcess) Then
-			SetError(0, 1, 1)
+			If FileExists($hProcess) Then
+				Run($hProcess)
+			Else
+				SetError(0, 1, 1)
+			EndIf
 		ElseIf ProcessExists($hProcess) Then
 			$iExtended = 1
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
