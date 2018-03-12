@@ -1226,15 +1226,13 @@ EndFunc
 
 Func _GetSteamGames($hControl)
 
-	Return ; Return as code isn't ready yet
-
 	Local $aSteamLibraries = _GetSteamLibraries()
 	Local $aSteamGames
-
-	$aSteamGames[0][0] = UBound($aSteamGames)
-	For $Loop = 1 To $aSteamGames[0][0] - 1
-		$aSteamGames[$Loop][1] = _ProcessGetName(WinGetProcess($aSteamGames[$Loop][1]))
-		GUICtrlCreateListViewItem($aSteamGames[$Loop][1] & "|" & $aSteamGames[$Loop][0], $hControl)
+	For $iLoop1 = 1 To $aSteamLibraries[0] Step 1
+		$aSteamGames = _SteamGetGamesFromLibrary($aSteamLibraries[$iLoop1])
+		For $iLoop2 = 1 To $aSteamGames[0] Step 1
+			GUICtrlCreateListViewItem($aSteamGames[$Loop2][0] & "|" & $aSteamGames[$Loop2][1], $hControl)
+		Next
 	Next
 	_ArrayDelete($aSteamGames, 0)
 	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
