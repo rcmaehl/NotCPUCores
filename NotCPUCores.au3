@@ -11,6 +11,12 @@
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
+Opt("TrayIconHide", 1)
+Opt("TrayMenuMode", 1)
+Opt("TrayAutoPause", 0)
+Opt("GUICloseOnESC", 0)
+Opt("GUIResizeMode", $GUI_DOCKALL)
+
 #include <Process.au3>
 #include <Constants.au3>
 #include <GUIListView.au3>
@@ -32,14 +38,8 @@
 #include ".\Includes\_GetLanguage.au3"
 #include ".\Includes\_ExtendedFunctions.au3"
 
-Opt("TrayIconHide", 1)
-Opt("TrayMenuMode", 1)
-Opt("TrayAutoPause", 0)
-Opt("GUICloseOnESC", 0)
-Opt("GUIResizeMode", $GUI_DOCKALL)
-
-Global $bInterrupt = False
 Global $bRefresh = False
+Global $bInterrupt = False
 
 HotKeySet("{F5}", "_Refresh")
 HotKeySet("{PAUSE}", "_Interrupt")
@@ -49,13 +49,13 @@ HotKeySet("{BREAK}", "_Interrupt")
 
 To Do
 
-1. Steam Game Auto-Detection and Dropdown (v 2.0)
+1. Steam Game Auto-Detection (DONE)
 2. Allow Collapsing of Window/Process List (DONE)
 3. Move Back-End Console when running as GUI into a CLOSE-ABLE Window (Console UDF) (Embedded Console Created)
-4. Allow Selecting from Window/Process List instead of it just being a guide
-5. Allow Optimization of Multiple Processes at once (v 2.0)
+4. Allow Selecting from Window/Process List instead of it just being a guide (DONE)
+5. Allow Optimization of Multiple Processes at once (Code added and used, Additional GUI Elements needed, v 1.8)
 6. Convert GUI to a Metro GUI or Allow Themes (v 2.0)
-7. Language Translation Options
+7. Language Translation Options (DONE)
 
 
 == 2.0 Idea Master List ==
@@ -85,7 +85,6 @@ Optimize PC
 #ce
 
 ; Set Core Count as Global to Reduce WMIC calls
-
 Global $iCores = _GetCPUInfo(0)
 Global $iThreads = _GetCPUInfo(1)
 
@@ -461,7 +460,10 @@ Func Main()
 				_ConsoleWrite($_sLang_Interrupt, $hConsole)
 				$iProcesses = 1
 			ElseIf $iProcesses = 1 Then
+				ConsoleWrite($_sLang_RestoringState)
 				_Restore($iThreads, $hConsole) ; Do Clean Up
+				_ConsoleWrite($_sLang_Done & @CRLF, $hOutput)
+				_ConsoleWrite("---" & @CRLF, $hOutput)
 				GUICtrlSetData($hOptimize, $_sLang_Optimize)
 				For $iLoop = $hTask to $hOptimize Step 1
 					If $iLoop = $hChildren Then ContinueLoop
@@ -478,28 +480,28 @@ Func Main()
 								Case 0
 									Switch @extended
 										Case 1
-											_ConsoleWrite($aProcesses[0] & " exited. Restoring..." & @CRLF, $hConsole)
+											_ConsoleWrite($aProcesses[0] & " " & $_sLang_RestoringState & @CRLF, $hConsole)
 									EndSwitch
 								Case 1
 									Switch @extended
 										Case 1
-											_ConsoleWrite("!> " & $aProcesses[0] & " is not currently running. Please run the program first" & @CRLF, $hConsole)
+											_ConsoleWrite("!> " & $aProcesses[0] & " " & $_sLang_NotRunning & @CRLF, $hConsole)
 										Case 2
-											_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hConsole)
+											_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 										Case 3
-											_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hConsole)
+											_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 										Case 4
-											_ConsoleWrite("!> " & GUICtrlRead($hPPriority) & " is not a valid priority level" & @CRLF, $hConsole)
+											_ConsoleWrite("!> " & GUICtrlRead($hPPriority) & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
 									EndSwitch
 							EndSwitch
 						Case Else
 							Switch @extended
 								Case 0
-									_ConsoleWrite("Optimizing in the background until the process closes..." & @CRLF, $hConsole)
+									_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
 								Case 1
-									_ConsoleWrite("Process Count Changed, Optimization Reran", $hConsole)
+									_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
 								Case 2
-									_ConsoleWrite("!> All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance" & @CRLF, $hConsole)
+									_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
 							EndSwitch
 					EndSwitch
 					Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
@@ -507,22 +509,22 @@ Func Main()
 							$iProcesses = 1
 							Switch @error
 								Case 1
-									_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hConsole)
+									_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 								Case 2
-									_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hConsole)
+									_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 							EndSwitch
 					EndSwitch
 					Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole)
 						Case 0
 							Switch @extended
 								Case 1
-									_ConsoleWrite("!> No Cores Left for Other Processes, using last core" & @CRLF, $hConsole)
+									_ConsoleWrite("!> " & $_sLang_MaxCores & @CRLF, $hConsole)
 							EndSwitch
 						Case 1
 							$iProcesses = 1
 							Switch @error
 								Case 1
-									_ConsoleWrite("!> You've specified more combined cores than available on your system" & @CRLF, $hConsole)
+									_ConsoleWrite("!> " & $_sLang_TooManyTotalCores & @CRLF, $hConsole)
 							EndSwitch
 					EndSwitch
 				EndIf
@@ -1013,7 +1015,10 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
-				_Restore($iThreads, $hConsole)
+				ConsoleWrite($_sLang_RestoringState)
+				_Restore($iThreads, $hConsole) ; Do Clean Up
+				_ConsoleWrite($_sLang_Done & @CRLF, $hOutput)
+				_ConsoleWrite("---" & @CRLF, $hOutput)
 				GUICtrlSetData($hReset, $_sLang_Restore)
 				For $iLoop = $hTask to $hOptimize Step 1
 					If $iLoop = $hChildren Then ContinueLoop
@@ -1041,28 +1046,28 @@ Func Main()
 							Case 0
 								Switch @extended
 									Case 1
-										_ConsoleWrite($aProcesses[0] & " exited. Restoring..." & @CRLF, $hConsole)
+										_ConsoleWrite($aProcesses[0] & " " & $_sLang_RestoringState & @CRLF, $hConsole)
 								EndSwitch
 							Case 1
 								Switch @extended
 									Case 1
-										_ConsoleWrite("!> " & $aProcesses[0] & " is not currently running. Please run the program first" & @CRLF, $hConsole)
+										_ConsoleWrite("!> " & $aProcesses[0] & " " & $_sLang_NotRunning & @CRLF, $hConsole)
 									Case 2
-										_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hConsole)
+										_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 									Case 3
-										_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hConsole)
+										_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 									Case 4
-										_ConsoleWrite("!> " & GUICtrlRead($hPPriority) & " is not a valid priority level" & @CRLF, $hConsole)
+										_ConsoleWrite("!> " & GUICtrlRead($hPPriority) & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
 								EndSwitch
 						EndSwitch
 					Case Else
 						Switch @extended
 							Case 0
-								_ConsoleWrite("Optimizing in the background until the process closes..." & @CRLF, $hConsole)
+								_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
 							Case 1
-								_ConsoleWrite("Process Count Changed, Optimization Reran", $hConsole)
+								_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
 							Case 2
-								_ConsoleWrite("!> All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance" & @CRLF, $hConsole)
+								_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
 				Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
@@ -1070,22 +1075,22 @@ Func Main()
 						$iProcesses = 1
 						Switch @error
 							Case 1
-								_ConsoleWrite("!> Core assignment is not valid" & @CRLF, $hConsole)
+								_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 							Case 2
-								_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hConsole)
+								_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
 				Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole)
 					Case 0
 						Switch @extended
 							Case 1
-								_ConsoleWrite("!> No Cores Left for Other Processes, using last core" & @CRLF, $hConsole)
+								_ConsoleWrite("!> " & $_sLang_MaxCores & @CRLF, $hConsole)
 						EndSwitch
 					Case 1
 						$iProcesses = 1
 						Switch @error
 							Case 1
-								_ConsoleWrite("!> You've specified more combined cores than available on your system" & @CRLF, $hConsole)
+								_ConsoleWrite("!> " & $_sLang_TooManyTotalCores & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
 
