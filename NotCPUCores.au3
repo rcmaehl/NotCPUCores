@@ -419,7 +419,7 @@ Func Main()
 
 	#Region ; Games List
 	GUICtrlCreateTabItem($_sLang_GamesTab)
-	Local $hGames = GUICtrlCreateListView($_sLang_GameName & "|" & $_sLang_GameProcess, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	Local $hGames = GUICtrlCreateListView($_sLang_GameID & "|" & $_sLang_GameName, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hGames)
 		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
@@ -470,7 +470,7 @@ Func Main()
 				$iProcesses = 0
 			Else
 				If Not (UBound(ProcessList()) = $iProcesses) Then
-					$aProcesses[0] = GUICtrlRead($hTask)
+					If GUICtrlRead($hTask) = "ACTIVE" Then $aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
 					Switch $iProcesses
 						Case 1
@@ -1026,6 +1026,14 @@ Func Main()
 				Next
 				GUICtrlSetData($hOptimize, $_sLang_OptimizeAlt)
 				$aProcesses[0] = GUICtrlRead($hTask)
+				Switch $aProcesses[0]
+					Case "ACTIVE"
+						$aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+					Case 0 To 999999
+						$iGame = ShellExecute("steam://rungameid/" & $aProcesses[0])
+						ConsoleWrite($iGame & @CRLF)
+						$aProcesses[0] = _ProcessGetName($iGame)
+				EndSwitch
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
 				Switch $iProcesses
 					Case 1
@@ -1231,7 +1239,7 @@ Func _GetSteamGames($hControl)
 	For $iLoop1 = 1 To $aSteamLibraries[0] Step 1
 		$aSteamGames = _SteamGetGamesFromLibrary($aSteamLibraries[$iLoop1])
 		For $iLoop2 = 1 To $aSteamGames[0] Step 1
-			GUICtrlCreateListViewItem($aSteamGames[$Loop2][0] & "|" & $aSteamGames[$Loop2][1], $hControl)
+			GUICtrlCreateListViewItem($aSteamGames[$iLoop2][0] & "|" & $aSteamGames[$iLoop2][1], $hControl)
 		Next
 	Next
 	_ArrayDelete($aSteamGames, 0)

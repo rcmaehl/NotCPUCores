@@ -114,11 +114,11 @@ Func _SteamGetGamesFromLibrary($sLibrary)
 			$sLine = StringReplace($sLine, '"', "")
 			$aLine = StringSplit($sLine, '?')
 
-			If $aLine[0] = 2 And $aLine[1] = "name" Then
+			If $aLine[0] = 2 And $aLine[1] = "appid" Then
 				$aGames[UBound($aGames) - 1][0] = $aLine[2]
 			EndIf
 
-			If $aLine[0] = 2 And $aLine[1] = "installdir" Then
+			If $aLine[0] = 2 And $aLine[1] = "name" Then
 				$aGames[UBound($aGames) - 1][1] = "\steamapps\common\" & $aLine[2]
 			EndIf
 		Next

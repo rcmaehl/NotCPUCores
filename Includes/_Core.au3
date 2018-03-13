@@ -70,8 +70,6 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 		$hAllCores += 2^$iLoop
 	Next
 
-	If $hProcess = "ACTIVE" Then $hProcess = _ProcessGetName(WinGetProcess("[ACTIVE]"))
-
 	If $iProcesses > 0 Then
 		If Not ProcessExists($hProcess) Then
 			If FileExists($hProcess) Then
@@ -236,8 +234,6 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 	For $iLoop = 0 To $iThreads - 1
 		$hAllCores += 2^$iLoop
 	Next
-
-	If $aExclusions[0] = "ACTIVE" Then $aExclusions[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 
 	Select
 		Case $hCores > $hAllCores
