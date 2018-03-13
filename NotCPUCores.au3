@@ -1,5 +1,4 @@
 #RequireAdmin
-#NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=icon.ico
 #AutoIt3Wrapper_Compile_Both=y
@@ -7,10 +6,16 @@
 #AutoIt3Wrapper_Change2CUI=N
 #AutoIt3Wrapper_Res_Comment=Compiled 01/31/2018 @ 13:35 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.6.2.0
+#AutoIt3Wrapper_Res_Fileversion=1.7.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
+
+Opt("TrayIconHide", 1)
+Opt("TrayMenuMode", 1)
+Opt("TrayAutoPause", 0)
+Opt("GUICloseOnESC", 0)
+Opt("GUIResizeMode", $GUI_DOCKALL)
 
 #include <Process.au3>
 #include <Constants.au3>
@@ -28,31 +33,29 @@
 
 #include ".\Includes\_Core.au3"
 #include ".\Includes\_WMIC.au3"
+#include ".\Includes\_GetSteam.au3"
 ;#include ".\Includes\_ModeSelect.au3"
-#include ".\Includes\_GetEnvironment.au3"
+#include ".\Includes\_GetLanguage.au3"
+#include ".\Includes\_ExtendedFunctions.au3"
 
-Opt("GUICloseOnESC", 0)
-Opt("GUIResizeMode", $GUI_DOCKALL)
-
-Global $bInterrupt = False
 Global $bRefresh = False
+Global $bInterrupt = False
 
 HotKeySet("{F5}", "_Refresh")
 HotKeySet("{PAUSE}", "_Interrupt")
 HotKeySet("{BREAK}", "_Interrupt")
 
-
 #cs
 
 To Do
 
-1. Steam Game Auto-Detection and Dropdown (v 2.0)
+1. Steam Game Auto-Detection (DONE)
 2. Allow Collapsing of Window/Process List (DONE)
 3. Move Back-End Console when running as GUI into a CLOSE-ABLE Window (Console UDF) (Embedded Console Created)
-4. Allow Selecting from Window/Process List instead of it just being a guide
-5. Allow Optimization of Multiple Processes at once (v 2.0)
+4. Allow Selecting from Window/Process List instead of it just being a guide (DONE)
+5. Allow Optimization of Multiple Processes at once (Code added and used, Additional GUI Elements needed, v 1.8)
 6. Convert GUI to a Metro GUI or Allow Themes (v 2.0)
-7. Language Translation Options
+7. Language Translation Options (DONE)
 
 
 == 2.0 Idea Master List ==
@@ -82,9 +85,10 @@ Optimize PC
 #ce
 
 ; Set Core Count as Global to Reduce WMIC calls
-
 Global $iCores = _GetCPUInfo(0)
 Global $iThreads = _GetCPUInfo(1)
+
+_LoadLanguage()
 
 Main()
 
@@ -94,8 +98,9 @@ Func Main()
 	Local $aCores
 	Local $bInit = True
 	Local $iSleep = 100
-	Local $sVersion = "1.6.2.0"
+	Local $sVersion = "1.7.0.0"
 	Local $iAllCores
+	Local $sPriority = "High"
 	Local $aProcesses[1]
 	Local $iProcesses = 0
 	Local $iProcessCores = 1
@@ -106,100 +111,167 @@ Func Main()
 		$iAllCores += 2^$iLoop
 	Next
 
-	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitXOR($GUI_SS_DEFAULT_GUI, $WS_MINIMIZEBOX))
+	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitOr($WS_MINIMIZEBOX, $WS_CAPTION, $WS_SYSMENU))
 
 	#Region ; File Menu
-	Local $hMenu1 = GUICtrlCreateMenu("File")
-	Local $hLoad = GUICtrlCreateMenuItem("Load Profile", $hMenu1)
-	Local $hSave = GUICtrlCreateMenuItem("Save Profile", $hMenu1)
+	Local $hMenu1 = GUICtrlCreateMenu($_sLang_FileMenu)
+	Local $hLoad = GUICtrlCreateMenuItem($_sLang_FileLoad, $hMenu1)
+	Local $hSave = GUICtrlCreateMenuItem($_sLang_FileSave, $hMenu1)
 	GUICtrlCreateMenuItem("", $hMenu1)
-	Local $hQuit = GUICtrlCreateMenuItem("Quit"        , $hMenu1)
+	Local $hQuit = GUICtrlCreateMenuItem($_sLang_FileQuit, $hMenu1)
 	#EndRegion
 
 	#Region ; Options Menu
-	Local $hMenu2 = GUICtrlCreateMenu("Options")
-	Local $hTimer = GUICtrlCreateMenu("Sleep Timer", $hMenu2)
-	Local $hGetTimer = GUICtrlCreateMenuItem("Current Timer: " & $iSleep & "ms", $hTimer)
-	GUICtrlSetState($hGetTimer, $GUI_DISABLE)
+	Local $hMenu2 = GUICtrlCreateMenu($_sLang_OptionsMenu)
+	Local $hLang = GUICtrlCreateMenu($_sLang_TextMenu, $hMenu2)
+	Local $hCLang = GUICtrlCreateMenuItem($_sLang_TextCurrent & ": " & $_sLang_Language, $hLang)
+	GUICtrlSetState(-1, $GUI_DISABLE)
+	GUICtrlCreateMenuItem("", $hLang)
+	Local $hLoadLanguage = GUICtrlCreateMenuItem($_sLang_TextLoad, $hLang)
+	Local $hTimer = GUICtrlCreateMenu($_sLang_SleepMenu, $hMenu2)
+	Local $hGetTimer = GUICtrlCreateMenuItem($_sLang_SleepCurrent & ": " & $iSleep & "ms", $hTimer)
+	GUICtrlSetState(-1, $GUI_DISABLE)
 	GUICtrlCreateMenuItem("", $hTimer)
-	Local $hSetTimer = GUICtrlCreateMenuItem("Set Sleep Timer", $hTimer)
+	Local $hSetTimer = GUICtrlCreateMenuItem($_sLang_SleepSet, $hTimer)
 	#EndRegion
 
 	#Region ; Help Menu
-	Local $hMenu3 = GUICtrlCreateMenu("Help")
-	Local $hGithub = GUICtrlCreateMenuItem("Website"          , $hMenu3)
+	Local $hMenu3 = GUICtrlCreateMenu($_sLang_HelpMenu)
+	Local $hGithub = GUICtrlCreateMenuItem($_sLang_HelpSite, $hMenu3)
+	Local $hHowTo = GUICtrlCreateMenuItem($_sLang_HelpHowTo, $hMenu3)
 	GUICtrlCreateMenuItem("", $hMenu3)
-	Local $hUpdate = GUICtrlCreateMenuItem("Check for Updates", $hMenu3)
+	Local $hUpdate = GUICtrlCreateMenuItem($_sLang_HelpUpdate, $hMenu3)
 	#EndRegion
 
 	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
-		GUICtrlSetTip($hDToggle, "Toggle Debug Mode")
+		GUICtrlSetTip($hDToggle, $_sLang_DebugTip)
 
-	GUICtrlCreateTab(0, 0, 280, 300, 0)
+	GUICtrlCreateTab(0, 0, 280, 275)
 
-	#Region ; Optimize Tab
-	GUICtrlCreateTabItem("Optimize")
+	#Region ; Work Tab
+	;GUICtrlCreateTabItem($_sLang_WorkTab)
 
-	GUICtrlCreateLabel("Game/App Optimization", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	#EndRegion
+
+	#Region ; Play Tab
+	GUICtrlCreateTabItem($_sLang_PlayTab)
+
+	GUICtrlCreateLabel($_sLang_PlayText, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Process:", 10, 50, 140, 15)
+	GUICtrlCreateLabel($_sLang_OptimizeProcess & ":", 10, 50, 140, 15)
 
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
-		GUICtrlSetTip(-1, "Enter the name of the process here." & @CRLF & _
-			"Example: NOTEPAD.EXE", "USAGE", $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_OptimizeTip & @CRLF & _
+			$_sLang_Example & ": NOTEPAD.EXE", $_sLang_Usage, $TIP_NOICON)
 
 	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
-		GUICtrlSetTip(-1, "Import Selected Process from Process List", "USAGE", $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_ImportTip, $_sLang_Usage, $TIP_NOICON)
 
-	GUICtrlCreateLabel("Include Children:", 10, 75, 140, 20)
+	GUICtrlCreateLabel($_sLang_IncludeChildren, 10, 75, 140, 20)
 
 	Local $hChildren = GUICtrlCreateCheckbox("", 150, 70, 120, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, "Include other Processes the Game/App starts" & @CRLF & _
-			"Coming Soon", "USAGE", $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_ChildrenTip, $_sLang_Usage, $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Core Assignment:", 10, 100, 140, 15)
+	GUICtrlCreateLabel($_sLang_AllocationMode & ":", 10, 100, 140, 15)
 
-	Local $hCores = GUICtrlCreateInput("1", 150, 95, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
-		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
-			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
-			"Ranges seperated by a dash are supported." & @CRLF & _
-			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON)
-		If $iThreads > 2 Then GUICtrlSetData(-1, "1-" & Ceiling($iThreads/2))
+	Local $hAssignMode = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
+		If $iCores = $iThreads Then
+			GUICtrlSetData(-1, _
+			$_sLang_AllocAll & "|" & _
+			$_sLang_AllocFirst & "|" & _
+			$_sLang_AllocFirstTwo & "|" & _
+			$_sLang_AllocFirstFour & "|" & _
+			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocEven & "|" & _
+			$_sLang_AllocOdd & "|" & _
+			$_sLang_AllocPairs & "|" & _
+			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocCustom, $_sLang_AllocAll)
+		Else
+			GUICtrlSetData(-1, _
+			$_sLang_AllocAll & "|" & _
+			$_sLang_AllocFirst & "|" & _
+			$_sLang_AllocFirstTwo & "|" & _
+			$_sLang_AllocFirstFour & "|" & _
+			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocPhysical & "|" & _
+			$_sLang_AllocVirtual & "|" & _
+			$_sLang_AllocPairs & "|" & _
+			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocCustom, $_sLang_AllocAll)
+		EndIf
 
-	GUICtrlCreateLabel("Process Priority:", 10, 125, 140, 15)
+	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 125, 140, 15)
 
-	Local $hPPriority = GUICtrlCreateCombo("", 150, 120, 120, 20, $CBS_DROPDOWNLIST)
-		GUICtrlSetData(-1, "Normal|Above Normal|High|Realtime", "High")
+	Local $hCores = GUICtrlCreateInput("", 150, 120, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+		GUICtrlSetTip(-1, $_sLang_AssignTip1 & @CRLF & _
+			$_sLang_AssignTip2 & @CRLF & _
+			$_sLang_AssignTip3 & @CRLF & _
+			$_sLang_Example & ": 1,3,4-6" & @TAB & @TAB & $_sLang_AssignTip4 & ": " & $iThreads, $_sLang_Usage, $TIP_NOICON)
+		If $iThreads <= 4 Then
+			GUICtrlSetData(-1, "1-" & $iThreads)
+		ElseIf $iThreads <= 6 Then
+			GUICtrlSetData(-1, "1-4")
+		Else
+			GUICtrlSetData(-1, "1-" & Ceiling($iThreads/2))
+		EndIf
+		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	Local $hReset = GUICtrlCreateButton("RESTORE", 5, 275, 135, 20)
-	Local $hOptimize = GUICtrlCreateButton("OPTIMIZE", 140, 275, 135, 20)
+	GUICtrlCreateLabel($_sLang_OptimizePriority & ":", 10, 150, 140, 15)
+
+	Local $hPPriority = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
+		GUICtrlSetData(-1, _
+		$_sLang_PriorityNormal & "|" & _
+		$_sLang_PriorityANormal & "|" & _
+		$_sLang_PriorityHigh & "|" & _
+		$_sLang_PriorityRealtime, $_sLang_PriorityHigh)
 	#EndRegion
 
 	#Region ; Stream Tab
-	GUICtrlCreateTabItem("Stream")
+	GUICtrlCreateTabItem($_sLang_StreamTab)
 
-	GUICtrlCreateLabel("Streaming Optimization", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_StreamText, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Allocation Mode:", 10, 50, 140, 15)
+	GUICtrlCreateLabel($_sLang_AllocationMode & ":", 10, 50, 140, 15)
 
 	Local $hSplitMode = GUICtrlCreateCombo("", 150, 45, 120, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
-			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Even Cores|Odd Cores|Last AMD CCX|Custom", "OFF")
+			GUICtrlSetData(-1, _
+			$_sLang_AllocAll & "|" & _
+			$_sLang_AllocFirst & "|" & _
+			$_sLang_AllocFirstTwo & "|" & _
+			$_sLang_AllocFirstFour & "|" & _
+			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocEven & "|" & _
+			$_sLang_AllocOdd & "|" & _
+			$_sLang_AllocPairs & "|" & _
+			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocCustom, $_sLang_AllocAll)
 		Else
-			GUICtrlSetData(-1, "OFF|Last Core|Last 2 Cores|Last 4 Cores|Last Half|Physical Cores|Non-Physical Cores|Every Other Pair|Last AMD CCX|Custom", "OFF")
+			GUICtrlSetData(-1, _
+			$_sLang_AllocAll & "|" & _
+			$_sLang_AllocFirst & "|" & _
+			$_sLang_AllocFirstTwo & "|" & _
+			$_sLang_AllocFirstFour & "|" & _
+			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocPhysical & "|" & _
+			$_sLang_AllocVirtual & "|" & _
+			$_sLang_AllocPairs & "|" & _
+			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocCustom, $_sLang_AllocAll)
 		EndIf
 
-	GUICtrlCreateLabel("Custom Cores:", 10, 75, 140, 15)
+	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 75, 140, 15)
 
 	Local $hBCores = GUICtrlCreateInput("2", 150, 70, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
-		GUICtrlSetTip(-1, "To run on a Single Core, enter the number of that core." & @CRLF & _
-			"To run on Multiple Cores, seperate them with commas." & @CRLF & _
-			"Ranges seperated by a dash are supported." & @CRLF & _
-			"Example: 1,3,4-6" & @TAB & @TAB & "Maximum Cores: " & $iThreads, "USAGE", $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_AssignTip1 & @CRLF & _
+			$_sLang_AssignTip2 & @CRLF & _
+			$_sLang_AssignTip3 & @CRLF & _
+			$_sLang_Example & ": 1,3,4-6" & @TAB & @TAB & $_sLang_AssignTip4 & ": " & $iThreads, $_sLang_Usage, $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 		If $iThreads > 2 Then
 			If $iThreads = 3 Then
@@ -209,39 +281,40 @@ Func Main()
 			EndIf
 		EndIf
 
-	GUICtrlCreateLabel("Broadcast Software:", 10, 100, 140, 15)
+	GUICtrlCreateLabel($_sLang_StreamSoftware & ":", 10, 100, 140, 15)
 
 	Local $hBroadcaster = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Include Children:", 10, 125, 140, 20)
+	GUICtrlCreateLabel($_sLang_IncludeChildren, 10, 125, 140, 20)
 
 	Local $hBroChild = GUICtrlCreateCheckbox("", 150, 120, 120, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, "Include other Processes the Broadcaster starts" & @CRLF & _
-			"Coming Soon", "USAGE", $TIP_NOICON)
+		GUICtrlSetTip(-1, $_sLang_ChildrenTip, $_sLang_Usage, $TIP_NOICON)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel("Assign Other Processes to:", 10, 150, 140, 20)
+	GUICtrlCreateLabel($_sLang_StreamOtherAssign & ":", 10, 150, 140, 20)
 
 	Local $hOAssign = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
-		GUICtrlSetData(-1, "Broadcaster Cores|Game Cores|Remaining Cores", "Remaining Cores")
+		GUICtrlSetData(-1, _
+			$_sLang_AllocBroadcaster & "|" & _
+			$_sLang_AllocProcess & "|" & _
+			$_sLang_AllocRemaining & "|", $_sLang_AllocRemaining)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	#EndRegion
 
-	#Region ; Tweaks Tab
-	GUICtrlCreateTabItem("PC Tweaks")
+	#Region ; Tools Tab
+	GUICtrlCreateTabItem($_sLang_ToolTab)
 
-	GUICtrlCreateLabel("Game Performance", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_GameSection, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hHPET = GUICtrlCreateButton(" HPET", 5, 40, 80, 40, $BS_MULTILINE)
+	Local $hHPET = GUICtrlCreateButton($_sLang_HPET, 5, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "imageres.dll", -30)
 		GUICtrlSetState(-1, $GUI_DISABLE)
-		GUICtrlSetTip(-1, "High Precision Event Timer for Windows. On SOME games this may DECREASE performance" & @CRLF & "instead of INCREASE. You can always change it back!")
 
-	Local $hGameM = GUICtrlCreateButton(" Game" & @CRLF & " Mode", 100, 40, 80, 40, $BS_MULTILINE)
+	Local $hGameM = GUICtrlCreateButton($_sLang_GameMode, 100, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 15007 Then GUICtrlSetState(-1, $GUI_DISABLE)
@@ -249,139 +322,115 @@ Func Main()
 			GUICtrlSetState(-1, $GUI_DISABLE)
 		EndIf
 
-	Local $hPower = GUICtrlCreateButton("Power" & @CRLF & "Options", 195, 40, 80, 40, $BS_MULTILINE)
+	Local $hPower = GUICtrlCreateButton($_sLang_PowerOptions, 195, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "powercpl.dll", 1)
 
-	GUICtrlCreateLabel("Disk Performance", 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_DiskSection, 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hDefrag = GUICtrlCreateButton("Disk" & @CRLF & "Defrag", 5, 100, 80, 40, $BS_MULTILINE)
+	Local $hDefrag = GUICtrlCreateButton($_sLang_DiskDefrag, 5, 100, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -81)
 
-	Local $hCheck = GUICtrlCreateButton(" Disk" & @CRLF & " Check", 100, 100, 80, 40, $BS_MULTILINE)
+	Local $hCheck = GUICtrlCreateButton($_sLang_DiskCheck, 100, 100, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -271)
 
-	GUICtrlCreateLabel("Disk Space", 5, 145, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_StorageSection, 5, 145, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hCleanup = GUICtrlCreateButton("Disk" & @CRLF & "Cleanup", 5, 160, 80, 40, $BS_MULTILINE)
+	Local $hCleanup = GUICtrlCreateButton($_sLang_DiskCleanup, 5, 160, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -32)
 
-	Local $hSSense = GUICtrlCreateButton("Storage" & @CRLF & "Sense", 100, 160, 80, 40, $BS_MULTILINE)
+	Local $hSSense = GUICtrlCreateButton($_sLang_StorageSense, 100, 160, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -167)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 16299 Then GUICtrlSetState(-1, $GUI_DISABLE)
 		Else
 			GUICtrlSetState(-1, $GUI_DISABLE)
 		EndIf
-	GUICtrlCreateLabel("System Reliability", 5, 205, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_ReliabilitySection, 5, 205, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hEvents = GUICtrlCreateButton(" Recent" & @CRLF & " Events", 5, 220, 80, 40, $BS_MULTILINE)
+	Local $hEvents = GUICtrlCreateButton($_sLang_RecentEvents, 5, 220, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
 
-	Local $hActions = GUICtrlCreateButton(" Action" & @CRLF & " Center", 100, 220, 80, 40, $BS_MULTILINE)
+	Local $hActions = GUICtrlCreateButton($_sLang_ActionCenter, 100, 220, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "ActionCenter.dll", 1)
 
 	#EndRegion
 
-	#Region ; Options Tab
-#cs
-	GUICtrlCreateTabItem("Options")
-
-	GUICtrlCreateLabel("Internal Sleep Timer:", 10, 35, 220, 15)
-
-	Local $hSleepTimer = GUICtrlCreateInput("100", 230, 30, 40, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_NUMBER)
-		GUICtrlSetLimit(-1, 3,1)
-		GUICtrlSetTip(-1, "Internal Sleep Timer" & @CRLF & _
-			"Decreasing this value can smooth FPS drops, " & @CRLF & _
-			"at the risk of NCC having more CPU usage itself", "USAGE", $TIP_NOICON, $TIP_BALLOON)
-
-
-	GUICtrlCreateLabel("Processes to Always Include", 5, 25, 270, 20, $SS_CENTER + $SS_SUNKEN)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateListView("", 5, 45, 270, 120, $LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$ES_READONLY)
-
-	GUICtrlCreateLabel("Processes to Always Exclude", 5, 170, 270, 20, $SS_CENTER + $SS_SUNKEN)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateListView("", 5, 190, 270, 120, $LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$ES_READONLY)
-#ce
-	#EndRegion
-
 	#Region ; Specs Tab
-	GUICtrlCreateTabItem("My PC")
+	GUICtrlCreateTabItem($_sLang_SpecsTab)
 
-	GUICtrlCreateLabel("Operating System", 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_SpecsOSSection, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("OS:", 10, 45, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsOS & ":", 10, 45, 70, 15)
 		GUICtrlCreateLabel(_GetOSInfo(0) & " " & _GetOSInfo(1), 80, 45, 190, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("Language:", 10, 65, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsLanguage & ":", 10, 65, 70, 15)
 		GUICtrlCreateLabel(_GetLanguage(), 80, 65, 190, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("Hardware", 5, 90, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_SpecsHardwareSection, 5, 90, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel("Motherboard:", 10, 110, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsMobo & ":", 10, 110, 70, 15)
 		GUICtrlCreateLabel(_GetMotherboardInfo(0) & " " & _GetMotherboardInfo(1), 60, 130, 210, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("CPU:", 10, 150, 50, 15)
+	GUICtrlCreateLabel($_sLang_SpecsCPU & ":", 10, 150, 50, 15)
 		GUICtrlCreateLabel(_GetCPUInfo(2), 60, 170, 210, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("RAM:", 10, 190, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsRAM & ":", 10, 190, 70, 15)
 		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & " MHz", 80, 210, 190, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel("GPU:", 10, 230, 70, 15)
+	GUICtrlCreateLabel($_sLang_SpecsGPU & ":", 10, 230, 70, 15)
 		GUICtrlCreateLabel(_GetGPUInfo(0), 80, 250, 190, 20, $ES_RIGHT)
 
 	#EndRegion
 
 	#Region ; About Tab
-	GUICtrlCreateTabItem("About")
+	GUICtrlCreateTabItem($_sLang_AboutTab)
 
 	GUICtrlCreateLabel(@CRLF & "NotCPUCores" & @TAB & "v" & $sVersion & @CRLF & _
-		"Developed by Robert Maehl" & @CRLF & _
-		"Icon by /u/ImRealNow", 5, 35, 270, 70, $SS_CENTER)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateLabel("What it does:" & @CRLF & _
-		@CRLF & _
-		"1. Find the Game Process" & @CRLF & _
-		"2. Change Game Priority to High" & @CRLF & _
-		"3. Change Affinity to the Selected Core(s)" & @CRLF & _
-		"4. Set all other Processes Affinity off the Selected Core(s)", 5, 115, 270, 90)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	GUICtrlCreateLabel("How To Do It Yourself:" & @CRLF & _
-		@CRLF & _
-		"1. Open Task Manager" & @CRLF & _
-		"2. Find the Game Process under Processes or Details" &  @CRLF & _
-		"3. Right Click, Set Priority, High" & @CRLF & _
-		"4. Right Click, Set Affinity, Select Your Core(s)", 5, 215, 270, 100)
+		$_sLang_AboutDeveloper & " Robert Maehl" & @CRLF & _
+		$_sLang_AboutIcon & " /u/ImRealNow" & @CRLF & _
+		$_sLang_AboutLanugage & " " & $_sLang_Translator, 5, 25, 270, 80, $SS_CENTER)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	#EndRegion
 	GUICtrlCreateTabItem("")
 
+	Local $hReset = GUICtrlCreateButton($_sLang_Restore, 5, 275, 135, 20)
+	Local $hOptimize = GUICtrlCreateButton($_sLang_Optimize, 140, 275, 135, 20)
+
+	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
+	GUICtrlCreateTab(0, 0, 360, 300)
+
 	#Region ; Process List
+	GUICtrlCreateTabItem($_sLang_RunningTab)
 	Local $bPHidden = False
-	Local $hProcesses = GUICtrlCreateListView("Window Process|Window Title", 280, 0, 360, 300, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	Local $hProcesses = GUICtrlCreateListView($_sLang_ProcessList & "|" & $_sLang_ProcessTitle, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER+$LVS_EX_FLATSB)
 		_GUICtrlListView_RegisterSortCallBack($hProcesses)
-		GUICtrlSetTip(-1, "F5 or Sort to Refresh", "Usage")
+		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
 	_GetProcessList($hProcesses)
 	_GUICtrlListView_SortItems($hProcesses, 0)
-
-	GUICtrlSetState($hProcesses, $GUI_HIDE)
-	$bPHidden = True
 	#EndRegion
+
+	#Region ; Games List
+	GUICtrlCreateTabItem($_sLang_GamesTab)
+	Local $hGames = GUICtrlCreateListView($_sLang_GameID & "|" & $_sLang_GameName, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+		_GUICtrlListView_RegisterSortCallBack($hGames)
+		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
+
+	#EndRegion
+	$bPHidden = True
+
+	GUICtrlCreateTabItem("")
+	GUISwitch($hGUI)
 
 	#Region ; Debug Console
 	Local $bCHidden = False
-	$hConsole = GUICtrlCreateEdit("Debug Console Initialized" & @CRLF & "---" & @CRLF, 0, 300, 640, 160, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY))
+	$hConsole = GUICtrlCreateEdit($_sLang_DebugStart & @CRLF & "---" & @CRLF, 0, 300, 640, 160, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY))
 		GUICtrlSetColor(-1, 0xFFFFFF)
 		GUICtrlSetBkColor(-1, 0x000000)
 
@@ -393,14 +442,13 @@ Func Main()
 	GUISetState(@SW_SHOW, $hGUI)
 
 	#Region ; Sleep Timer GUI
-	$hTimerGUI = GUICreate("Set Sleep Timer", 240, 120, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
-	GUICtrlCreateLabel("Decreasing this value can smooth FPS drops, at the risk of NotCPUCores having more CPU usage itself", 10, 10, 220, 45, $SS_SUNKEN)
-	GUICtrlCreateLabel("Current Sleep Timer:", 10, 60, 110, 20)
-	$hSleepCurr = GUICtrlCreateInput($iSleep, 120, 60, 40, 20, $ES_RIGHT + $ES_NUMBER + $ES_READONLY)
-	$hSleepTime = GUICtrlCreateInput($iSleep, 10, 90, 40, 20, $ES_RIGHT + $ES_NUMBER)
+	$hTimerGUI = GUICreate($_sLang_SleepSet, 240, 120, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
+	GUICtrlCreateLabel($_sLang_SleepText, 10, 5, 220, 45)
+	GUICtrlCreateLabel($_sLang_NewSleep & ":", 10, 60, 110, 20)
+	$hSleepTime = GUICtrlCreateInput($iSleep, 120, 55, 40, 20, $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-1, 3, 1)
-	GUICtrlCreateLabel("ms", 55, 95, 20, 15)
-	$hOK = GUICtrlCreateButton("OK", 110, 90, 40, 20)
+	GUICtrlCreateLabel("ms", 165, 60, 20, 15)
+	$hOK = GUICtrlCreateButton("OK", 170, 90, 60, 20)
 	#EndRegion
 
 	While 1
@@ -409,11 +457,14 @@ Func Main()
 		If Not $iProcesses = 0 Then
 			If $bInterrupt = True Then
 				$bInterrupt = False
-				_ConsoleWrite("Exiting Optimizations via Interrupt...", $hConsole)
+				_ConsoleWrite($_sLang_Interrupt, $hConsole)
 				$iProcesses = 1
 			ElseIf $iProcesses = 1 Then
+				ConsoleWrite($_sLang_RestoringState)
 				_Restore($iThreads, $hConsole) ; Do Clean Up
-				GUICtrlSetData($hOptimize, "OPTIMIZE")
+				_ConsoleWrite($_sLang_Done & @CRLF, $hOutput)
+				_ConsoleWrite("---" & @CRLF, $hOutput)
+				GUICtrlSetData($hOptimize, $_sLang_Optimize)
 				For $iLoop = $hTask to $hOptimize Step 1
 					If $iLoop = $hChildren Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
@@ -421,37 +472,113 @@ Func Main()
 				$iProcesses = 0
 			Else
 				If Not (UBound(ProcessList()) = $iProcesses) Then
-					$aProcesses[0] = GUICtrlRead($hTask)
+					If GUICtrlRead($hTask) = "ACTIVE" Then $aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
-					If _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) Then $iProcesses = 1
-					If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
+					Switch $iProcesses
+						Case 1
+							Switch @error
+								Case 0
+									Switch @extended
+										Case 1
+											_ConsoleWrite($aProcesses[0] & " " & $_sLang_RestoringState & @CRLF, $hConsole)
+									EndSwitch
+								Case 1
+									Switch @extended
+										Case 1
+											_ConsoleWrite("!> " & $aProcesses[0] & " " & $_sLang_NotRunning & @CRLF, $hConsole)
+										Case 2
+											_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+										Case 3
+											_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
+										Case 4
+											_ConsoleWrite("!> " & GUICtrlRead($hPPriority) & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
+									EndSwitch
+							EndSwitch
+						Case Else
+							Switch @extended
+								Case 0
+									_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+								Case 1
+									_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
+								Case 2
+									_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
+							EndSwitch
+					EndSwitch
+					Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
+						Case 1
+							$iProcesses = 1
+							Switch @error
+								Case 1
+									_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+								Case 2
+									_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
+							EndSwitch
+					EndSwitch
+					Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole)
+						Case 0
+							Switch @extended
+								Case 1
+									_ConsoleWrite("!> " & $_sLang_MaxCores & @CRLF, $hConsole)
+							EndSwitch
+						Case 1
+							$iProcesses = 1
+							Switch @error
+								Case 1
+									_ConsoleWrite("!> " & $_sLang_TooManyTotalCores & @CRLF, $hConsole)
+							EndSwitch
+					EndSwitch
 				EndIf
 			EndIf
 		EndIf
 
 		$hMsg = GUIGetMsg()
+		$hTMsg = TrayGetMsg()
 		Sleep(10)
 
 		Select
 
 			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hQuit
+				_GUICtrlListView_UnRegisterSortCallBack($hGames)
 				_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
+				GUIDelete($hQuickTabs)
+				GUIDelete($hTimerGUI)
 				GUIDelete($hGUI)
 				Exit
 
+			Case $hMsg = $GUI_EVENT_MINIMIZE
+				Opt("TrayIconHide", 0)
+				TraySetToolTip("NotCPUCores")
+				GUISetState(@SW_HIDE, $hGUI)
+
+			Case $hTMsg = $TRAY_EVENT_PRIMARYUP
+				Opt("TrayIconHide", 1)
+				GUISetState(@SW_SHOW, $hGUI)
+
+			Case $hMsg = $hLoadLanguage ; LAZINESS... but saves a couple hundred lines of code
+				_LoadLanguage(FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "Language File (*.ini)", $FD_FILEMUSTEXIST, @OSLang & ".ini", $hGUI))
+				_GUICtrlListView_UnRegisterSortCallBack($hGames)
+				_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
+				GUIDelete($hQuickTabs)
+				GUIDelete($hTimerGUI)
+				GUIDelete($hGUI)
+				Main()
+
 			Case $hMsg = $hDToggle
 				If $bCHidden Or $bPHidden Then
-					GUICtrlSetState($hConsole, $GUI_SHOW)
-					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 640, 480)
+					$aPos = WinGetPos($hQuickTabs)
+					WinMove($hQuickTabs, "", $aPos[0], $aPos[1], 355, 300)
+					GUICtrlSetState($hConsole, $GUI_SHOW)
+					GUISetState(@SW_SHOW, $hQuickTabs)
+					GUICtrlSetPos($hGames, 0, 20, 355, 280)
 					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 300)
+					GUICtrlSetPos($hProcesses, 0, 20, 355, 280)
 					$bCHidden = False
 					$bPHidden = False
 				Else
 					GUICtrlSetState($hConsole, $GUI_HIDE)
-					GUICtrlSetState($hProcesses, $GUI_HIDE)
+					GUISetState(@SW_HIDE, $hQuickTabs)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 285, 345)
 					$bCHidden = True
@@ -463,7 +590,7 @@ Func Main()
 
 			Case $hMsg = $hOK
 				$iSleep = GUICtrlRead($hSleepTime)
-				GUICtrlSetData($hGetTimer, "Current Timer: " & $iSleep & "ms")
+				GUICtrlSetData($hGetTimer, $_sLang_SleepCurrent & ": " & $iSleep & "ms")
 				GUISetState(@SW_HIDE, $hTimerGUI)
 
 			Case $hMsg = $hSave
@@ -472,14 +599,16 @@ Func Main()
 				Else
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
-				$hFile = FileSaveDialog("Save Current Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
+				$hFile = FileSaveDialog($_sLang_SaveProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
 				IniWrite($hFile, "General"  , "Process"    , GUICtrlRead($hTask       ))
+				IniWrite($hFile, "General"  , "SplitAs"    , GUICtrlRead($hAssignMode ))
 				IniWrite($hFile, "General"  , "Threads"    , GUICtrlRead($hCores      ))
-;				IniWrite($hFile, "General"  , "Children"   , GUICtrlRead($hChildren   ))
+				IniWrite($hFile, "General"  , "Children"   , GUICtrlRead($hChildren   ))
 				IniWrite($hFile, "General"  , "Priority"   , GUICtrlRead($hPPriority  ))
 				IniWrite($hFile, "Streaming", "SplitAs"    , GUICtrlRead($hSplitMode  ))
 				IniWrite($hFile, "Streaming", "Threads"    , GUICtrlRead($hBCores     ))
 				IniWrite($hFile, "Streaming", "Software"   , GUICtrlRead($hBroadcaster))
+				IniWrite($hFile, "Streaming", "Children"   , GUICtrlRead($hBroChild   ))
 				IniWrite($hFile, "Streaming", "Assignement", GUICtrlRead($hOAssign    ))
 
 			Case $hMsg = $hProcesses
@@ -487,18 +616,30 @@ Func Main()
 				_GetProcessList($hProcesses)
 				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
 
+			Case $hMsg = $hGames
+				$bRefresh = False
+				_GetSteamGames($hGames)
+				_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
+
 			Case $bRefresh = True
 				$bRefresh = False
+				_GetSteamGames($hGames)
 				_GetProcessList($hProcesses)
+				_GUICtrlListView_SortItems($hGames, 0)
 				_GUICtrlListView_SortItems($hProcesses, 0)
 
 			Case $hMsg = $hSearch
 				GUICtrlSetState($hDToggle, $GUI_DISABLE)
 				If $bPHidden Then
+					GUICtrlSetState($hGames, $GUI_SHOW)
 					GUICtrlSetState($hProcesses, $GUI_SHOW)
 					$aPos = WinGetPos($hGUI)
 					WinMove($hGUI, "", $aPos[0], $aPos[1], 640)
-					GUICtrlSetPos($hProcesses, 280, 0, 355, 300)
+					$aPos = WinGetPos($hQuickTabs)
+					WinMove($hQuickTabs, "", $aPos[0], $aPos[1], 355, 300)
+					GUISetState(@SW_SHOW, $hQuickTabs)
+					GUICtrlSetPos($hGames, 0, 20, 355, 280)
+					GUICtrlSetPos($hProcesses, 0, 20, 355, 280)
 					$bPHidden = False
 				Else
 					$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
@@ -512,14 +653,16 @@ Func Main()
 				Else
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
-				$hFile = FileOpenDialog("Load Saved Settings", @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
-				GUICtrlSetData($hTask       , String(IniRead($hFile, "General"  , "Process" ,            "")))
-				GUICtrlSetData($hCores      , String(IniRead($hFile, "General"  , "Threads" ,           "1")))
-;				GUICtrlSetState($hChildren  , Number(IniRead($hFile, "General"  , "Children",$GUI_UNCHECKED)))
-				GUICtrlSetData($hBCores     , String(IniRead($hFile, "Streaming", "Threads" ,           "2")))
+				$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
+				GUICtrlSetData($hTask       , String(_IniRead($hFile, "General"  , "Process"   ,                                      "",                "")))
+				GUICtrlSetState($hChildren  , Number(_IniRead($hFile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
+				GUICtrlSetData($hAssignMode , String(_IniRead($hFile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
+				GUICtrlSetData($hCores      , String(_IniRead($hFile, "General"  , "Threads"   ,                                      "",               "1")))
 				GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
 				GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
+				GUICtrlSetData($hBCores     , String(_IniRead($hFile, "Streaming", "Threads"   ,                                      "",               "2")))
 				GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
+				GUICtrlSetState($hBroChild  , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
 				GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
 				ContinueCase
 
@@ -577,16 +720,40 @@ Func Main()
 					Case Else
 						ReDim $aProcesses[1]
 						$aProcesses[0] = GUICtrlRead($hTask)
-						_ConsoleWrite("!>Invalid Broadcaster Software!" & @CRLF, $hConsole)
+						_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
 
 				EndSwitch
 				ContinueCase
 
+			Case $hMsg = $hPPriority
+				$sPriority = "HIGH"
+				$aPriorities = StringSplit(_GUICtrlComboBox_GetList($hPPriority), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
+				Switch GUICtrlRead($hPPriority)
+
+					Case $aPriorities[0] ; Normal
+						$sPriority = "NORMAL"
+
+					Case $aPriorities[1] ; Above Normal
+						$sPriority = "ABOVENORMAL"
+
+					Case $aPriorities[2] ; High
+						$sPriority = "HIGH"
+
+					Case $aPriorities[3] ; Realtime
+						$sPriority = "REALTIME"
+
+					Case Else
+						$sPriority = "HIGH"
+						_ConsoleWrite("!> " & $_sLang_InvalidPriority & @CRLF, $hConsole)
+
+				EndSwitch
+
 			Case $hMsg = $hSplitMode
 				$iBroadcasterCores = 0
+				$aSplitMode = StringSplit(_GUICtrlComboBox_GetList($hSplitMode), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
 				Switch GUICtrlRead($hSplitMode)
 
-					Case "OFF"
+					Case $aSplitMode[0] ; OFF
 						$iBroadcasterCores = 0
 						GUICtrlSetState($hBCores, $GUI_DISABLE)
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
@@ -594,13 +761,13 @@ Func Main()
 						ReDim $aProcesses[1]
 						$aProcesses[0] = GUICtrlRead($hTask)
 
-					Case "Last Core"
+					Case $aSplitMode[1] ; Last Core
 						$iBroadcasterCores = 2^($iThreads - 1)
 						GUICtrlSetState($hBCores, $GUI_DISABLE)
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Last 2 Cores"
+					Case $aSplitMode[2] ; Last 2 Cores
 						For $iLoop = ($iThreads - 2) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
@@ -608,7 +775,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Last 4 Cores"
+					Case $aSplitMode[3] ; Last 4 Cores
 						For $iLoop = ($iThreads-4) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
@@ -616,7 +783,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Last Half"
+					Case $aSplitMode[4] ; Last Half
 						For $iLoop = Ceiling(($iThreads - ($iThreads/2))) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
@@ -624,7 +791,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Odd Cores", "Non-Physical Cores"
+					Case $aSplitMode[5] ; Odd Cores
 						For $iLoop = 1 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
@@ -632,7 +799,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Even Cores", "Physical Cores"
+					Case $aSplitMode[6] ; Even Cores
 						For $iLoop = 0 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
@@ -640,8 +807,8 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Every Other Pair"
-						For $iLoop = 0 To $iThreads - 1 Step 4
+					Case $aSplitMode[7] ; Pairs
+						For $iLoop = 2 To $iThreads - 1 Step 4
 							$iBroadcasterCores += 2^($iLoop)
 							$iBroadcasterCores += 2^($iLoop + 1)
 						Next
@@ -649,7 +816,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Last AMD CCX"
+					Case $aSplitMode[8] ; CPU Optimized
 						For $iLoop = ($iThreads - _CalculateCCX()) To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
@@ -657,7 +824,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case "Custom"
+					Case $aSplitMode[9] ; Custom
 						GUICtrlSetState($hBCores, $GUI_ENABLE)
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
@@ -695,7 +862,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						ReDim $aProcesses[1]
-						_ConsoleWrite("!>Invalid Broadcaster Mode!" & @CRLF, $hConsole)
+						_ConsoleWrite("!> " & $_sLang_InvalidBroadcastCores & @CRLF, $hConsole)
 
 				EndSwitch
 				ContinueCase
@@ -732,22 +899,114 @@ Func Main()
 				EndIf
 				ContinueCase
 
+			Case $hMsg = $hAssignMode
+				$iProcessCores = 0
+				$aAssignMode = StringSplit(_GUICtrlComboBox_GetList($hAssignMode), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
+				Switch GUICtrlRead($hAssignMode)
+
+					Case $aAssignMode[0] ; All Cores
+						$iProcessCores = $iAllCores
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case $aAssignMode[1] ; First Core
+						$iProcessCores = 1
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case $aAssignMode[2] ; First 2 Cores
+						$iProcessCores = 3
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case $aAssignMode[3] ; First 4 Cores
+						$iProcessCores = 15
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case $aAssignMode[4] ; First Half
+						For $iLoop = 0 To (Floor(($iThreads - ($iThreads/2))) - 1)
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case $aAssignMode[5] ; Odd Cores
+						For $iLoop = 1 To $iThreads - 1 Step 2
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case $aAssignMode[6] ; Even Cores
+						For $iLoop = 0 To $iThreads - 1 Step 2
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case $aAssignMode[7] ; Every Other Pair
+						For $iLoop = 0 To $iThreads - 1 Step 4
+							$iProcessCores += 2^($iLoop)
+							$iProcessCores += 2^($iLoop + 1)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case $aAssignMode[8] ; First AMD CCX
+						For $iLoop = 0 To (_CalculateCCX() - 1) Step 2
+							$iProcessCores += 2^($iLoop)
+						Next
+						GUICtrlSetState($hCores, $GUI_DISABLE)
+
+					Case $aAssignMode[9] ; Custom
+						GUICtrlSetState($hCores, $GUI_ENABLE)
+						If Not StringRegExp(GUICtrlRead($hCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then ;\A[0-9]+?(,[0-9]+)*\Z
+							GUICtrlSetColor($hCores, 0xFF0000)
+							GUICtrlSetState($hOptimize, $GUI_DISABLE)
+						Else
+							GUICtrlSetColor($hCores, 0x000000)
+							If StringRegExp(GUICtrlRead($hBCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then GUICtrlSetState($hOptimize, $GUI_ENABLE)
+							If StringInStr(GUICtrlRead($hCores), ",") Or StringInStr(GUICtrlRead($hCores), "-") Then ; Convert Multiple Cores if Declared to Magic Number
+								$aCores = StringSplit(GUICtrlRead($hCores), ",", $STR_NOCOUNT)
+								For $iLoop1 = 0 To UBound($aCores) - 1 Step 1
+									If StringInStr($aCores[$iLoop1], "-") Then
+										$aRange = StringSplit($aCores[$iLoop1], "-", $STR_NOCOUNT)
+										If $aRange[0] < $aRange[1] Then
+											For $iLoop2 = $aRange[0] To $aRange[1] Step 1
+												$iProcessCores += 2^($iLoop2-1)
+											Next
+										Else
+											For $iLoop2 = $aRange[1] To $aRange[0] Step 1
+												$iProcessCores += 2^($iLoop2-1)
+											Next
+										EndIf
+									Else
+										$iProcessCores += 2^($aCores[$iLoop1]-1)
+									EndIf
+								Next
+							Else
+								$iProcessCores = 2^(GUICtrlRead($hCores)-1)
+							EndIf
+						EndIf
+
+					Case Else
+					_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+					GUICtrlSetState($hOptimize, $GUI_DISABLE)
+					GUICtrlSetState($hCores, $GUI_DISABLE)
+
+				EndSwitch
+				ContinueCase
+
 			Case $hMsg = $hOAssign
 				$iOtherProcessCores = 0
+				$aOAssign = StringSplit(_GUICtrlComboBox_GetList($hOAssign), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
 				Switch GUICtrlRead($hOAssign)
 
-					Case "Broadcaster Cores"
+					Case $aOAssign[0] ; Broadcaster Cores
 						$iOtherProcessCores = $iBroadcasterCores
 
-					Case "Game Cores"
+					Case $aOAssign[1] ; Game Cores
 						$iOtherProcessCores = $iProcessCores
 
-					Case "Remaining Cores"
+					Case $aOAssign[2] ; Remaining Cores
 						$iOtherProcessCores = $iAllCores - BitOR($iProcessCores, $iBroadcasterCores)
 
 					Case Else
 						$iOtherProcessCores = 1
-						_ConsoleWrite("!>Invalid Process Assign Mode!" & @CRLF, $hConsole)
+						_ConsoleWrite("!> " & $_sLang_InvalidOtherCores & @CRLF, $hConsole)
 
 				EndSwitch
 
@@ -755,9 +1014,12 @@ Func Main()
 				For $Loop = $hTask to $hReset Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
-				GUICtrlSetData($hReset, "Restoring PC...")
-				_Restore($iThreads, $hConsole)
-				GUICtrlSetData($hReset, "RESTORE")
+				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
+				ConsoleWrite($_sLang_RestoringState)
+				_Restore($iThreads, $hConsole) ; Do Clean Up
+				_ConsoleWrite($_sLang_Done & @CRLF, $hOutput)
+				_ConsoleWrite("---" & @CRLF, $hOutput)
+				GUICtrlSetData($hReset, $_sLang_Restore)
 				For $iLoop = $hTask to $hOptimize Step 1
 					If $iLoop = $hChildren Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
@@ -767,11 +1029,70 @@ Func Main()
 				For $Loop = $hTask to $hOptimize Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
-				GUICtrlSetData($hOptimize, "Pause/Break to Stop")
+				GUICtrlSetData($hOptimize, $_sLang_OptimizeAlt)
 				$aProcesses[0] = GUICtrlRead($hTask)
+				Switch $aProcesses[0]
+					Case "ACTIVE"
+						$aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+					Case 0 To 999999
+						$iGame = ShellExecute("steam://rungameid/" & $aProcesses[0])
+						ConsoleWrite($iGame & @CRLF)
+						$aProcesses[0] = _ProcessGetName($iGame)
+				EndSwitch
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
-				If _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) Then $iProcesses = 1
-				If _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole) Then $iProcesses = 1
+				Switch $iProcesses
+					Case 1
+						Switch @error
+							Case 0
+								Switch @extended
+									Case 1
+										_ConsoleWrite($aProcesses[0] & " " & $_sLang_RestoringState & @CRLF, $hConsole)
+								EndSwitch
+							Case 1
+								Switch @extended
+									Case 1
+										_ConsoleWrite("!> " & $aProcesses[0] & " " & $_sLang_NotRunning & @CRLF, $hConsole)
+									Case 2
+										_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+									Case 3
+										_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
+									Case 4
+										_ConsoleWrite("!> " & GUICtrlRead($hPPriority) & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
+								EndSwitch
+						EndSwitch
+					Case Else
+						Switch @extended
+							Case 0
+								_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+							Case 1
+								_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
+							Case 2
+								_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
+						EndSwitch
+				EndSwitch
+				Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
+					Case 1
+						$iProcesses = 1
+						Switch @error
+							Case 1
+								_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+							Case 2
+								_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
+						EndSwitch
+				EndSwitch
+				Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole)
+					Case 0
+						Switch @extended
+							Case 1
+								_ConsoleWrite("!> " & $_sLang_MaxCores & @CRLF, $hConsole)
+						EndSwitch
+					Case 1
+						$iProcesses = 1
+						Switch @error
+							Case 1
+								_ConsoleWrite("!> " & $_sLang_TooManyTotalCores & @CRLF, $hConsole)
+						EndSwitch
+				EndSwitch
 
 			Case $hMsg = $hGameM
 				ShellExecute("ms-settings:gaming-gamemode")
@@ -800,11 +1121,14 @@ Func Main()
 			Case $hMsg = $hGithub
 				ShellExecute("http://www.github.com/rcmaehl/NotCPUCores")
 
+			Case $hMsg = $hHowTo
+				ShellExecute("https://github.com/rcmaehl/NotCPUCores/blob/master/FAQ.md#is-it-possible-to-get-the-benefits-of-notcpucores-without-installing-it")
+
 			Case $hMsg = $hUpdate
 				ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases/latest")
 
 			Case Else
-				Sleep(10)
+				Sleep($iSleep /  10)
 
 		EndSelect
 	WEnd
@@ -913,6 +1237,23 @@ Func _GetProcessList($hControl)
 
 EndFunc
 
+Func _GetSteamGames($hControl)
+
+	Local $aSteamLibraries = _GetSteamLibraries()
+	Local $aSteamGames
+	For $iLoop1 = 1 To $aSteamLibraries[0] Step 1
+		$aSteamGames = _SteamGetGamesFromLibrary($aSteamLibraries[$iLoop1])
+		For $iLoop2 = 1 To $aSteamGames[0] Step 1
+			GUICtrlCreateListViewItem($aSteamGames[$iLoop2][0] & "|" & $aSteamGames[$iLoop2][1], $hControl)
+		Next
+	Next
+	_ArrayDelete($aSteamGames, 0)
+	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
+		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
+	Next
+
+EndFunc
+
 Func _Interrupt()
 	$bInterrupt = True
 EndFunc
@@ -920,60 +1261,6 @@ EndFunc
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
-
-Func _IniRead($hFile, $sSection, $sKey, $sValid, $sDefault)
-	Local $sReturn = IniRead($hFile, $sSection, $sKey, $sDefault)
-	Local $aValid = StringSplit($sValid, Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
-	If _ArraySearch($aValid, $sReturn) = -1 Then
-		Return $sDefault
-	Else
-		Return $sReturn
-	EndIf
-EndFunc
-
-Func _LoadLanguage($iLanguage = @OSLang)
-	$sPath = ".\Lang\" & $iLanguage & ".ini"
-	If FileExists($sPath) Then
-
-		#Region ; File Info
-;		$_sLang_Version     = IniRead($sPath, "File", "Version" , $sVersion)
-		$_sLang_Language    = IniRead($sPath, "File", "Name"    , "Default")
-		#EndRegion
-
-		#Region ; Global Word Usage
-		$_sLang_Example     = IniRead($sPath, "Global", "Example", "Example")
-		$_sLang_Usage       = IniRead($sPath, "Global", "Usage"  , "Usage"  )
-		$_sLang_Done        = IniRead($sPath, "Global", "Done"   , "Done"   )
-		#EndRegion
-
-		#Region ; Main GUI
-		$_sLang_DebugTip        = IniRead($sPath, "GUI", "DebugTip"     , "Toggle Debug Mode"           )
-		$_sLang_ProcessList     = IniRead($sPath, "GUI", "ProcessList"  , "Window Process"              )
-		$_sLang_ProcessTitle    = IniRead($sPath, "GUI", "ProcessTitle" , "Window Title"                )
-		$_sLang_FileMenu        = IniRead($sPath, "GUI", "FileMenu"     , "File"                        )
-		$_sLang_OptionsMenu     = IniRead($sPath, "GUI", "OptionsMenu"  , "Options"                     )
-		#EndRegion
-
-		#Region ; Console Output
-		$_sLang_DebugStart       = IniRead($sPath, "Console", "DebugStart"      , "Debug Console Initialized"                                )
-		$_sLang_Optimizing1      = IniRead($sPath, "Console", "Optimizing1"     , "Optimizing "                                              )
-		$_sLang_Optimizing2      = IniRead($sPath, "Console", "Optimizing2"     , " in the background until it closes..."                    )
-		$_sLang_RestoringState   = IniRead($sPath, "Console", "RestoringState"  , "Restoring Previous State..."                              )
-		$_sLang_RestoringProcess = IniRead($sPath, "Console", "RestoringProcess", "Restoring Priority and Affinity of all Other Processes...")
-		$_sLang_ProcessChange    = IniRead($sPath, "Console", "ProcessChange"   , "Process Count Changed, Rerunning Optimization..."         )
-		$_sLang_StoppingServices = IniRead($sPath, "Console", "StoppingServices", "Temporarily Pausing Game Impacting Services..."           )
-		$_sLang_StartingServices = IniRead($sPath, "Console", "StartingServices", "Restarting Any Stopped Services..."                       )
-		$_sLang_HPETChange       = IniRead($sPath, "Console", "HPETChange"      , "HPET State Changed, Please Reboot to Apply Changes"       )
-		#EndRegion
-
-		#Region ; Errors
-		$_sLang_NotRunning   = IniRead($sPath, "Errors", "NotRunning"  , " is not currently running. Please run the program first"  )
-		$_sLang_CoreError    = IniRead($sPath, "Errors", "CoreError"   , " is not a proper declaration of what cores to run on"     )
-		$_sLang_TooManyCores = IniRead($sPath, "Errors", "TooManyCores", "You've specified more cores than available on your system")
-		#EndRegion
-
-	EndIf
-EndFunc
 
 Func _Refresh()
 	$bRefresh = True
