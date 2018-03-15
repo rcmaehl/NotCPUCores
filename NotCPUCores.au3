@@ -1034,6 +1034,9 @@ Func Main()
 				Switch $aProcesses[0]
 					Case "ACTIVE"
 						$aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+					Case "FortniteClient-Win32-Shipping.exe", "FortniteClient-Win64-Shipping.exe"
+						ConsoleWrite("!> There is a known issue with EasyAntiCheat that prevents prioritiy changes" & @CRLF)
+						ConsoleWrite("!> Visit https://www.reddit.com/comments/82xyhb/info/dvdnv0s/ for details" & @CRLF)
 					Case 0 To 999999
 						$iGame = ShellExecute("steam://rungameid/" & $aProcesses[0])
 						ConsoleWrite($iGame & @CRLF)
