@@ -11,12 +11,7 @@
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
-Opt("TrayIconHide", 1)
-Opt("TrayMenuMode", 1)
-Opt("TrayAutoPause", 0)
-Opt("GUICloseOnESC", 0)
-Opt("GUIResizeMode", $GUI_DOCKALL)
-
+#include <Array.au3>
 #include <Process.au3>
 #include <Constants.au3>
 #include <GUIListView.au3>
@@ -37,6 +32,12 @@ Opt("GUIResizeMode", $GUI_DOCKALL)
 ;#include ".\Includes\_ModeSelect.au3"
 #include ".\Includes\_GetLanguage.au3"
 #include ".\Includes\_ExtendedFunctions.au3"
+
+Opt("TrayIconHide", 1)
+Opt("TrayMenuMode", 1)
+Opt("TrayAutoPause", 0)
+Opt("GUICloseOnESC", 0)
+Opt("GUIResizeMode", $GUI_DOCKALL)
 
 Global $bRefresh = False
 Global $bInterrupt = False
@@ -403,7 +404,7 @@ Func Main()
 	Local $hOptimize = GUICtrlCreateButton($_sLang_Optimize, 140, 275, 135, 20)
 
 	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
-	GUICtrlCreateTab(0, 0, 360, 300)
+	$hTabs = GUICtrlCreateTab(0, 0, 360, 300)
 
 	#Region ; Process List
 	GUICtrlCreateTabItem($_sLang_RunningTab)
@@ -422,6 +423,8 @@ Func Main()
 		_GUICtrlListView_RegisterSortCallBack($hGames)
 		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
+	_GetSteamGames($hGames)
+	_GUICtrlListView_SortItems($hGames, 1)
 	#EndRegion
 	$bPHidden = True
 
@@ -462,8 +465,8 @@ Func Main()
 			ElseIf $iProcesses = 1 Then
 				ConsoleWrite($_sLang_RestoringState)
 				_Restore($iThreads, $hConsole) ; Do Clean Up
-				_ConsoleWrite($_sLang_Done & @CRLF, $hOutput)
-				_ConsoleWrite("---" & @CRLF, $hOutput)
+				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
+				_ConsoleWrite("---" & @CRLF, $hConsole)
 				GUICtrlSetData($hOptimize, $_sLang_Optimize)
 				For $iLoop = $hTask to $hOptimize Step 1
 					If $iLoop = $hChildren Then ContinueLoop
@@ -642,8 +645,18 @@ Func Main()
 					GUICtrlSetPos($hProcesses, 0, 20, 355, 280)
 					$bPHidden = False
 				Else
-					$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
-					If Not $aTask[0] = 0 Then GUICtrlSetData($hTask, $aTask[0])
+					Switch GUICtrlRead($hTabs)
+						Case 0
+							$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
+						Case 1
+							$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hGames)), "|", $STR_NOCOUNT)
+					EndSwitch
+					If $aTask[0] = "0" Then
+						;;;
+					Else
+						GUICtrlSetData($hTask, $aTask[0])
+					EndIf
+					$aTask = ""
 				EndIf
 				GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
@@ -1017,8 +1030,8 @@ Func Main()
 				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
 				ConsoleWrite($_sLang_RestoringState)
 				_Restore($iThreads, $hConsole) ; Do Clean Up
-				_ConsoleWrite($_sLang_Done & @CRLF, $hOutput)
-				_ConsoleWrite("---" & @CRLF, $hOutput)
+				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
+				_ConsoleWrite("---" & @CRLF, $hConsole)
 				GUICtrlSetData($hReset, $_sLang_Restore)
 				For $iLoop = $hTask to $hOptimize Step 1
 					If $iLoop = $hChildren Then ContinueLoop
@@ -1038,7 +1051,11 @@ Func Main()
 						ConsoleWrite("!> There is a known issue with EasyAntiCheat that prevents prioritiy changes" & @CRLF)
 						ConsoleWrite("!> Visit https://www.reddit.com/comments/82xyhb/info/dvdnv0s/ for details" & @CRLF)
 					Case 0 To 999999
-						$iGame = ShellExecute("steam://rungameid/" & $aProcesses[0])
+						ShellExecute("steam://rungameid/" & $aProcesses[0])
+						Sleep(1000)
+						$aRunning = ProcessList()
+						$iGame = $aRunning[$aRunning[0][0]][1]
+						_ArrayDisplay($aRunning)
 						ConsoleWrite($iGame & @CRLF)
 						$aProcesses[0] = _ProcessGetName($iGame)
 				EndSwitch
@@ -1246,7 +1263,8 @@ Func _GetSteamGames($hControl)
 	Local $aSteamGames
 	For $iLoop1 = 1 To $aSteamLibraries[0] Step 1
 		$aSteamGames = _SteamGetGamesFromLibrary($aSteamLibraries[$iLoop1])
-		For $iLoop2 = 1 To $aSteamGames[0] Step 1
+		If $aSteamGames[0][0] = 0 Then ContinueLoop
+		For $iLoop2 = 1 To $aSteamGames[0][0] Step 1
 			GUICtrlCreateListViewItem($aSteamGames[$iLoop2][0] & "|" & $aSteamGames[$iLoop2][1], $hControl)
 		Next
 	Next

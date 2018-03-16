@@ -119,7 +119,7 @@ Func _SteamGetGamesFromLibrary($sLibrary)
 			EndIf
 
 			If $aLine[0] = 2 And $aLine[1] = "name" Then
-				$aGames[UBound($aGames) - 1][1] = "\steamapps\common\" & $aLine[2]
+				$aGames[UBound($aGames) - 1][1] = $aLine[2]
 			EndIf
 		Next
 

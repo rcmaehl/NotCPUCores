@@ -74,10 +74,12 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 		If Not ProcessExists($hProcess) Then
 			If FileExists($hProcess) Then
 				Run($hProcess)
+				Sleep(200)
 			Else
 				SetError(0, 1, 1)
 			EndIf
-		ElseIf ProcessExists($hProcess) Then
+		EndIf
+		If ProcessExists($hProcess) Then
 			$iExtended = 1
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			Sleep($iSleepTime)
@@ -121,6 +123,8 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 						EndIf
 					Next
 					Sleep($iSleepTime)
+				Else
+					ConsoleWrite("Triggered" & @CRLF)
 				EndIf
 		EndSelect
 	EndIf
