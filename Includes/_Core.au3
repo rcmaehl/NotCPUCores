@@ -110,9 +110,8 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 				$iExtended = 2
 				ContinueCase
 			Case Else
+				$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 				If ProcessExists($hProcess) Then
-					Sleep($iSleepTime)
-					$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 					Sleep($iSleepTime)
 					For $iLoop = 0 to $aProcesses[0][0] Step 1
 						If $aProcesses[$iLoop][0] = $hProcess Then
@@ -123,8 +122,6 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 						EndIf
 					Next
 					Sleep($iSleepTime)
-				Else
-					ConsoleWrite("Triggered" & @CRLF)
 				EndIf
 		EndSelect
 	EndIf
