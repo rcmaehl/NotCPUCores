@@ -1048,15 +1048,13 @@ Func Main()
 					Case "ACTIVE"
 						$aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 					Case "FortniteClient-Win32-Shipping.exe", "FortniteClient-Win64-Shipping.exe"
-						ConsoleWrite("!> There is a known issue with EasyAntiCheat that prevents prioritiy changes" & @CRLF)
-						ConsoleWrite("!> Visit https://www.reddit.com/comments/82xyhb/info/dvdnv0s/ for details" & @CRLF)
+						_ConsoleWrite("!> There is a known issue with EasyAntiCheat that prevents prioritiy changes" & @CRLF, $hConsole)
+						_ConsoleWrite("!> Visit https://www.reddit.com/comments/82xyhb/info/dvdnv0s/ for details" & @CRLF, $hConsole)
 					Case 0 To 999999
 						ShellExecute("steam://rungameid/" & $aProcesses[0])
 						Sleep(1000)
 						$aRunning = ProcessList()
 						$iGame = $aRunning[$aRunning[0][0]][1]
-						_ArrayDisplay($aRunning)
-						ConsoleWrite($iGame & @CRLF)
 						$aProcesses[0] = _ProcessGetName($iGame)
 				EndSwitch
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
