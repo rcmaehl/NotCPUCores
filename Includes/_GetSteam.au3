@@ -21,6 +21,7 @@
 Func _GetSteamLibraries($hPath = "None")
 
 	Local $aLibraries[1]
+	Local $hLibraryFile
 
 	$aLibraries[0] = 0
 
