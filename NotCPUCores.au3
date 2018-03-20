@@ -473,6 +473,7 @@ Func Main()
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
 				$iProcesses = 0
+				$bInit = True
 			Else
 				If Not (UBound(ProcessList()) = $iProcesses) Then
 					If GUICtrlRead($hTask) = "ACTIVE" Then $aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
@@ -760,6 +761,7 @@ Func Main()
 						_ConsoleWrite("!> " & $_sLang_InvalidPriority & @CRLF, $hConsole)
 
 				EndSwitch
+				ContinueCase
 
 			Case $hMsg = $hSplitMode
 				$iBroadcasterCores = 0
@@ -1037,6 +1039,7 @@ Func Main()
 					If $iLoop = $hChildren Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
+				$bInit = True
 
 			Case $hMsg = $hOptimize
 				For $Loop = $hTask to $hOptimize Step 1

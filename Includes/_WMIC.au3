@@ -17,7 +17,6 @@ Func _GetCPUInfo($iFlag = 0)
 			$sName = $obj_Item.Name
         Next
 
-
 		Switch $iFlag
 			Case 0
 				Return String($sCores)

@@ -52,7 +52,7 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - Optimization Exiting, Do not Continue
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/13/2018
+; Modified ......: 03/20/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -219,7 +219,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/13/2018
+; Modified ......: 03/20/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:

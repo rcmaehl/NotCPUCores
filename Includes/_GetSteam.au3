@@ -12,7 +12,7 @@
 ;                  |1 - Steam Install Location Error, sets @extended: (1, Unable to read Registry; 2, Path Invalid)
 ;                  |2 - Steam Library File Error, sets @extended: (1, File does not exist; 2, File could not be read)
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/08/19
+; Modified ......: 03/20/19
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
