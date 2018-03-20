@@ -125,7 +125,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 				EndIf
 		EndSelect
 	EndIf
-	SetError(0, $iExtended, UBound($aProcesses))
+	Return SetError(0, $iExtended, UBound($aProcesses))
 
 EndFunc
 
@@ -255,7 +255,7 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 			Next
 			Sleep($iSleepTime)
 	EndSelect
-	SetError(0, $iExtended, 0)
+	Return SetError(0, $iExtended, 0)
 
 EndFunc
 

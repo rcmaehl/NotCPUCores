@@ -463,7 +463,7 @@ Func Main()
 				_ConsoleWrite($_sLang_Interrupt, $hConsole)
 				$iProcesses = 1
 			ElseIf $iProcesses = 1 Then
-				ConsoleWrite($_sLang_RestoringState)
+				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
 				_Restore($iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
 				_ConsoleWrite("---" & @CRLF, $hConsole)
@@ -1028,7 +1028,7 @@ Func Main()
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
-				ConsoleWrite($_sLang_RestoringState)
+				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
 				_Restore($iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
 				_ConsoleWrite("---" & @CRLF, $hConsole)
@@ -1050,7 +1050,7 @@ Func Main()
 					Case "FortniteClient-Win32-Shipping.exe", "FortniteClient-Win64-Shipping.exe"
 						_ConsoleWrite("!> There is a known issue with EasyAntiCheat that prevents prioritiy changes" & @CRLF, $hConsole)
 						_ConsoleWrite("!> Visit https://www.reddit.com/comments/82xyhb/info/dvdnv0s/ for details" & @CRLF, $hConsole)
-					Case 0 To 999999
+					Case 1 To 999999
 						ShellExecute("steam://rungameid/" & $aProcesses[0])
 						Sleep(1000)
 						$aRunning = ProcessList()
