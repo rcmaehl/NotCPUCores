@@ -506,6 +506,7 @@ Func Main()
 									_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
 								Case 2
 									_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
+									_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
 							EndSwitch
 					EndSwitch
 					Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
@@ -1055,9 +1056,12 @@ Func Main()
 						_ConsoleWrite("!> Visit https://www.reddit.com/comments/82xyhb/info/dvdnv0s/ for details" & @CRLF, $hConsole)
 					Case 1 To 999999
 						ShellExecute("steam://rungameid/" & $aProcesses[0])
-						Sleep(1000)
-						$aRunning = ProcessList()
-						$iGame = $aRunning[$aRunning[0][0]][1]
+						$aPre = ProcessList()
+						Do
+							$aPost = ProcessList()
+							If $aPost[0][0] < $aPre[0][0] Then $aPre = $aPost
+						Until $aPost[0][0] > $aPre[0][0]
+						$iGame = $aPost[$aPost[0][0]][1]
 						$aProcesses[0] = _ProcessGetName($iGame)
 				EndSwitch
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
@@ -1089,6 +1093,7 @@ Func Main()
 								_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
 							Case 2
 								_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
+								_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
 				Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
