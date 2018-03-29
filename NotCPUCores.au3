@@ -469,7 +469,7 @@ Func Main()
 				_ConsoleWrite("---" & @CRLF, $hConsole)
 				GUICtrlSetData($hOptimize, $_sLang_Optimize)
 				For $iLoop = $hTask to $hOptimize Step 1
-					If $iLoop = $hChildren Then ContinueLoop
+					If $iLoop = $hChildren Or $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
 				$iProcesses = 0
@@ -560,13 +560,18 @@ Func Main()
 				GUISetState(@SW_SHOW, $hGUI)
 
 			Case $hMsg = $hLoadLanguage ; LAZINESS... but saves a couple hundred lines of code
-				_LoadLanguage(FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "Language File (*.ini)", $FD_FILEMUSTEXIST, @OSLang & ".ini", $hGUI))
-				_GUICtrlListView_UnRegisterSortCallBack($hGames)
-				_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
-				GUIDelete($hQuickTabs)
-				GUIDelete($hTimerGUI)
-				GUIDelete($hGUI)
-				Main()
+				$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "Language File (*.ini)", $FD_FILEMUSTEXIST, @OSLang & ".ini", $hGUI)
+				If @error Then
+					;;;
+				Else
+					_LoadLanguage($hFile)
+					_GUICtrlListView_UnRegisterSortCallBack($hGames)
+					_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
+					GUIDelete($hQuickTabs)
+					GUIDelete($hTimerGUI)
+					GUIDelete($hGUI)
+					Main()
+				EndIf
 
 			Case $hMsg = $hDToggle
 				If $bCHidden Or $bPHidden Then
@@ -605,16 +610,20 @@ Func Main()
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
 				$hFile = FileSaveDialog($_sLang_SaveProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
-				IniWrite($hFile, "General"  , "Process"    , GUICtrlRead($hTask       ))
-				IniWrite($hFile, "General"  , "SplitAs"    , GUICtrlRead($hAssignMode ))
-				IniWrite($hFile, "General"  , "Threads"    , GUICtrlRead($hCores      ))
-				IniWrite($hFile, "General"  , "Children"   , GUICtrlRead($hChildren   ))
-				IniWrite($hFile, "General"  , "Priority"   , GUICtrlRead($hPPriority  ))
-				IniWrite($hFile, "Streaming", "SplitAs"    , GUICtrlRead($hSplitMode  ))
-				IniWrite($hFile, "Streaming", "Threads"    , GUICtrlRead($hBCores     ))
-				IniWrite($hFile, "Streaming", "Software"   , GUICtrlRead($hBroadcaster))
-				IniWrite($hFile, "Streaming", "Children"   , GUICtrlRead($hBroChild   ))
-				IniWrite($hFile, "Streaming", "Assignement", GUICtrlRead($hOAssign    ))
+				If @error Then
+					;;;
+				Else
+					IniWrite($hFile, "General"  , "Process"    , GUICtrlRead($hTask       ))
+					IniWrite($hFile, "General"  , "SplitAs"    , GUICtrlRead($hAssignMode ))
+					IniWrite($hFile, "General"  , "Threads"    , GUICtrlRead($hCores      ))
+					IniWrite($hFile, "General"  , "Children"   , GUICtrlRead($hChildren   ))
+					IniWrite($hFile, "General"  , "Priority"   , GUICtrlRead($hPPriority  ))
+					IniWrite($hFile, "Streaming", "SplitAs"    , GUICtrlRead($hSplitMode  ))
+					IniWrite($hFile, "Streaming", "Threads"    , GUICtrlRead($hBCores     ))
+					IniWrite($hFile, "Streaming", "Software"   , GUICtrlRead($hBroadcaster))
+					IniWrite($hFile, "Streaming", "Children"   , GUICtrlRead($hBroChild   ))
+					IniWrite($hFile, "Streaming", "Assignement", GUICtrlRead($hOAssign    ))
+				EndIf
 
 			Case $hMsg = $hProcesses
 				$bRefresh = False
@@ -669,16 +678,20 @@ Func Main()
 					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
 				EndIf
 				$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
-				GUICtrlSetData($hTask       , String(_IniRead($hFile, "General"  , "Process"   ,                                      "",                "")))
-				GUICtrlSetState($hChildren  , Number(_IniRead($hFile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
-				GUICtrlSetData($hAssignMode , String(_IniRead($hFile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
-				GUICtrlSetData($hCores      , String(_IniRead($hFile, "General"  , "Threads"   ,                                      "",               "1")))
-				GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
-				GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
-				GUICtrlSetData($hBCores     , String(_IniRead($hFile, "Streaming", "Threads"   ,                                      "",               "2")))
-				GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
-				GUICtrlSetState($hBroChild  , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
-				GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
+				If @error Then
+					;;;
+				Else
+					GUICtrlSetData($hTask       , String(_IniRead($hFile, "General"  , "Process"   ,                                      "",                "")))
+					GUICtrlSetState($hChildren  , Number(_IniRead($hFile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
+					GUICtrlSetData($hAssignMode , String(_IniRead($hFile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
+					GUICtrlSetData($hCores      , String(_IniRead($hFile, "General"  , "Threads"   ,                                      "",               "1")))
+					GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
+					GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
+					GUICtrlSetData($hBCores     , String(_IniRead($hFile, "Streaming", "Threads"   ,                                      "",               "2")))
+					GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
+					GUICtrlSetState($hBroChild  , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
+					GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
+				EndIf
 				ContinueCase
 
 			Case $bInit = True
@@ -1037,7 +1050,7 @@ Func Main()
 				_ConsoleWrite("---" & @CRLF, $hConsole)
 				GUICtrlSetData($hReset, $_sLang_Restore)
 				For $iLoop = $hTask to $hOptimize Step 1
-					If $iLoop = $hChildren Then ContinueLoop
+					If $iLoop = $hChildren Or $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
 				$bInit = True
@@ -1055,14 +1068,17 @@ Func Main()
 						_ConsoleWrite("!> There is a known issue with EasyAntiCheat that prevents prioritiy changes" & @CRLF, $hConsole)
 						_ConsoleWrite("!> Visit https://www.reddit.com/comments/82xyhb/info/dvdnv0s/ for details" & @CRLF, $hConsole)
 					Case 1 To 999999
-						ShellExecute("steam://rungameid/" & $aProcesses[0])
-						$aPre = ProcessList()
-						Do
-							$aPost = ProcessList()
-							If $aPost[0][0] < $aPre[0][0] Then $aPre = $aPost
-						Until $aPost[0][0] > $aPre[0][0]
-						$iGame = $aPost[$aPost[0][0]][1]
-						$aProcesses[0] = _ProcessGetName($iGame)
+						If ShellExecute("steam://rungameid/" & $aProcesses[0]) > 0 Then
+							$aPre = ProcessList()
+							Do
+								$aPost = ProcessList()
+								If $aPost[0][0] < $aPre[0][0] Then $aPre = $aPost
+							Until $aPost[0][0] > $aPre[0][0]
+							$iGame = $aPost[$aPost[0][0]][1]
+							$aProcesses[0] = _ProcessGetName($iGame)
+						Else
+							$aProcesses[0] = $aProcesses
+						EndIf
 				EndSwitch
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
 				Switch $iProcesses

@@ -52,13 +52,13 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - Optimization Exiting, Do not Continue
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/20/2018
+; Modified ......: 03/29/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
+Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = "HIGH", $hOutput = False)
 
 	Local $iExtended = 0
 	Local $aProcesses[1]
@@ -168,13 +168,13 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/09/2018
+; Modified ......: 03/29/2018
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
+Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = "HIGH", $hOutput = False)
 
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
