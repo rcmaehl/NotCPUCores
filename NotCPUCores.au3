@@ -1281,6 +1281,8 @@ EndFunc
 
 Func _GetSteamGames($hControl)
 
+	_GUICtrlListView_DeleteAllItems($hControl)
+
 	Local $aSteamLibraries = _GetSteamLibraries()
 	Local $aSteamGames
 	For $iLoop1 = 1 To $aSteamLibraries[0] Step 1
