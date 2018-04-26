@@ -1288,6 +1288,16 @@ Func _GetSteamGames($hControl)
 	For $iLoop1 = 1 To $aSteamLibraries[0] Step 1
 		$aSteamGames = _SteamGetGamesFromLibrary($aSteamLibraries[$iLoop1])
 		If $aSteamGames[0][0] = 0 Then ContinueLoop
+		$aSteamGames[0][1] = $aSteamGames[0][0]
+		Do
+			$iDelete = _ArraySearch($aSteamGames, "")
+			If $iDelete = -1 Then
+				;;;
+			Else
+				$aSteamGames[0][0] = $aSteamGames[0][0] - 1
+			EndIf
+			_ArrayDelete($aSteamGames, $iDelete)
+		Until _ArraySearch($aSteamGames, "") = -1
 		For $iLoop2 = 1 To $aSteamGames[0][0] Step 1
 			GUICtrlCreateListViewItem($aSteamGames[$iLoop2][0] & "|" & $aSteamGames[$iLoop2][1], $hControl)
 		Next
