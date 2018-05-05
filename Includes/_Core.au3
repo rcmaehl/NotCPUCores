@@ -226,7 +226,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
+Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
 	Local $iExtended = 0
 
@@ -252,6 +252,8 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
 					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+				Else
+					;;;
 				EndIf
 			Next
 			Sleep($iSleepTime)
