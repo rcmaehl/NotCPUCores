@@ -1320,3 +1320,21 @@ EndFunc   ;==>_IsChecked
 Func _Refresh()
 	$bRefresh = True
 EndFunc
+
+Func _UpdateAll()
+EndFunc
+
+Func _UpdateAppAllocation()
+EndFunc
+
+Func _UpdateAppPriority()
+EndFunc
+
+Func _UpdateStreamAllocation()
+EndFunc
+
+Func _UpdateBroadcastSoftware()
+EndFunc
+
+Func _UpdateOtherAllocation()
+EndFunc
