@@ -255,14 +255,14 @@ Func Main()
 		Else
 			GUICtrlSetData(-1, _
 			$_sLang_AllocAll & "|" & _
-			$_sLang_AllocFirst & "|" & _
-			$_sLang_AllocFirstTwo & "|" & _
-			$_sLang_AllocFirstFour & "|" & _
-			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocLast & "|" & _
+			$_sLang_AllocLastTwo & "|" & _
+			$_sLang_AllocLastFour & "|" & _
+			$_sLang_AllocLastHalf & "|" & _
 			$_sLang_AllocPhysical & "|" & _
 			$_sLang_AllocVirtual & "|" & _
 			$_sLang_AllocPairs & "|" & _
-			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocLastAMD & "|" & _
 			$_sLang_AllocCustom, $_sLang_AllocAll)
 		EndIf
 
