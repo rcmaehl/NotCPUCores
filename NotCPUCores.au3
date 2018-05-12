@@ -243,14 +243,14 @@ Func Main()
 		If $iCores = $iThreads Then
 			GUICtrlSetData(-1, _
 			$_sLang_AllocAll & "|" & _
-			$_sLang_AllocFirst & "|" & _
-			$_sLang_AllocFirstTwo & "|" & _
-			$_sLang_AllocFirstFour & "|" & _
-			$_sLang_AllocFirstHalf & "|" & _
+			$_sLang_AllocLast & "|" & _
+			$_sLang_AllocLastTwo & "|" & _
+			$_sLang_AllocLastFour & "|" & _
+			$_sLang_AllocLastHalf & "|" & _
 			$_sLang_AllocEven & "|" & _
 			$_sLang_AllocOdd & "|" & _
 			$_sLang_AllocPairs & "|" & _
-			$_sLang_AllocFirstAMD & "|" & _
+			$_sLang_AllocLastAMD & "|" & _
 			$_sLang_AllocCustom, $_sLang_AllocAll)
 		Else
 			GUICtrlSetData(-1, _
