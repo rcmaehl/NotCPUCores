@@ -102,7 +102,7 @@ Func Main()
 	Local $sVersion = "1.7.0.0"
 	Local $iAllCores
 	Local $sPriority = "High"
-	Local $aProcesses[1]
+	Local $aProcesses[4] = ["", "obs.exe", "obs32.exe", "obs64.exe"]
 	Local $iProcesses = 0
 	Local $iProcessCores = 1
 	Local $iBroadcasterCores = 0
@@ -746,7 +746,6 @@ Func Main()
 						$aProcesses[3] = "XSplit.Core.exe"
 						$aProcesses[4] = "XSplit.xbcbp.exe"
 					Case Else
-						ReDim $aProcesses[1]
 						$aProcesses[0] = GUICtrlRead($hTask)
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
 
@@ -787,7 +786,6 @@ Func Main()
 						GUICtrlSetState($hBCores, $GUI_DISABLE)
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
-						ReDim $aProcesses[1]
 						$aProcesses[0] = GUICtrlRead($hTask)
 
 					Case $aSplitMode[1] ; Last Core
@@ -890,7 +888,6 @@ Func Main()
 						GUICtrlSetState($hBCores, $GUI_DISABLE)
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
-						ReDim $aProcesses[1]
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcastCores & @CRLF, $hConsole)
 
 				EndSwitch
@@ -1319,22 +1316,4 @@ EndFunc   ;==>_IsChecked
 
 Func _Refresh()
 	$bRefresh = True
-EndFunc
-
-Func _UpdateAll()
-EndFunc
-
-Func _UpdateAppAllocation()
-EndFunc
-
-Func _UpdateAppPriority()
-EndFunc
-
-Func _UpdateStreamAllocation()
-EndFunc
-
-Func _UpdateBroadcastSoftware()
-EndFunc
-
-Func _UpdateOtherAllocation()
 EndFunc
