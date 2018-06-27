@@ -10,4 +10,5 @@ Code|Language
 14|Norwegian
 15|Polish
 16|Portuguese
+19|Russian
 1D|Swedish
