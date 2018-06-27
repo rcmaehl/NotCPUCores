@@ -1,3 +1,6 @@
+#### Developer Note 6/27/18
+**Hi all,** once again my life is a bit busy. Job changes in the household have put me on babysitting duty for a large amount of my afterwork time. I'll be pushing out a 1.7.1 here soon with minor changes and bug fixes, however a major release will still be a bit away. I'll be shifting the main focus to a redesign to be more user friendly for the next update since that's still a complaint. Thank you all for your patience!
+
 # NotCPUCores
 Work, Play, Stream - Without the Stutter. Download Under Releases
 
