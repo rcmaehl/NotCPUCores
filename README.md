@@ -18,4 +18,4 @@ All these "optimizers" do simple tweaks that you yourself can do, so probably no
 
 Visit the [FAQ Page](https://github.com/rcmaehl/NotCPUCores/blob/master/FAQ.md)
 
-This program is free and open source. Feel free to download and modify. Please do not put up for sale.
+This program is free and open source. Feel free to download and modify.
