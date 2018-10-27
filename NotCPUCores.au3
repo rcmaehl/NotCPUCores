@@ -4,9 +4,9 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=N
-#AutoIt3Wrapper_Res_Comment=Compiled 5/15/2018 @ 9:30 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 10/27/2018 @ 12:00 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.7.0.0
+#AutoIt3Wrapper_Res_Fileversion=1.7.1.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -99,6 +99,8 @@ Func Main()
 	Local $aCores
 	Local $bInit = True
 	Local $iSleep = 100
+	Local $hLibrary = ""
+	Local $hProfile = "None"
 	Local $sVersion = "1.7.0.0"
 	Local $iAllCores
 	Local $sPriority = "High"
@@ -423,7 +425,7 @@ Func Main()
 		_GUICtrlListView_RegisterSortCallBack($hGames)
 		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
-	_GetSteamGames($hGames)
+	_GetSteamGames($hGames, $hLibrary)
 	_GUICtrlListView_SortItems($hGames, 1)
 	#EndRegion
 	$bPHidden = True
@@ -446,13 +448,25 @@ Func Main()
 
 	#Region ; Sleep Timer GUI
 	$hTimerGUI = GUICreate($_sLang_SleepSet, 240, 120, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
+
 	GUICtrlCreateLabel($_sLang_SleepText, 10, 5, 220, 45)
 	GUICtrlCreateLabel($_sLang_NewSleep & ":", 10, 60, 110, 20)
+
 	$hSleepTime = GUICtrlCreateInput($iSleep, 120, 55, 40, 20, $ES_RIGHT + $ES_NUMBER)
 	GUICtrlSetLimit(-1, 3, 1)
 	GUICtrlCreateLabel("ms", 165, 60, 20, 15)
-	$hOK = GUICtrlCreateButton("OK", 170, 90, 60, 20)
+
+	$hSleepOK = GUICtrlCreateButton("OK", 170, 90, 60, 20)
 	#EndRegion
+
+	#cs
+	#Region ; Settings UI
+	$hSettingsGUI = GUICreate("Settings", 360, 120, -1, -1, $WS_VISIBLE + $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
+
+
+	$hSettingsOK = GUICtrlCreateButton("OK", 290, 90, 60, 20)
+	#EndRegion
+	#ce
 
 	While 1
 
@@ -598,10 +612,13 @@ Func Main()
 			Case $hMsg = $hSetTimer
 				GUISetState(@SW_SHOW, $hTimerGUI)
 
-			Case $hMsg = $hOK
+			Case $hMsg = $hSleepOK
 				$iSleep = GUICtrlRead($hSleepTime)
 				GUICtrlSetData($hGetTimer, $_sLang_SleepCurrent & ": " & $iSleep & "ms")
 				GUISetState(@SW_HIDE, $hTimerGUI)
+
+;			Case $hMsg = $hSettingsOK
+;				GUISetState(@SW_HIDE, $hSettingsGUI)
 
 			Case $hMsg = $hSave
 				If GUICtrlRead($hTask) = "" Then
@@ -632,12 +649,12 @@ Func Main()
 
 			Case $hMsg = $hGames
 				$bRefresh = False
-				_GetSteamGames($hGames)
+				_GetSteamGames($hGames, $hLibrary)
 				_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
 
 			Case $bRefresh = True
 				$bRefresh = False
-				_GetSteamGames($hGames)
+				_GetSteamGames($hGames, $hLibrary)
 				_GetProcessList($hProcesses)
 				_GUICtrlListView_SortItems($hGames, 0)
 				_GUICtrlListView_SortItems($hProcesses, 0)
@@ -695,6 +712,23 @@ Func Main()
 				ContinueCase
 
 			Case $bInit = True
+				If FileExists(@WorkingDir & "\Settings.ini") And $bInit = True Then
+					$hLibrary = IniRead(@WorkingDir & "\Settings.ini", "Steam"  , "Library Path"   , "Auto")
+					$hProfile = IniRead(@WorkingDir & "\Settings.ini", "General", "Default Profile", "None")
+					If Not FileExists($hLibrary) Then $hLibrary = ""
+					If FileExists($hProfile) Then
+						GUICtrlSetData($hTask       , String(_IniRead($hProfile, "General"  , "Process"   ,                                      "",                "")))
+						GUICtrlSetState($hChildren  , Number(_IniRead($hProfile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
+						GUICtrlSetData($hAssignMode , String(_IniRead($hProfile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
+						GUICtrlSetData($hCores      , String(_IniRead($hProfile, "General"  , "Threads"   ,                                      "",               "1")))
+						GUICtrlSetData($hPPriority  , String(_IniRead($hProfile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
+						GUICtrlSetData($hSplitMode  , String(_IniRead($hProfile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
+						GUICtrlSetData($hBCores     , String(_IniRead($hProfile, "Streaming", "Threads"   ,                                      "",               "2")))
+						GUICtrlSetData($hBroadcaster, String(_IniRead($hProfile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
+						GUICtrlSetState($hBroChild  , Number(_IniRead($hProfile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
+						GUICtrlSetData($hOAssign    , String(_IniRead($hProfile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
+					EndIf
+				EndIf
 				$bInit = False
 				ContinueCase
 
@@ -1251,6 +1285,9 @@ Func _GetChildProcesses($i_pid) ; First level children processes only
     Return SetError(3, 0, 0)
 EndFunc
 
+Func _GetError($sFunction, $iError, $iExtended)
+EndFunc
+
 Func _GetProcessList($hControl)
 
 	_GUICtrlListView_DeleteAllItems($hControl)
@@ -1276,11 +1313,15 @@ Func _GetProcessList($hControl)
 
 EndFunc
 
-Func _GetSteamGames($hControl)
+Func _GetSteamGames($hControl, $hLibrary)
 
 	_GUICtrlListView_DeleteAllItems($hControl)
 
-	Local $aSteamLibraries = _GetSteamLibraries()
+	If $hLibrary = "" Then
+		Local $aSteamLibraries = _GetSteamLibraries()
+	Else
+		Local $aSteamLibraries = _GetSteamLibraries($hLibrary)
+	EndIf
 	Local $aSteamGames
 	For $iLoop1 = 1 To $aSteamLibraries[0] Step 1
 		$aSteamGames = _SteamGetGamesFromLibrary($aSteamLibraries[$iLoop1])
@@ -1317,3 +1358,59 @@ EndFunc   ;==>_IsChecked
 Func _Refresh()
 	$bRefresh = True
 EndFunc
+
+#cs
+#include <StaticConstants.au3>
+
+$sProcess = "firefox.exe"
+$sIcon = _ProcessGetIcon($sProcess)
+
+If Not @error Then
+    $iWidth = 400
+    $iHeight = 120
+
+    GUICreate("_ProcessGetIcon - Extract Icon From Process Demo", $iWidth, $iHeight)
+    GUISetIcon($sIcon)
+
+    GUICtrlCreateLabel("Extracted Icon: " & @CRLF & $sIcon, 0, ($iHeight/2) - (32/2) - 30, $iWidth, 30, $SS_CENTER)
+    GUICtrlCreateIcon($sIcon, 0, ($iWidth/2) - (32/2), ($iHeight/2) - (32/2), 32, 32)
+
+    GUISetState()
+
+    While GUIGetMsg() <> -3
+    WEnd
+Else
+    MsgBox(48, "Attention!", "Error - Process (" & $sProcess & ") probably not runing!")
+EndIf
+
+Func _ProcessGetIcon($vProcess)
+    Local $iPID = ProcessExists($vProcess)
+    If Not $iPID Then Return SetError(1, 0, -1)
+
+    Local $aProc = DllCall('kernel32.dll', 'hwnd', 'OpenProcess', 'int', BitOR(0x0400, 0x0010), 'int', 0, 'int', $iPID)
+    If Not IsArray($aProc) Or Not $aProc[0] Then Return SetError(2, 0, -1)
+
+    Local $vStruct = DllStructCreate('int[1024]')
+
+    Local $hPsapi_Dll = DllOpen('Psapi.dll')
+    If $hPsapi_Dll = -1 Then $hPsapi_Dll = DllOpen(@SystemDir & '\Psapi.dll')
+    If $hPsapi_Dll = -1 Then $hPsapi_Dll = DllOpen(@WindowsDir & '\Psapi.dll')
+    If $hPsapi_Dll = -1 Then Return SetError(3, 0, '')
+
+    DllCall($hPsapi_Dll, 'int', 'EnumProcessModules', _
+        'hwnd', $aProc[0], _
+        'ptr', DllStructGetPtr($vStruct), _
+        'int', DllStructGetSize($vStruct), _
+        'int_ptr', 0)
+    Local $aRet = DllCall($hPsapi_Dll, 'int', 'GetModuleFileNameEx', _
+        'hwnd', $aProc[0], _
+        'int', DllStructGetData($vStruct, 1), _
+        'str', '', _
+        'int', 2048)
+
+    DllClose($hPsapi_Dll)
+
+    If Not IsArray($aRet) Or StringLen($aRet[3]) = 0 Then Return SetError(4, 0, '')
+    Return $aRet[3]
+EndFunc
+#ce
