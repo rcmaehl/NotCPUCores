@@ -39,12 +39,10 @@ Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
 
-Global $bRefresh = False
 Global $bInterrupt = False
 
-HotKeySet("{F5}", "_Refresh")
-HotKeySet("{PAUSE}", "_Interrupt")
-HotKeySet("{BREAK}", "_Interrupt")
+; HotKeySet("{PAUSE}", "_Interrupt")
+; HotKeySet("{BREAK}", "_Interrupt")
 
 #cs
 
@@ -101,7 +99,7 @@ Func Main()
 	Local $iSleep = 100
 	Local $hLibrary = ""
 	Local $hProfile = "None"
-	Local $sVersion = "1.7.0.0"
+	Local $sVersion = "1.7.1.0"
 	Local $iAllCores
 	Local $sPriority = "High"
 	Local $aProcesses[4] = ["", "obs.exe", "obs32.exe", "obs64.exe"]
@@ -115,6 +113,10 @@ Func Main()
 	Next
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitOr($WS_MINIMIZEBOX, $WS_CAPTION, $WS_SYSMENU))
+
+	#Region ; Dummy Controls
+	Local $hRefresh = GUICtrlCreateDummy()
+	#EndRegion
 
 	#Region ; File Menu
 	Local $hMenu1 = GUICtrlCreateMenu($_sLang_FileMenu)
@@ -406,6 +408,10 @@ Func Main()
 	Local $hOptimize = GUICtrlCreateButton($_sLang_Optimize, 140, 275, 135, 20)
 
 	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
+
+	Local $aHotkeys[3][2] = [["{F5}", $hRefresh], ["{PAUSE}", $hReset], ["{BREAK}", $hReset]]
+	GUISetAccelerators($aHotkeys)
+
 	$hTabs = GUICtrlCreateTab(0, 0, 360, 300)
 
 	#Region ; Process List
@@ -443,6 +449,8 @@ Func Main()
 	$bCHidden = True
 	#EndRegion
 
+	GUISetAccelerators($aHotkeys)
+
 	WinMove($hGUI, "", Default, Default, 285, 345, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
@@ -467,6 +475,7 @@ Func Main()
 	$hSettingsOK = GUICtrlCreateButton("OK", 290, 90, 60, 20)
 	#EndRegion
 	#ce
+
 
 	While 1
 
@@ -643,17 +652,14 @@ Func Main()
 				EndIf
 
 			Case $hMsg = $hProcesses
-				$bRefresh = False
 				_GetProcessList($hProcesses)
 				_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
 
 			Case $hMsg = $hGames
-				$bRefresh = False
 				_GetSteamGames($hGames, $hLibrary)
 				_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
 
-			Case $bRefresh = True
-				$bRefresh = False
+			Case $hMsg = $hRefresh
 				_GetSteamGames($hGames, $hLibrary)
 				_GetProcessList($hProcesses)
 				_GUICtrlListView_SortItems($hGames, 0)
@@ -1354,10 +1360,6 @@ EndFunc
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
-
-Func _Refresh()
-	$bRefresh = True
-EndFunc
 
 #cs
 #include <StaticConstants.au3>
