@@ -39,11 +39,6 @@ Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
 
-Global $bInterrupt = False
-
-; HotKeySet("{PAUSE}", "_Interrupt")
-; HotKeySet("{BREAK}", "_Interrupt")
-
 #cs
 
 To Do
@@ -102,6 +97,7 @@ Func Main()
 	Local $sVersion = "1.7.1.0"
 	Local $iAllCores
 	Local $sPriority = "High"
+	Local $bInterrupt = False
 	Local $aProcesses[4] = ["", "obs.exe", "obs32.exe", "obs64.exe"]
 	Local $iProcesses = 0
 	Local $iProcessCores = 1
@@ -116,6 +112,7 @@ Func Main()
 
 	#Region ; Dummy Controls
 	Local $hRefresh = GUICtrlCreateDummy()
+	Local $hInterrupt = GUICtrlCreateDummy()
 	#EndRegion
 
 	#Region ; File Menu
@@ -409,7 +406,7 @@ Func Main()
 
 	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
 
-	Local $aHotkeys[3][2] = [["{F5}", $hRefresh], ["{PAUSE}", $hReset], ["{BREAK}", $hReset]]
+	Local $aHotkeys[3][2] = [["{F5}", $hRefresh], ["{PAUSE}", $hInterrupt], ["{BREAK}", $hInterrupt]]
 	GUISetAccelerators($aHotkeys)
 
 	$hTabs = GUICtrlCreateTab(0, 0, 360, 300)
@@ -572,6 +569,9 @@ Func Main()
 				GUIDelete($hTimerGUI)
 				GUIDelete($hGUI)
 				Exit
+
+			Case $hMsg = $hInterrupt
+				$bInterrupt = True
 
 			Case $hMsg = $GUI_EVENT_MINIMIZE
 				Opt("TrayIconHide", 0)
@@ -1351,10 +1351,6 @@ Func _GetSteamGames($hControl, $hLibrary)
 		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
 	Next
 
-EndFunc
-
-Func _Interrupt()
-	$bInterrupt = True
 EndFunc
 
 Func _IsChecked($idControlID)
