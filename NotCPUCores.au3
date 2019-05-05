@@ -613,9 +613,9 @@ Func Main()
 					WinMove($hQuickTabs, "", $aPos[0], $aPos[1], 355, 300)
 					GUICtrlSetState($hConsole, $GUI_SHOW)
 					GUISetState(@SW_SHOW, $hQuickTabs)
-					GUICtrlSetPos($hGames, 0, 20, 355, 280)
-					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
-					GUICtrlSetPos($hProcesses, 0, 20, 355, 280)
+;					GUICtrlSetPos($hGames, 0, 20, 355, 280)
+;					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
+;					GUICtrlSetPos($hProcesses, 0, 20, 355, 280)
 					$bCHidden = False
 					$bPHidden = False
 				Else
@@ -657,7 +657,7 @@ Func Main()
 					IniWrite($hFile, "Streaming", "Threads"    , GUICtrlRead($hBCores     ))
 					IniWrite($hFile, "Streaming", "Software"   , GUICtrlRead($hBroadcaster))
 					IniWrite($hFile, "Streaming", "Children"   , GUICtrlRead($hBroChild   ))
-					IniWrite($hFile, "Streaming", "Assignement", GUICtrlRead($hOAssign    ))
+					IniWrite($hFile, "Streaming", "Assignment" , GUICtrlRead($hOAssign    ))
 				EndIf
 
 			Case $hMsg = $hProcesses
@@ -1110,9 +1110,6 @@ Func Main()
 				Switch $aProcesses[0]
 					Case "ACTIVE"
 						$aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
-					Case "FortniteClient-Win32-Shipping.exe", "FortniteClient-Win64-Shipping.exe"
-						_ConsoleWrite("!> There is a known issue with EasyAntiCheat that prevents prioritiy changes" & @CRLF, $hConsole)
-						_ConsoleWrite("!> Visit https://www.reddit.com/comments/82xyhb/info/dvdnv0s/ for details" & @CRLF, $hConsole)
 					Case 1 To 999999
 						If ShellExecute("steam://rungameid/" & $aProcesses[0]) > 0 Then
 							$aPre = ProcessList()
