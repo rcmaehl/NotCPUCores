@@ -433,6 +433,15 @@ Func Main()
 	#EndRegion
 	$bPHidden = True
 
+	#Region ; Exclusion List
+	GUICtrlCreateTabItem($_sLang_ExclusionsTab)
+	Local $hExclusions = GUICtrlCreateListView($_sLang_ProcessList & "|" & $_sLang_ProcessTitle, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+		_GUICtrlListView_RegisterSortCallBack($hGames)
+		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
+
+	_GUICtrlListView_SortItems($hGames, 0)
+	#EndRegion
+
 	GUICtrlCreateTabItem("")
 	GUISwitch($hGUI)
 
@@ -1292,6 +1301,10 @@ Func _GetChildProcesses($i_pid) ; First level children processes only
 EndFunc
 
 Func _GetError($sFunction, $iError, $iExtended)
+EndFunc
+
+Func _GetExclusionsList($hControl)
+
 EndFunc
 
 Func _GetProcessList($hControl)
