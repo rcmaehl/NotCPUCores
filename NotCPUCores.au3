@@ -436,9 +436,10 @@ Func Main()
 	#Region ; Exclusion List
 	GUICtrlCreateTabItem($_sLang_ExclusionsTab)
 	Local $hExclusions = GUICtrlCreateListView($_sLang_ProcessList & "|" & $_sLang_ProcessTitle, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
-		_GUICtrlListView_RegisterSortCallBack($hGames)
+		_GUICtrlListView_RegisterSortCallBack($hExclusions)
 		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
+	_GetExclusionsList($hExclusions)
 	_GUICtrlListView_SortItems($hGames, 0)
 	#EndRegion
 
@@ -1301,6 +1302,30 @@ Func _GetError($sFunction, $iError, $iExtended)
 EndFunc
 
 Func _GetExclusionsList($hControl)
+
+	Local $aAffinity
+	Local $aProcesses
+	Local $aExclusions
+
+	_GUICtrlListView_DeleteAllItems($hControl)
+	Local $aProcesses = ProcessList()
+	For $Loop = 3 To $aProcesses[0][0] ; Skip System
+		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$Loop][1])
+		$aAffinity = _WinAPI_GetProcessAffinityMask($hCurProcess)
+		If @error Then ContinueLoop
+		If $aAffinity[1] = $aAffinity[2] Then
+			;;;
+		Else
+			GUICtrlCreateListViewItem($aProcesses[$Loop][1] & "|" & $aProcesses[$Loop][0], $hControl)
+		EndIf
+		_WinAPI_CloseHandle($hCurProcess)
+	Next
+	_ArrayDelete($aProcesses, 0)
+	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
+		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
+	Next
+
+	Return $aExclusions
 
 EndFunc
 
