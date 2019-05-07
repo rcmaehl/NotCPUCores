@@ -761,7 +761,7 @@ Func Main()
 						For $iLoop1 = 0 To UBound($aBCores) - 1 Step 1
 							If StringInStr($aBCores[$iLoop1], "-") Then
 								$aRange = StringSplit($aBCores[$iLoop1], "-", $STR_NOCOUNT)
-								If $aRange[0] < $aRange[1] Then
+								If Number($aRange[0]) < Number($aRange[1]) Then
 									For $iLoop2 = $aRange[0] To $aRange[1] Step 1
 										$iBroadcasterCores += 2^($iLoop2-1)
 									Next
@@ -911,12 +911,12 @@ Func Main()
 						Else
 							GUICtrlSetColor($hBCores, 0x000000)
 							If StringRegExp(GUICtrlRead($hCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then GUICtrlSetState($hOptimize, $GUI_ENABLE)
-							If StringInStr(GUICtrlRead($hBCores), ",") Then ; Convert Multiple Cores if Declared to Magic Number
+							If StringInStr(GUICtrlRead($hBCores), ",") Or StringInStr(GUICtrlRead($hBCores), "-") Then ; Convert Multiple Cores if Declared to Magic Number
 								$aBCores = StringSplit(GUICtrlRead($hBCores), ",", $STR_NOCOUNT)
 								For $iLoop1 = 0 To UBound($aBCores) - 1 Step 1
 									If StringInStr($aBCores[$iLoop1], "-") Then
 										$aRange = StringSplit($aBCores[$iLoop1], "-", $STR_NOCOUNT)
-										If $aRange[0] < $aRange[1] Then
+										If Number($aRange[0]) < Number($aRange[1]) Then
 											For $iLoop2 = $aRange[0] To $aRange[1] Step 1
 												$iBroadcasterCores += 2^($iLoop2-1)
 											Next
@@ -956,7 +956,7 @@ Func Main()
 						For $iLoop1 = 0 To UBound($aCores) - 1 Step 1
 							If StringInStr($aCores[$iLoop1], "-") Then
 								$aRange = StringSplit($aCores[$iLoop1], "-", $STR_NOCOUNT)
-								If $aRange[0] < $aRange[1] Then
+								If Number($aRange[0]) < Number($aRange[1]) Then
 									For $iLoop2 = $aRange[0] To $aRange[1] Step 1
 										$iProcessCores += 2^($iLoop2-1)
 									Next
@@ -1040,7 +1040,7 @@ Func Main()
 								For $iLoop1 = 0 To UBound($aCores) - 1 Step 1
 									If StringInStr($aCores[$iLoop1], "-") Then
 										$aRange = StringSplit($aCores[$iLoop1], "-", $STR_NOCOUNT)
-										If $aRange[0] < $aRange[1] Then
+										If Number($aRange[0]) < Number($aRange[1]) Then
 											For $iLoop2 = $aRange[0] To $aRange[1] Step 1
 												$iProcessCores += 2^($iLoop2-1)
 											Next
