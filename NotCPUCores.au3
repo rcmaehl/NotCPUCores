@@ -435,12 +435,12 @@ Func Main()
 
 	#Region ; Exclusion List
 	GUICtrlCreateTabItem($_sLang_ExclusionsTab)
-	Local $hExclusions = GUICtrlCreateListView($_sLang_ProcessList & "|" & $_sLang_ProcessTitle, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
+	Local $hExclusions = GUICtrlCreateListView($_sLang_ProcessList, 0, 20, 360, 280, $LVS_REPORT+$LVS_SINGLESEL, $LVS_EX_GRIDLINES+$LVS_EX_FULLROWSELECT+$LVS_EX_DOUBLEBUFFER)
 		_GUICtrlListView_RegisterSortCallBack($hExclusions)
 		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
 	_GetExclusionsList($hExclusions)
-	_GUICtrlListView_SortItems($hGames, 0)
+	_GUICtrlListView_SortItems($hExclusions, 0)
 	#EndRegion
 
 	GUICtrlCreateTabItem("")
@@ -575,6 +575,7 @@ Func Main()
 			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hQuit
 				_GUICtrlListView_UnRegisterSortCallBack($hGames)
 				_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
+				_GUICtrlListView_UnRegisterSortCallBack($hExclusions)
 				GUIDelete($hQuickTabs)
 				GUIDelete($hTimerGUI)
 				GUIDelete($hGUI)
@@ -615,7 +616,7 @@ Func Main()
 					GUICtrlSetState($hConsole, $GUI_SHOW)
 					GUISetState(@SW_SHOW, $hQuickTabs)
 ;					GUICtrlSetPos($hGames, 0, 20, 355, 280)
-;					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
+					GUICtrlSetPos($hConsole, 0, 300, 635, 135)
 ;					GUICtrlSetPos($hProcesses, 0, 20, 355, 280)
 					$bCHidden = False
 					$bPHidden = False
@@ -694,6 +695,8 @@ Func Main()
 							$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hProcesses)), "|", $STR_NOCOUNT)
 						Case 1
 							$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hGames)), "|", $STR_NOCOUNT)
+						Case 2
+							$aTask = StringSplit(GUICtrlRead(GUICtrlRead($hExclusions)), "|", $STR_NOCOUNT)
 					EndSwitch
 					If $aTask[0] = "0" Then
 						;;;
@@ -868,16 +871,16 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case $aSplitMode[5] ; Odd Cores
-						For $iLoop = 1 To $iThreads - 1 Step 2
+					Case $aSplitMode[5] ; Physical Cores
+						For $iLoop = 0 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hBCores, $GUI_DISABLE)
 						GUICtrlSetState($hOAssign, $GUI_ENABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
-					Case $aSplitMode[6] ; Even Cores
-						For $iLoop = 0 To $iThreads - 1 Step 2
+					Case $aSplitMode[6] ; Non-Physical Cores
+						For $iLoop = 1 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hBCores, $GUI_DISABLE)
@@ -1002,14 +1005,14 @@ Func Main()
 						Next
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
-					Case $aAssignMode[5] ; Odd Cores
-						For $iLoop = 1 To $iThreads - 1 Step 2
+					Case $aAssignMode[5] ; Physical Cores
+						For $iLoop = 0 To $iThreads - 1 Step 2
 							$iProcessCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
-					Case $aAssignMode[6] ; Even Cores
-						For $iLoop = 0 To $iThreads - 1 Step 2
+					Case $aAssignMode[6] ; Non-Physical Cores
+						For $iLoop = 1 To $iThreads - 1 Step 2
 							$iProcessCores += 2^($iLoop)
 						Next
 						GUICtrlSetState($hCores, $GUI_DISABLE)
@@ -1100,6 +1103,7 @@ Func Main()
 					If $iLoop = $hChildren Or $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
+				_GetExclusionsList($hExclusions)
 				$bInit = True
 
 			Case $hMsg = $hOptimize
@@ -1316,7 +1320,7 @@ Func _GetExclusionsList($hControl)
 		If $aAffinity[1] = $aAffinity[2] Then
 			;;;
 		Else
-			GUICtrlCreateListViewItem($aProcesses[$Loop][1] & "|" & $aProcesses[$Loop][0], $hControl)
+			GUICtrlCreateListViewItem($aProcesses[$Loop][0], $hControl)
 		EndIf
 		_WinAPI_CloseHandle($hCurProcess)
 	Next
