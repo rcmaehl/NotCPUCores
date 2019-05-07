@@ -467,10 +467,10 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; Running Processes Tab
-	Global $_sLang_RunningTab    = IniRead($sPath, "Running", "Running Tab "  , "Running"       )
-	Global $_sLang_ProcessList   = IniRead($sPath, "Running", "Process List"  , "Window Process")
-	Global $_sLang_ProcessTitle  = IniRead($sPath, "Running", "Process Title" , "Window Title"  )
-	Global $_sLang_ExclusionsTab = IniRead($sPath, "Running", "Exclusions Tab", "Exclusions"    )
+	Global $_sLang_RunningTab    = IniRead($sPath, "Running", "Running Tab "  , "Running"          )
+	Global $_sLang_ProcessList   = IniRead($sPath, "Running", "Process List"  , "Window Process"   )
+	Global $_sLang_ProcessTitle  = IniRead($sPath, "Running", "Process Title" , "Window Title"     )
+	Global $_sLang_ExclusionsTab = IniRead($sPath, "Running", "Exclusions Tab", "Exclusions (BETA)")
 	#EndRegion
 
 	#Region ; Steam Games Tab
