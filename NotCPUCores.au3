@@ -1090,26 +1090,32 @@ Func Main()
 				EndSwitch
 
 			Case $hMsg = $hReset
-				For $Loop = $hTask to $hReset Step 1
+				For $Loop = $hTask to $hOAssign Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
+				GUICtrlSetState($hReset   , $GUI_DISABLE)
+				GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
 				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
 				_Restore($iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
-				_ConsoleWrite("---" & @CRLF, $hConsole)
+				_ConsoleWrite("---"        & @CRLF, $hConsole)
 				GUICtrlSetData($hReset, $_sLang_Restore)
-				For $iLoop = $hTask to $hOptimize Step 1
+				For $iLoop = $hTask to $hOAssign Step 1
 					If $iLoop = $hChildren Or $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
+				GUICtrlSetState($hReset   , $GUI_ENABLE)
+				GUICtrlSetState($hOptimize, $GUI_ENABLE)
 				_GetExclusionsList($hExclusions)
 				$bInit = True
 
 			Case $hMsg = $hOptimize
-				For $Loop = $hTask to $hOptimize Step 1
+				For $Loop = $hTask to $hOAssign Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
+				GUICtrlSetState($hReset   , $GUI_DISABLE)
+				GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				GUICtrlSetData($hOptimize, $_sLang_OptimizeAlt)
 				$aProcesses[0] = GUICtrlRead($hTask)
 				Switch $aProcesses[0]
