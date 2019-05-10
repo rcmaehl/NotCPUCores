@@ -168,7 +168,7 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/29/2018
+; Modified ......: 05/10/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -180,6 +180,8 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
 
 	_ArrayDelete($aProcessList, 0)
+	_ArrayDelete($aProcessList, UBound($aProcessList)-1)
+	_ArrayDisplay($aProcessList)
 
 	Select
 		Case Not IsInt($hCores)
@@ -220,13 +222,13 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/20/2018
+; Modified ......: 05/10/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
+Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
 	Local $iExtended = 0
 
@@ -236,6 +238,11 @@ Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = 
 	For $iLoop = 0 To $iThreads - 1
 		$hAllCores += 2^$iLoop
 	Next
+
+	Local $aTemp = $aExclusions[UBound($aExclusions) - 1]
+	_ArrayDelete($aExclusions, UBound($aExclusions) - 1)
+	$aExclusions = _ArrayConcatenate($aExclusions, $aTemp)
+	_ArrayDisplay($aExclusions)
 
 	Select
 		Case $hCores > $hAllCores
@@ -266,27 +273,31 @@ EndFunc
 ; Name ..........: _Restore
 ; Description ...: Reset Affinities and Priorities to Default
 ; Syntax ........: _Restore([$hCores = _GetCPUInfo(1[, $hOutput = False]])
-; Parameters ....: $hCores              - [optional] Cores to Set Affinity to.
+; Parameters ....: $aExclusions         - [optional] Array of excluded processes
+;                  $hCores              - [optional] Cores to Set Affinity to.
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 3/13/2018
+; Modified ......: 5/10/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Restore($hCores = _GetCPUInfo(1), $hOutput = False)
+Func _Restore($aExclusions = "", $hCores = _GetCPUInfo(1), $hOutput = False)
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $hCores - 1
 		$hAllCores += 2^$iLoop
 	Next
 
+	If $aExclusions = "" Then ReDim $aExclusions[0]
+
 ;	_ConsoleWrite("Restoring Priority and Affinity of all Other Processes...", $hOutput)
 
 	$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority back to normal
 	For $iLoop = 0 to $aProcesses[0][0] Step 1
+		If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) Then ContinueLoop
 		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
 		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
 		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
