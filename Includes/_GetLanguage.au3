@@ -517,7 +517,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_OptimizePriority = IniRead($sPath, "Play", "Priority Select"  , "Process Priority"   )
 	Global $_sLang_Optimize         = IniRead($sPath, "Play", "Optimize Text"    , "ASSIGN"             )
 	Global $_sLang_OptimizeAlt      = IniRead($sPath, "Play", "Optimize Alt Text", "Pause/Break to Stop")
-	Global $_sLang_Restore          = IniRead($sPath, "Play", "Restore Text"     , "RESTORE"            )
+	Global $_sLang_Restore          = IniRead($sPath, "Play", "Restore Text"     , "RESET AFFINITIES"   )
 	Global $_sLang_RestoreAlt       = IniRead($sPath, "Play", "Restore Alt Text" , "Restoring PC..."    )
 	#EndRegion
 
