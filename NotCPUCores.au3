@@ -1114,7 +1114,7 @@ Func Main()
 				GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
 				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
-				_Restore($aExclusions, $iThreads, $hConsole) ; Do Clean Up
+				_Restore($iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
 				_ConsoleWrite("---"        & @CRLF, $hConsole)
 				GUICtrlSetData($hReset, $_sLang_Restore)
