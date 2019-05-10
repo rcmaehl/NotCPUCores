@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=N
-#AutoIt3Wrapper_Res_Comment=Compiled 10/27/2018 @ 12:00 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 5/10/2019 @ 14:00 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.7.1.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
@@ -89,6 +89,9 @@ Main()
 Func Main()
 
 	; One Time Variable Setting
+
+	Local $aExclusions[0]
+
 	Local $aCores
 	Local $bInit = True
 	Local $iSleep = 100
@@ -98,7 +101,7 @@ Func Main()
 	Local $iAllCores
 	Local $sPriority = "High"
 	Local $bInterrupt = False
-	Local $aProcesses[4] = ["", "obs.exe", "obs32.exe", "obs64.exe"]
+	Local $aProcesses[5] = ["", "obs.exe", "obs32.exe", "obs64.exe", $aExclusions]
 	Local $iProcesses = 0
 	Local $iProcessCores = 1
 	Local $iBroadcasterCores = 0
@@ -439,7 +442,7 @@ Func Main()
 		_GUICtrlListView_RegisterSortCallBack($hExclusions)
 		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
-	_GetExclusionsList($hExclusions)
+	$aExclusions = _GetExclusionsList($hExclusions)
 	_GUICtrlListView_SortItems($hExclusions, 0)
 	#EndRegion
 
@@ -494,14 +497,16 @@ Func Main()
 				$iProcesses = 1
 			ElseIf $iProcesses = 1 Then
 				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
-				_Restore($iThreads, $hConsole) ; Do Clean Up
+				_Restore($aExclusions, $iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
 				_ConsoleWrite("---" & @CRLF, $hConsole)
 				GUICtrlSetData($hOptimize, $_sLang_Optimize)
-				For $iLoop = $hTask to $hOptimize Step 1
+				For $iLoop = $hTask to $hOAssign Step 1
 					If $iLoop = $hChildren Or $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
+				GUICtrlSetState($hReset   , $GUI_ENABLE)
+				GUICtrlSetState($hOptimize, $GUI_ENABLE)
 				$iProcesses = 0
 				$bInit = True
 			Else
@@ -670,11 +675,21 @@ Func Main()
 				_GetSteamGames($hGames, $hLibrary)
 				_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
 
+			Case $hMsg = $hExclusions
+				$aExclusions = _GetExclusionsList($hExclusions)
+				_GUICtrlListView_SortItems($hExclusions, GUICtrlGetState($hExclusions))
+
 			Case $hMsg = $hRefresh
-				_GetSteamGames($hGames, $hLibrary)
-				_GetProcessList($hProcesses)
-				_GUICtrlListView_SortItems($hGames, 0)
-				_GUICtrlListView_SortItems($hProcesses, 0)
+				Switch GUICtrlRead($hTabs)
+					Case 0
+						_GetProcessList($hProcesses)
+						_GUICtrlListView_SortItems($hProcesses, 0)
+					Case 1
+						_GetSteamGames($hGames, $hLibrary)
+						_GUICtrlListView_SortItems($hGames, 1)
+					Case 2
+						$aExclusions = _GetExclusionsList($hExclusions)
+				EndSwitch
 
 			Case $hMsg = $hSearch
 				GUICtrlSetState($hDToggle, $GUI_DISABLE)
@@ -786,18 +801,20 @@ Func Main()
 			Case $hMsg = $hBroadcaster
 				Switch GUICtrlRead($hBroadcaster)
 					Case "OBS"
-						ReDim $aProcesses[4]
+						ReDim $aProcesses[5]
 						$aProcesses[0] = GUICtrlRead($hTask)
 						$aProcesses[1] = "obs.exe"
 						$aProcesses[2] = "obs32.exe"
 						$aProcesses[3] = "obs64.exe"
+						$aProcesses[4] = $aExclusions
 					Case "XSplit"
-						ReDim $aProcesses[5]
+						ReDim $aProcesses[6]
 						$aProcesses[0] = GUICtrlRead($hTask)
 						$aProcesses[1] = "XGS32.exe"
 						$aProcesses[2] = "XGS64.exe"
 						$aProcesses[3] = "XSplit.Core.exe"
 						$aProcesses[4] = "XSplit.xbcbp.exe"
+						$aProcesses[5] = $aExclusions
 					Case Else
 						$aProcesses[0] = GUICtrlRead($hTask)
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
@@ -1097,7 +1114,7 @@ Func Main()
 				GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
 				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
-				_Restore($iThreads, $hConsole) ; Do Clean Up
+				_Restore($aExclusions, $iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
 				_ConsoleWrite("---"        & @CRLF, $hConsole)
 				GUICtrlSetData($hReset, $_sLang_Restore)
@@ -1107,7 +1124,7 @@ Func Main()
 				Next
 				GUICtrlSetState($hReset   , $GUI_ENABLE)
 				GUICtrlSetState($hOptimize, $GUI_ENABLE)
-				_GetExclusionsList($hExclusions)
+				$aExclusions = _GetExclusionsList($hExclusions)
 				$bInit = True
 
 			Case $hMsg = $hOptimize
@@ -1315,7 +1332,7 @@ Func _GetExclusionsList($hControl)
 
 	Local $aAffinity
 	Local $aProcesses
-	Local $aExclusions
+	Local $aExclusions[0]
 
 	_GUICtrlListView_DeleteAllItems($hControl)
 	Local $aProcesses = ProcessList()
@@ -1326,6 +1343,8 @@ Func _GetExclusionsList($hControl)
 		If $aAffinity[1] = $aAffinity[2] Then
 			;;;
 		Else
+			ReDim $aExclusions[UBound($aExclusions) + 1]
+			$aExclusions[UBound($aExclusions)-1] = $aProcesses[$Loop][0]
 			GUICtrlCreateListViewItem($aProcesses[$Loop][0], $hControl)
 		EndIf
 		_WinAPI_CloseHandle($hCurProcess)
