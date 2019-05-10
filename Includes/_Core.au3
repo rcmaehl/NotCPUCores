@@ -181,7 +181,6 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 
 	_ArrayDelete($aProcessList, 0)
 	_ArrayDelete($aProcessList, UBound($aProcessList)-1)
-	_ArrayDisplay($aProcessList)
 
 	Select
 		Case Not IsInt($hCores)
@@ -284,20 +283,22 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Restore($aExclusions = "", $hCores = _GetCPUInfo(1), $hOutput = False)
+Func _Restore($aExclusions = Null, $hCores = _GetCPUInfo(1), $hOutput = False)
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $hCores - 1
 		$hAllCores += 2^$iLoop
 	Next
 
-	If $aExclusions = "" Then ReDim $aExclusions[0]
-
-;	_ConsoleWrite("Restoring Priority and Affinity of all Other Processes...", $hOutput)
+;	If $aExclusions = "" Then ReDim $aExclusions[0]
 
 	$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority back to normal
 	For $iLoop = 0 to $aProcesses[0][0] Step 1
-		If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) Then ContinueLoop
+		If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) = -1 Then
+			;;;
+		Else
+			ContinueLoop
+		EndIf
 		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
 		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
 		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
