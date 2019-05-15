@@ -221,7 +221,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 05/10/2019
+; Modified ......: 05/15/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -238,10 +238,11 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 		$hAllCores += 2^$iLoop
 	Next
 
+	#include <Array.au3>
+
 	Local $aTemp = $aExclusions[UBound($aExclusions) - 1]
 	_ArrayDelete($aExclusions, UBound($aExclusions) - 1)
-	$aExclusions = _ArrayConcatenate($aExclusions, $aTemp)
-	_ArrayDisplay($aExclusions)
+	_ArrayConcatenate($aExclusions, $aTemp)
 
 	Select
 		Case $hCores > $hAllCores
