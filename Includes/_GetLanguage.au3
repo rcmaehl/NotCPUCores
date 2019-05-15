@@ -566,7 +566,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_SpecsMobo            = IniRead($sPath, "Specs", "Motherboard"        , "Motherboard"       )
 	Global $_sLang_SpecsCPU             = IniRead($sPath, "Specs", "CPU"                , "CPU"               )
 	Global $_sLang_SpecsRAM             = IniRead($sPath, "Specs", "RAM"                , "RAM"               )
-	Global $_sLang_SpecsGPU             = IniRead($sPath, "Specs", "GPU"                , "GPU"               )
+	Global $_sLang_SpecsGPU             = IniRead($sPath, "Specs", "GPU"                , "GPU(s)"            )
 	#EndRegion
 
 	#Region ; About Tab
@@ -577,6 +577,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; Drop Downs
+	Global $_sLang_AllocOff          = IniRead($sPath, "Dropdowns", "Disabled"             , "Disabled"         )
 	Global $_sLang_AllocAll          = IniRead($sPath, "Dropdowns", "All Cores"            , "All Cores"         )
 	Global $_sLang_AllocFirst        = IniRead($sPath, "Dropdowns", "First Core"           , "First Core"        )
 	Global $_sLang_AllocFirstTwo     = IniRead($sPath, "Dropdowns", "First Two Cores"      , "First 2 Cores"     )
