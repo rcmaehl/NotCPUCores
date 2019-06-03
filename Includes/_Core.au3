@@ -40,6 +40,43 @@ Func _GetHPETState()
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name ..........: _GetModifiedProcesses
+; Description ...: Get a list of Processes with Modified Affinity
+; Syntax ........: _GetModifiedProcesses()
+; Parameters ....: NOne
+; Return values .: Returns an array containing exceptions
+; Author ........: rcmaehl (Robert Maehl)
+; Modified ......: 06/02/2019
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _GetModifiedProcesses()
+
+	Local $aAffinity
+	Local $aProcesses
+	Local $aExclusions[0]
+
+	$aProcesses = ProcessList()
+	For $Loop = 3 To $aProcesses[0][0] ; Skip System
+		$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, False, $aProcesses[$Loop][1])
+		$aAffinity = _WinAPI_GetProcessAffinityMask($hCurProcess)
+		If @error Then ContinueLoop
+		If $aAffinity[1] = $aAffinity[2] Then
+			;;;
+		Else
+			ReDim $aExclusions[UBound($aExclusions) + 1]
+			$aExclusions[UBound($aExclusions)-1] = $aProcesses[$Loop][0]
+		EndIf
+		_WinAPI_CloseHandle($hCurProcess)
+	Next
+
+	Return $aExclusions
+
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name ..........: _Optimize
 ; Description ...: Adjust Priority and Affinity of a Process
 ; Syntax ........: _Optimize($iProcesses, $hProcess, $hCores[, $iSleepTime = 100[, $bRealtime = False[, $hOutput = False]]])
@@ -89,7 +126,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 				For $iLoop = 0 to $aProcesses[0][0] Step 1
 					If $aProcesses[$iLoop][0] = $hProcess Then
 						ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-						$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
+						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
 							_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
 						EndIf
@@ -119,7 +156,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 					For $iLoop = 0 to $aProcesses[0][0] Step 1
 						If $aProcesses[$iLoop][0] = $hProcess Then
 							ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
+							$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
 							If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
 								_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
 							EndIf
@@ -172,7 +209,7 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 05/10/2019
+; Modified ......: 06/02/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -205,7 +242,7 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 					;;;
 				Else
 					ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
 					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				EndIf
@@ -225,7 +262,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 05/15/2019
+; Modified ......: 06/02/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -260,7 +297,7 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 			Sleep($iSleepTime)
 			For $iLoop = 0 to $aProcesses[0][0] Step 1
 				If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) = -1 Then
-					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1])  ; Select the Process
 					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				Else
@@ -282,7 +319,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 5/10/2019
+; Modified ......: 06/02/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -304,7 +341,7 @@ Func _Restore($aExclusions = Null, $hCores = _GetCPUInfo(1), $hOutput = False)
 		Else
 			ContinueLoop
 		EndIf
-		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+		$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1])  ; Select the Process
 		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
 		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 	Next

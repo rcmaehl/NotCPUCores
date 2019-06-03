@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Change2CUI=N
-#AutoIt3Wrapper_Res_Comment=Compiled 5/10/2019 @ 14:00 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 6/2/2019 @ 16:00 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.7.1.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
@@ -1337,7 +1337,7 @@ Func _GetExclusionsList($hControl)
 	_GUICtrlListView_DeleteAllItems($hControl)
 	Local $aProcesses = ProcessList()
 	For $Loop = 3 To $aProcesses[0][0] ; Skip System
-		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$Loop][1])
+		$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, False, $aProcesses[$Loop][1])
 		$aAffinity = _WinAPI_GetProcessAffinityMask($hCurProcess)
 		If @error Then ContinueLoop
 		If $aAffinity[1] = $aAffinity[2] Then
