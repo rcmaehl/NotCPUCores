@@ -1,5 +1,5 @@
 # NotCPUCores
-Work, Play, Stream - Without the Stutter. Download Under Releases
+Work, Play, Stream - Without the Stutter. [Download Under Releases](https://github.com/rcmaehl/NotCPUCores/releases)
 
 ![Version 1.5.0.0](https://i.imgur.com/NSZQc0b.gif)
 
