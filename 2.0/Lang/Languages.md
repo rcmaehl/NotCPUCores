@@ -1,0 +1,14 @@
+Code|Language
+------|-----------
+07|German
+09|English
+0A|Spanish
+0B|Finnish
+0C|French
+10|Italian
+13|Dutch
+14|Norwegian
+15|Polish
+16|Portuguese
+19|Russian
+1D|Swedish

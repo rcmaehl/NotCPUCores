@@ -2,32 +2,42 @@
 
 #include <Array.au3>
 #include <WinAPI.au3>
+#include <Process.au3>
 #include <Constants.au3>
 #include <StringConstants.au3>
-#include "./_WMIC.au3"
+#include ".\_WMIC.au3"
+#include ".\_ExtendedFunctions.au3"
 
-; #FUNCTION# ====================================================================================================================
-; Name ..........: _ConsoleWrite
-; Description ...: Allow on the fly writing to a GUI console based on variables passed
-; Syntax ........: _ConsoleWrite($sMessage[, $hOutput = False])
-; Parameters ....: $sMessage            - Message to write.
-;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
-; Return values .: None
-; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/8/2018
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func _ConsoleWrite($sMessage, $hOutput = False)
+Main()
 
-	If $hOutput = False Then
-		ConsoleWrite($sMessage)
-	Else
-		GUICtrlSetData($hOutput, GUICtrlRead($hOutput) & $sMessage)
-	EndIf
+Func _Main()
 
+	Local $aExclusions, $aInclusions, $aStatus
+	Local $sStatus
+
+	While True
+
+		$sStatus = ConsoleRead()
+		If @extended = 0 Then ContinueLoop
+
+		$aStatus = StringSplit($sStatus, ",")
+
+		Switch $aStatus[0]
+
+			Case "Include"
+
+			Case "Exclude"
+
+			Case "Start"
+
+			Case "Stop"
+
+			Case Else
+				ConsoleWrite("NCC Core Caught unhandled parameter: " & $aStatus[0] & @CRLF)
+
+		EndSwitch
+
+	WEnd
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -35,29 +45,72 @@ EndFunc
 ; Description ...: Get State of Window's High Precision Event Timer
 ; Syntax ........: _GetHPETState()
 ; Parameters ....: None
-; Return values .: Returns HPET state as True or False
+; Return values .: 1                    - HPET in use
+;                  0                    - HPET not in use
+;                  -1                   - Function called without Admin Rights
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/8/2018
-; Remarks .......:
+; Modified ......: 05/06/2020
+; Remarks .......: Requires Admin Rights
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _GetHPETState()
 
-	DllCall("kernel32.dll", "int", "Wow64DisableWow64FsRedirection", "int", 1)
-	$hDOS = Run(@ComSpec & ' /c C:\Windows\System32\bcdedit.exe /enum Active | find "useplatformclock"', "", @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD)
-	ProcessWaitClose($hDOS)
-	$sMessage = StdoutRead($hDOS) & StderrRead($hDOS)
-	$aMessage = StringSplit($sMessage, @CRLF)
-	For $iLoop = UBound($aMessage) - 1 To 0 Step -1
-		If $aMessage[$iLoop] = "" Then
-			_ArrayDelete($aMessage, $iLoop)
+	If IsAdmin() Then
+		DllCall("kernel32.dll", "int", "Wow64DisableWow64FsRedirection", "int", 1)
+		$hDOS = Run(@ComSpec & ' /c C:\Windows\System32\bcdedit.exe /enum Active | find "useplatformclock"', "", @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD)
+		ProcessWaitClose($hDOS)
+		$sMessage = StdoutRead($hDOS) & StderrRead($hDOS)
+		$aMessage = StringSplit($sMessage, @CRLF)
+		For $iLoop = UBound($aMessage) - 1 To 0 Step -1
+			If $aMessage[$iLoop] = "" Then
+				_ArrayDelete($aMessage, $iLoop)
+			EndIf
+		Next
+		$aMessage[0] = UBound($aMessage) - 1
+		If $aMessage[0] >= 1 Then $aMessage[1] = StringStripWS($aMessage[1], $STR_STRIPALL)
+		Return $aMessage[1]
+	Else
+		Return SetError(0, 0, -1)
+	EndIf
+
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _GetModifiedProcesses
+; Description ...: Get a list of Processes with Modified Affinity
+; Syntax ........: _GetModifiedProcesses()
+; Parameters ....: None
+; Return values .: Returns an array containing modified processes
+; Author ........: rcmaehl (Robert Maehl)
+; Modified ......: 05/06/2020
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _GetModifiedProcesses()
+
+	Local $aAffinity
+	Local $aProcesses
+	Local $aModified[0]
+
+	$aProcesses = ProcessList()
+	For $Loop = 3 To $aProcesses[0][0] ; Skip System
+		$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, False, $aProcesses[$Loop][1])
+		$aAffinity = _WinAPI_GetProcessAffinityMask($hCurProcess)
+		If @error Then ContinueLoop
+		If $aAffinity[1] = $aAffinity[2] Then
+			;;;
+		Else
+			ReDim $aModified[UBound($aModified) + 1]
+			$aModified[UBound($aModified)-1] = $aProcesses[$Loop][0]
 		EndIf
+		_WinAPI_CloseHandle($hCurProcess)
 	Next
-	$aMessage[0] = UBound($aMessage) - 1
-	If $aMessage[0] >= 1 Then $aMessage[1] = StringStripWS($aMessage[1], $STR_STRIPALL)
-	Return $aMessage
+
+	Return $aModified
 
 EndFunc
 
@@ -72,18 +125,21 @@ EndFunc
 ;                  $sPriority           - [optional] Priority to Use. Default is High.
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: > 1                  - Success, Last Polled Process Count
-;                  1                    - An Error Occured
+;                  1                    - Optimization Exiting, Do not Continue
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/19/2018
+; Modified ......: 06/02/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
+Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = "HIGH", $hOutput = False)
 
-	Dim $iThreads = _GetCPUInfo(1)
-	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
+	Local $iExtended = 0
+	Local $aProcesses[1]
+
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
+	Local $aPriorities[6] = ["LOW","BELOWNORMAL","NORMAL","ABOVENORMAL","HIGH","REALTIME"]
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $iThreads - 1
@@ -92,68 +148,64 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 
 	If $iProcesses > 0 Then
 		If Not ProcessExists($hProcess) Then
-			_ConsoleWrite($hProcess & " exited. Restoring..." & @CRLF, $hOutput)
-			Return 1
-		ElseIf ProcessExists($hProcess) Then
+			If FileExists($hProcess) Then
+				Run($hProcess)
+				Sleep(200)
+			Else
+				SetError(0, 1, 1)
+			EndIf
+		EndIf
+		If ProcessExists($hProcess) Then
+			$iExtended = 1
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			Sleep($iSleepTime)
 			If Not (UBound(ProcessList()) = $iProcesses) Then
 				Sleep($iSleepTime)
-				_ConsoleWrite("Process Count Changed, Rerunning Optimization...", $hOutput)
-				Sleep($iSleepTime)
 				For $iLoop = 0 to $aProcesses[0][0] Step 1
 					If $aProcesses[$iLoop][0] = $hProcess Then
 						ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-						$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
-						_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
+						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
+						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
+							_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
+						EndIf
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
 				Next
-				Sleep($iSleepTime)
-				_ConsoleWrite("Done!" & @CRLF, $hOutput)
 				Sleep($iSleepTime)
 			EndIf
 		EndIf
 	Else
 		Select
 			Case Not ProcessExists($hProcess)
-				_ConsoleWrite("!> " & $hProcess & " is not currently running. Please run the program first" & @CRLF, $hOutput)
-				Return 1
+				SetError(1,1,1)
 			Case Not IsInt($hCores)
-				_ConsoleWrite("!> " & $hCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
-				Return 1
+				SetError(1,2,1)
 			Case $hCores > $hAllCores
-				_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hOutput)
-				Return 1
-			Case $hCores = $hAllCores
-				_ConsoleWrite("!> You've left no cores for other Processes" & @CRLF, $hOutput)
-				Return 1
+				SetError(1,3,1)
 			Case _ArraySearch($aPriorities, $sPriority) = -1
-				_ConsoleWrite("!> " & $sPriority & " is not a valid priority level" & @CRLF, $hOutput)
-				Return 1
+				SetError(1,4,1)
+			Case $hCores = $hAllCores
+				$iExtended = 2
+				ContinueCase
 			Case Else
-				_ConsoleWrite("Optimizing " & $hProcess & " in the background until it closes..." & @CRLF, $hOutput)
+				$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 				If ProcessExists($hProcess) Then
-					Sleep($iSleepTime)
-					$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-					Sleep($iSleepTime)
-					_ConsoleWrite("Process Count Changed, Rerunning Optimization...", $hOutput)
 					Sleep($iSleepTime)
 					For $iLoop = 0 to $aProcesses[0][0] Step 1
 						If $aProcesses[$iLoop][0] = $hProcess Then
 							ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-							$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
-							_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
+							$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
+							If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
+								_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
+							EndIf
 							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 						EndIf
 					Next
 					Sleep($iSleepTime)
-					_ConsoleWrite("Done!" & @CRLF, $hOutput)
-					Sleep($iSleepTime)
 				EndIf
 		EndSelect
 	EndIf
-	Return UBound($aProcesses)
+	Return SetError(0, $iExtended, UBound($aProcesses))
 
 EndFunc
 
@@ -195,31 +247,30 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/25/2018
+; Modified ......: 06/02/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = "High", $hOutput = False)
+Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = "HIGH", $hOutput = False)
 
-	Dim $iThreads = _GetCPUInfo(1)
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
 
 	_ArrayDelete($aProcessList, 0)
+	_ArrayDelete($aProcessList, UBound($aProcessList)-1)
 
 	Select
 		Case Not IsInt($hCores)
-			_ConsoleWrite("!> " & $hCores & " is not a proper declaration of what cores to run on" & @CRLF, $hOutput)
-			Return 1
+			SetError(1,0,1)
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 			For $iLoop = 0 To $iThreads - 1
 				$hAllCores += 2^$iLoop
 			Next
 			If $hCores > $hAllCores Then
-				_ConsoleWrite("!> You've specified more cores than available on your system" & @CRLF, $hOutput)
-				Return 1
+				SetError(2,0,1)
 			EndIf
 			$iProcessesLast = 0
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
@@ -229,7 +280,7 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 					;;;
 				Else
 					ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1]) ; Select the Process
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
 					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				EndIf
@@ -249,41 +300,51 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/11/2018
+; Modified ......: 06/02/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeOthers(ByRef $aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
+Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
-	Dim $iThreads = _GetCPUInfo(1)
+	Local $iExtended = 0
+
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 
 	For $iLoop = 0 To $iThreads - 1
 		$hAllCores += 2^$iLoop
 	Next
 
+	#include <Array.au3>
+
+	Local $aTemp = $aExclusions[UBound($aExclusions) - 1]
+	_ArrayDelete($aExclusions, UBound($aExclusions) - 1)
+	_ArrayConcatenate($aExclusions, $aTemp)
+
 	Select
 		Case $hCores > $hAllCores
-			_ConsoleWrite("!> You've specified more combined cores than available on your system" & @CRLF, $hOutput)
-			Return 1
+			SetError(1,0,1)
 		Case $hCores <= 0
-			_ConsoleWrite("!> You've left no cores for other Processes" & @CRLF, $hOutput)
-			Return 1
+			$hCores = 2^($iThreads - 1)
+			$iExtended = 1
+			ContinueCase
 		Case Else
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			Sleep($iSleepTime)
 			For $iLoop = 0 to $aProcesses[0][0] Step 1
 				If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) = -1 Then
-					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1])  ; Select the Process
 					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+				Else
+					;;;
 				EndIf
 			Next
 			Sleep($iSleepTime)
 	EndSelect
-	Return 0
+	Return SetError(0, $iExtended, 0)
 
 EndFunc
 
@@ -291,36 +352,38 @@ EndFunc
 ; Name ..........: _Restore
 ; Description ...: Reset Affinities and Priorities to Default
 ; Syntax ........: _Restore([$hCores = _GetCPUInfo(1[, $hOutput = False]])
-; Parameters ....: $hCores              - [optional] Cores to Set Affinity to.
+; Parameters ....: $aExclusions         - [optional] Array of excluded processes
+;                  $hCores              - [optional] Cores to Set Affinity to.
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/19/2018
+; Modified ......: 06/02/2019
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Restore($hCores = _GetCPUInfo(1), $hOutput = False)
-
-	_ConsoleWrite("Restoring Previous State..." & @CRLF, $hOutput)
+Func _Restore($aExclusions = Null, $hCores = _GetCPUInfo(1), $hOutput = False)
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $hCores - 1
 		$hAllCores += 2^$iLoop
 	Next
 
-	_ConsoleWrite("Restoring Priority and Affinity of all Other Processes...", $hOutput)
+;	If $aExclusions = "" Then ReDim $aExclusions[0]
 
 	$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority back to normal
 	For $iLoop = 0 to $aProcesses[0][0] Step 1
-		$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1])  ; Select the Process
+		If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) = -1 Then
+			;;;
+		Else
+			ContinueLoop
+		EndIf
+		$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1])  ; Select the Process
 		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
 		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 	Next
-	_ConsoleWrite("Done!" & @CRLF, $hOutput)
 	_StopServices("False", $hOutput) ; Additional Clean Up
-	_ConsoleWrite("---" & @CRLF, $hOutput)
 
 EndFunc
 
@@ -332,7 +395,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/11/2018
+; Modified ......: 3/13/2018
 ; Remarks .......: TO DO: Return values
 ; Related .......:
 ; Link ..........:
@@ -344,8 +407,8 @@ Func _SetPowerPlan($bState, $hOutput = False)
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_MIN', "", @SW_HIDE) ; Set MINIMUM power saving, aka max performance
 	ElseIf $bState = "False" Then
 		RunWait(@ComSpec & " /c " & 'POWERCFG /SETACTIVE SCHEME_BALANCED', "", @SW_HIDE) ; Set BALANCED power plan
-	Else
-		_ConsoleWrite("!> SetPowerPlan Option " & $bState & " is not valid!" & @CRLF, $hOutput)
+;	Else
+;		_ConsoleWrite("!> SetPowerPlan Option " & $bState & " is not valid!" & @CRLF, $hOutput)
 	EndIf
 
 EndFunc
@@ -354,12 +417,12 @@ EndFunc
 ; Name ..........: _StopServices
 ; Description ...: Stop services that won't be needing during gaming
 ; Syntax ........: _StopServices($bState[, $hOutput = False])
-; Parameters ....: $bState              - Stop services
+; Parameters ....: $bState              - "True" to stop services, "False" to start services
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/11/2018
-; Remarks .......: TO DO: Return values
+; Modified ......: 3/13/2018
+; Remarks .......: TO DO: Return values, Accept Array of Services to Start/Stop
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
@@ -367,17 +430,17 @@ EndFunc
 Func _StopServices($bState, $hOutput = False)
 
 	If $bState = "True" Then
-		_ConsoleWrite("Temporarily Pausing Game Impacting Services..." & @CRLF, $hOutput)
+;		_ConsoleWrite("Temporarily Pausing Game Impacting Services..." & @CRLF, $hOutput)
 		RunWait(@ComSpec & " /c " & 'net stop wuauserv', "", @SW_HIDE) ; Stop Windows Update
 		RunWait(@ComSpec & " /c " & 'net stop spooler', "", @SW_HIDE) ; Stop Printer Spooler
-		_ConsoleWrite("Done!" & @CRLF, $hOutput)
+;		_ConsoleWrite("Done!" & @CRLF, $hOutput)
 	ElseIf $bState = "False" Then
-		_ConsoleWrite("Restarting Any Stopped Services..." & @CRLF, $hOutput)
+;		_ConsoleWrite("Restarting Any Stopped Services..." & @CRLF, $hOutput)
 		RunWait(@ComSpec & " /c " & 'net start wuauserv', "", @SW_HIDE) ; Start Windows Update
 		RunWait(@ComSpec & " /c " & 'net start spooler', "", @SW_HIDE) ; Start Printer Spooler
-		_ConsoleWrite("Done!" & @CRLF, $hOutput)
-	Else
-		_ConsoleWrite("!> StopServices Option " & $bState & " is not valid!" & @CRLF, $hOutput)
+;		_ConsoleWrite("Done!" & @CRLF, $hOutput)
+;	Else
+;		_ConsoleWrite("!> StopServices Option " & $bState & " is not valid!" & @CRLF, $hOutput)
 	EndIf
 
 EndFunc
