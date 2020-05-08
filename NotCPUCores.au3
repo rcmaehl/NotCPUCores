@@ -12,6 +12,7 @@
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <Array.au3>
+#include <GUIEdit.au3>
 #include <Process.au3>
 #include <Constants.au3>
 #include <GUIListView.au3>
@@ -569,6 +570,7 @@ Func Main()
 					EndSwitch
 				EndIf
 			EndIf
+			_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 		EndIf
 
 		$hMsg = GUIGetMsg()
@@ -818,6 +820,7 @@ Func Main()
 					Case Else
 						$aProcesses[0] = GUICtrlRead($hTask)
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
+						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
 				ContinueCase
@@ -842,6 +845,7 @@ Func Main()
 					Case Else
 						$sPriority = "HIGH"
 						_ConsoleWrite("!> " & $_sLang_InvalidPriority & @CRLF, $hConsole)
+						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
 				ContinueCase
@@ -959,6 +963,7 @@ Func Main()
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcastCores & @CRLF, $hConsole)
+						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
 				ContinueCase
@@ -1080,6 +1085,7 @@ Func Main()
 
 					Case Else
 					_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+					_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 					GUICtrlSetState($hOptimize, $GUI_DISABLE)
 					GUICtrlSetState($hCores, $GUI_DISABLE)
 
@@ -1103,6 +1109,7 @@ Func Main()
 					Case Else
 						$iOtherProcessCores = 1
 						_ConsoleWrite("!> " & $_sLang_InvalidOtherCores & @CRLF, $hConsole)
+						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
 
@@ -1117,6 +1124,7 @@ Func Main()
 				_Restore("", $iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
 				_ConsoleWrite("---"        & @CRLF, $hConsole)
+				_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 				GUICtrlSetData($hReset, $_sLang_Restore)
 				For $iLoop = $hTask to $hOAssign Step 1
 					If $iLoop = $hChildren Or $iLoop = $hBroChild Then ContinueLoop
@@ -1206,6 +1214,7 @@ Func Main()
 								_ConsoleWrite("!> " & $_sLang_TooManyTotalCores & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
+				_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 			Case $hMsg = $hGameM
 				ShellExecute("ms-settings:gaming-gamemode")
