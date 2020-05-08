@@ -8,8 +8,6 @@
 #include ".\_WMIC.au3"
 #include ".\_ExtendedFunctions.au3"
 
-Main()
-
 Func _Main()
 
 	Local $aExclusions, $aInclusions, $aStatus

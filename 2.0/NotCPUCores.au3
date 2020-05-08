@@ -512,7 +512,7 @@ Func Main()
 			Else
 				If Not (UBound(ProcessList()) = $iProcesses) Then
 					If GUICtrlRead($hTask) = "ACTIVE" Then $aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
-					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
+					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole)
 					Switch $iProcesses
 						Case 1
 							Switch @error
@@ -530,7 +530,7 @@ Func Main()
 										Case 3
 											_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 										Case 4
-											_ConsoleWrite("!> " & GUICtrlRead($hPPriority) & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
+											_ConsoleWrite("!> " & $sPriority & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
 									EndSwitch
 							EndSwitch
 						Case Else
@@ -554,7 +554,7 @@ Func Main()
 									_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 							EndSwitch
 					EndSwitch
-					Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole)
+					Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sPriority, $hConsole)
 						Case 0
 							Switch @extended
 								Case 1
@@ -1151,7 +1151,7 @@ Func Main()
 							$aProcesses[0] = $aProcesses
 						EndIf
 				EndSwitch
-				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,GUICtrlRead($hPPriority),$hConsole)
+				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole)
 				Switch $iProcesses
 					Case 1
 						Switch @error
@@ -1169,7 +1169,7 @@ Func Main()
 									Case 3
 										_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 									Case 4
-										_ConsoleWrite("!> " & GUICtrlRead($hPPriority) & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
+										_ConsoleWrite("!> " & $sPriority & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
 								EndSwitch
 						EndSwitch
 					Case Else
@@ -1193,7 +1193,7 @@ Func Main()
 								_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
-				Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, GUICtrlRead($hPPriority), $hConsole)
+				Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sPriority, $hConsole)
 					Case 0
 						Switch @extended
 							Case 1
