@@ -1,17 +1,26 @@
+#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Icon=..\icon.ico
+#AutoIt3Wrapper_Change2CUI=y
+#AutoIt3Wrapper_Res_Comment=NotCPUCores Core Beta
+#AutoIt3Wrapper_Res_Description=NotCPUCores Core Beta
+#AutoIt3Wrapper_Res_Fileversion=1.8.0.0
+#AutoIt3Wrapper_Res_LegalCopyright=Robert C Maehl (rcmaehl)
+#AutoIt3Wrapper_Res_Language=1033
+#AutoIt3Wrapper_Res_requestedExecutionLevel=highestAvailable
+#AutoIt3Wrapper_Run_Au3Stripper=y
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 #include-once
 
 #include <Array.au3>
 #include <WinAPI.au3>
-#include <Process.au3>
 #include <Constants.au3>
-#include <StringConstants.au3>
-#include ".\_WMIC.au3"
-#include ".\_ExtendedFunctions.au3"
+;#include ".\_WMIC.au3"
+;#include ".\_ExtendedFunctions.au3"
 
 Func _Main()
 
 	Local $aExclusions, $aInclusions, $aStatus
-	Local $sStatus
+	Local $sStatus, $bOptimize
 
 	While True
 
@@ -27,8 +36,10 @@ Func _Main()
 			Case "Exclude"
 
 			Case "Start"
+				$bOptimize = True
 
 			Case "Stop"
+				$bOptimize = False
 
 			Case Else
 				ConsoleWrite("NCC Core Caught unhandled parameter: " & $aStatus[0] & @CRLF)
@@ -135,8 +146,9 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 
 	Local $iExtended = 0
 	Local $aProcesses[1]
+	Local $iThreads = 16
 
-	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
+	;If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOWNORMAL","NORMAL","ABOVENORMAL","HIGH","REALTIME"]
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
@@ -164,7 +176,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 						ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-							_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
+;							_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
 						EndIf
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
@@ -194,7 +206,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 							ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 							$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
 							If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-								_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
+;								_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
 							EndIf
 							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 						EndIf
@@ -253,7 +265,9 @@ EndFunc
 ; ===============================================================================================================================
 Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = "HIGH", $hOutput = False)
 
-	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
+	Local $iThreads = 16
+
+	;If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
 
 	_ArrayDelete($aProcessList, 0)
@@ -307,8 +321,10 @@ EndFunc
 Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
 	Local $iExtended = 0
+	Local $iThreads = 16
 
-	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
+
+;	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 
 	For $iLoop = 0 To $iThreads - 1
@@ -361,7 +377,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Restore($aExclusions = Null, $hCores = _GetCPUInfo(1), $hOutput = False)
+Func _Restore($aExclusions = Null, $hCores = 16, $hOutput = False)
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $hCores - 1
@@ -460,11 +476,11 @@ EndFunc
 Func _ToggleHPET($bState, $hOutput = False)
 
 	If $bState = "True" Then
-		_ConsoleWrite("HPET State Changed, Please Reboot to Apply Changes" & @CRLF, $hOutput)
+;		_ConsoleWrite("HPET State Changed, Please Reboot to Apply Changes" & @CRLF, $hOutput)
 		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
 	ElseIf $bState = "False" Then
 		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
-		_ConsoleWrite("HPET State Changed, Please Reboot to Apply Changes" & @CRLF, $hOutput)
+;		_ConsoleWrite("HPET State Changed, Please Reboot to Apply Changes" & @CRLF, $hOutput)
 	EndIf
 
 EndFunc
