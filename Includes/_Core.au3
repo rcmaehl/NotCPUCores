@@ -2,9 +2,7 @@
 
 #include <Array.au3>
 #include <WinAPI.au3>
-#include <Process.au3>
 #include <Constants.au3>
-#include <StringConstants.au3>
 #include ".\_WMIC.au3"
 #include ".\_ExtendedFunctions.au3"
 
