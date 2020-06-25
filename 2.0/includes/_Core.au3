@@ -128,7 +128,7 @@ EndFunc
 ; Description ...: Adjust Priority and Affinity of a Process
 ; Syntax ........: _Optimize($iProcesses, $hProcess, $hCores[, $iSleepTime = 100[, $bRealtime = False[, $hOutput = False]]])
 ; Parameters ....: $iProcesses          - Current running process count
-;                  $hProcess            - Process handle
+;                  $aProcesses          - Array of processes to Optimize
 ;                  $hCores              - Cores to set affinity to
 ;                  $iSleepTime          - [optional] Internal Sleep Timer. Default is 100.
 ;                  $sPriority           - [optional] Priority to Use. Default is High.
@@ -136,19 +136,18 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - Optimization Exiting, Do not Continue
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/24/2020
+; Modified ......: 06/25/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = "HIGH", $hOutput = False)
+Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority = "HIGH", $hOutput = False)
 
 	Local $iExtended = 0
-	Local $aProcesses[1]
-	Local $iThreads = 16
+	Local $aRunning[1]
 
-	;If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOWNORMAL","NORMAL","ABOVENORMAL","HIGH","REALTIME"]
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
@@ -157,26 +156,26 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 	Next
 
 	If $iProcesses > 0 Then
-		If Not ProcessExists($hProcess) Then
-			If FileExists($hProcess) Then
-				Run($hProcess)
+		If Not ProcessExists($aProcesses) Then
+			If FileExists($aProcesses) Then
+				Run($aProcesses)
 				Sleep(200)
 			Else
 				SetError(0, 1, 1)
 			EndIf
 		EndIf
-		If ProcessExists($hProcess) Then
+		If ProcessExists($aProcesses) Then
 			$iExtended = 1
-			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
+			$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 			Sleep($iSleepTime)
 			If Not (UBound(ProcessList()) = $iProcesses) Then
 				Sleep($iSleepTime)
-				For $iLoop = 0 to $aProcesses[0][0] Step 1
-					If $aProcesses[$iLoop][0] = $hProcess Then
-						ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
+				For $iLoop = 0 to $aRunning[0][0] Step 1
+					If $aRunning[$iLoop][0] = $aProcesses Then
+						ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
+						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-;							_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & @CRLF, $hOutput)
+;							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
 						EndIf
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
@@ -186,7 +185,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 		EndIf
 	Else
 		Select
-			Case Not ProcessExists($hProcess)
+			Case Not ProcessExists($aProcesses)
 				SetError(1,1,1)
 			Case Not IsInt($hCores)
 				SetError(1,2,1)
@@ -198,15 +197,15 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 				$iExtended = 2
 				ContinueCase
 			Case Else
-				$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-				If ProcessExists($hProcess) Then
+				$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
+				If ProcessExists($aProcesses) Then
 					Sleep($iSleepTime)
-					For $iLoop = 0 to $aProcesses[0][0] Step 1
-						If $aProcesses[$iLoop][0] = $hProcess Then
-							ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-							$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
+					For $iLoop = 0 to $aRunning[0][0] Step 1
+						If $aRunning[$iLoop][0] = $aProcesses Then
+							ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
+							$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 							If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-;								_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & @CRLF, $hOutput)
+;								_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
 							EndIf
 							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 						EndIf
@@ -215,7 +214,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 				EndIf
 		EndSelect
 	EndIf
-	Return SetError(0, $iExtended, UBound($aProcesses))
+	Return SetError(0, $iExtended, UBound($aRunning))
 
 EndFunc
 
