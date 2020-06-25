@@ -680,7 +680,7 @@ Func Main()
 				_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
 
 			Case $hMsg = $hExclusions
-				$aExclusions = _GetExclusionsList($hExclusions)
+				$aExclusions = _GetExclusio nsList($hExclusions)
 				_GUICtrlListView_SortItems($hExclusions, GUICtrlGetState($hExclusions))
 
 			Case $hMsg = $hRefresh
@@ -1153,7 +1153,7 @@ Func Main()
 				Switch $aProcesses[0]
 					Case "ACTIVE"
 						$aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
-					Case 1 To 999999
+					Case 1 To 4294967295
 						If ShellExecute("steam://rungameid/" & $aProcesses[0]) > 0 Then
 							$aPre = ProcessList()
 							Do
