@@ -96,6 +96,7 @@ Func Main()
 
 	Local $aCores
 	Local $bInit = True
+	Local $bReset = False
 	Local $iSleep = 100
 	Local $hLibrary = ""
 	Local $hProfile = "None"
@@ -510,7 +511,7 @@ Func Main()
 				GUICtrlSetState($hReset   , $GUI_ENABLE)
 				GUICtrlSetState($hOptimize, $GUI_ENABLE)
 				$iProcesses = 0
-				$bInit = True
+				$bReset = True
 			Else
 				If Not (UBound(ProcessList()) = $iProcesses) Then
 					If GUICtrlRead($hTask) = "ACTIVE" Then $aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
@@ -749,24 +750,29 @@ Func Main()
 				ContinueCase
 
 			Case $bInit = True
+				$hProfile = "Autoload.ncc"
 				If FileExists(@WorkingDir & "\Settings.ini") And $bInit = True Then
 					$hLibrary = IniRead(@WorkingDir & "\Settings.ini", "Steam"  , "Library Path"   , "Auto")
 					$hProfile = IniRead(@WorkingDir & "\Settings.ini", "General", "Default Profile", "Autoload.ncc")
 					If Not FileExists($hLibrary) Then $hLibrary = ""
-					If FileExists($hProfile) Then
-						GUICtrlSetData($hTask       , String(_IniRead($hProfile, "General"  , "Process"   ,                                      "",                "")))
-						GUICtrlSetState($hChildren  , Number(_IniRead($hProfile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
-						GUICtrlSetData($hAssignMode , String(_IniRead($hProfile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
-						GUICtrlSetData($hCores      , String(_IniRead($hProfile, "General"  , "Threads"   ,                                      "",               "1")))
-						GUICtrlSetData($hPPriority  , String(_IniRead($hProfile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
-						GUICtrlSetData($hSplitMode  , String(_IniRead($hProfile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
-						GUICtrlSetData($hBCores     , String(_IniRead($hProfile, "Streaming", "Threads"   ,                                      "",               "2")))
-						GUICtrlSetData($hBroadcaster, String(_IniRead($hProfile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
-						GUICtrlSetState($hBroChild  , Number(_IniRead($hProfile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
-						GUICtrlSetData($hOAssign    , String(_IniRead($hProfile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
-					EndIf
+				EndIf
+				If FileExists($hProfile) Then
+					GUICtrlSetData($hTask       , String(_IniRead($hProfile, "General"  , "Process"   ,                                      "",                "")))
+					GUICtrlSetState($hChildren  , Number(_IniRead($hProfile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
+					GUICtrlSetData($hAssignMode , String(_IniRead($hProfile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
+					GUICtrlSetData($hCores      , String(_IniRead($hProfile, "General"  , "Threads"   ,                                      "",               "1")))
+					GUICtrlSetData($hPPriority  , String(_IniRead($hProfile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
+					GUICtrlSetData($hSplitMode  , String(_IniRead($hProfile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
+					GUICtrlSetData($hBCores     , String(_IniRead($hProfile, "Streaming", "Threads"   ,                                      "",               "2")))
+					GUICtrlSetData($hBroadcaster, String(_IniRead($hProfile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
+					GUICtrlSetState($hBroChild  , Number(_IniRead($hProfile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
+					GUICtrlSetData($hOAssign    , String(_IniRead($hProfile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
 				EndIf
 				$bInit = False
+				ContinueCase
+
+			Case $bReset = True
+				$bReset = False
 				ContinueCase
 
 			Case $hMsg = $hBCores
@@ -1134,7 +1140,7 @@ Func Main()
 				GUICtrlSetState($hReset   , $GUI_ENABLE)
 				GUICtrlSetState($hOptimize, $GUI_ENABLE)
 				$aExclusions = _GetExclusionsList($hExclusions)
-				$bInit = True
+				$bReset = True
 
 			Case $hMsg = $hOptimize
 				For $Loop = $hTask to $hOAssign Step 1
