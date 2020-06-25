@@ -87,7 +87,7 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - Optimization Exiting, Do not Continue
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/02/2019
+; Modified ......: 06/24/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -126,7 +126,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 						ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-							_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
+							_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & @CRLF, $hOutput)
 						EndIf
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
@@ -156,7 +156,7 @@ Func _Optimize($iProcesses, $hProcess, $hCores, $iSleepTime = 100, $sPriority = 
 							ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 							$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
 							If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-								_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[0][0] & @CRLF, $hOutput)
+								_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & @CRLF, $hOutput)
 							EndIf
 							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 						EndIf
