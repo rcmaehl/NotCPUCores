@@ -12,7 +12,7 @@
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <Array.au3>
-#include <GUIEdit.au3>
+#include <GUIEdit .au3>
 #include <Process.au3>
 #include <Constants.au3>
 #include <GUIListView.au3>
@@ -750,7 +750,7 @@ Func Main()
 			Case $bInit = True
 				If FileExists(@WorkingDir & "\Settings.ini") And $bInit = True Then
 					$hLibrary = IniRead(@WorkingDir & "\Settings.ini", "Steam"  , "Library Path"   , "Auto")
-					$hProfile = IniRead(@WorkingDir & "\Settings.ini", "General", "Default Profile", "None")
+					$hProfile = IniRead(@WorkingDir & "\Settings.ini", "General", "Default Profile", "Autoload.ncc")
 					If Not FileExists($hLibrary) Then $hLibrary = ""
 					If FileExists($hProfile) Then
 						GUICtrlSetData($hTask       , String(_IniRead($hProfile, "General"  , "Process"   ,                                      "",                "")))
