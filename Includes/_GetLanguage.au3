@@ -463,6 +463,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_HelpMenu     = IniRead($sPath, "Help Menu", "Help Menu"     , "Help"             )
 	Global $_sLang_HelpSite     = IniRead($sPath, "Help Menu", "Website Option", "Website"          )
 	Global $_sLang_HelpHowTo    = IniRead($sPath, "Help Menu", "HowTo Option"  , "How It Works"     )
+	Global $_sLang_HelpDonate   = IniRead($sPath, "Help Menu", "Donate Option" , "Buy me a drink?"  )
 	Global $_sLang_HelpUpdate   = IniRead($sPath, "Help Menu", "Update Option" , "Check for Updates")
 	#EndRegion
 
@@ -474,9 +475,9 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; Steam Games Tab
-	Global $_sLang_GamesTab = IniRead($sPath, "Steam Games", "Games Tab", "Steam Games (BETA)")
-	Global $_sLang_GameName = IniRead($sPath, "Steam Games", "Game Name", "Game Name"         )
-	Global $_sLang_GameID   = IniRead($sPath, "Steam Games", "Game ID"  , "Game ID"           )
+	Global $_sLang_GamesTab = IniRead($sPath, "Steam Games", "Games Tab", "Steam Games")
+	Global $_sLang_GameName = IniRead($sPath, "Steam Games", "Game Name", "Game Name"  )
+	Global $_sLang_GameID   = IniRead($sPath, "Steam Games", "Game ID"  , "Game ID"    )
 	#EndRegion
 
 	#Region ; Sleep Timer GUI

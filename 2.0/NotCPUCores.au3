@@ -5,7 +5,7 @@
 #AutoIt3Wrapper_Change2CUI=N
 #AutoIt3Wrapper_Res_Comment=Compiled 6/2/2019 @ 16:00 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.7.1.0
+#AutoIt3Wrapper_Res_Fileversion=1.7.2.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
@@ -97,8 +97,8 @@ Func Main()
 	Local $bReset = False
 	Local $iSleep = 100
 	Local $hLibrary = ""
-	Local $hProfile = "None"
-	Local $sVersion = "1.7.1.0"
+	Local $hProfile = "Autoload.ncc"
+	Local $sVersion = "1.7.2.0"
 	Local $iAllCores
 	Local $sPriority = "High"
 	Local $bInterrupt = False
@@ -145,6 +145,7 @@ Func Main()
 	Local $hMenu3 = GUICtrlCreateMenu($_sLang_HelpMenu)
 	Local $hGithub = GUICtrlCreateMenuItem($_sLang_HelpSite, $hMenu3)
 	Local $hHowTo = GUICtrlCreateMenuItem($_sLang_HelpHowTo, $hMenu3)
+	Local $hDonate = GUICtrlCreateMenuItem($_sLang_HelpDonate, $hMenu3)
 	GUICtrlCreateMenuItem("", $hMenu3)
 	Local $hUpdate = GUICtrlCreateMenuItem($_sLang_HelpUpdate, $hMenu3)
 	#EndRegion
@@ -576,7 +577,6 @@ Func Main()
 
 		$hMsg = GUIGetMsg()
 		$hTMsg = TrayGetMsg()
-		Sleep(10)
 
 		Select
 
@@ -1165,7 +1165,7 @@ Func Main()
 							$aProcesses[0] = $aProcesses
 						EndIf
 				EndSwitch
-				$aProcesses[0] = StringSplit($aProcesses, "|", $STR_NOCOUNT)
+				$aProcesses[0] = StringSplit($aProcesses[0], "|", $STR_NOCOUNT)
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole)
 				Switch $iProcesses
 					Case 1
@@ -1252,6 +1252,9 @@ Func Main()
 
 			Case $hMsg = $hHowTo
 				ShellExecute("https://github.com/rcmaehl/NotCPUCores/blob/master/FAQ.md#is-it-possible-to-get-the-benefits-of-notcpucores-without-installing-it")
+
+			Case $hMsg = $hDonate
+				ShellExecute("https://www.paypal.me/rhsky")
 
 			Case $hMsg = $hUpdate
 				ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases/latest")

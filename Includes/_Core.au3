@@ -98,6 +98,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 	Local $iExtended = 0
 	Local $aRunning[1]
 	Local $iExists = 0
+	Local $aUnload
 
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOWNORMAL","NORMAL","ABOVENORMAL","HIGH","REALTIME"]
@@ -108,33 +109,32 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 	Next
 
 	If $iProcesses > 0 Then
-		For $iLoop = 0 To UBound($aProcesses) - 1 Step 1
+		For $iLoop = 0 To UBound($aProcesses) - 1 Step 1 ; Don't do anything unless the process(es) exist
 			If ProcessExists($aProcesses[$iLoop]) Then $iExists += 1
 		Next
 		If $iExists = 0 Then SetError(0, 1, 1)
-		If ProcessExists($aProcesses) Then
-			$iExtended = 1
-			$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-			Sleep($iSleepTime)
-			If Not (UBound(ProcessList()) = $iProcesses) Then
-				Sleep($iSleepTime)
-				For $iLoop = 0 to $aRunning[0][0] Step 1
-					If $aRunning[$iLoop][0] = $aProcesses Then
-						ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
-						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
-						EndIf
-						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+		$iExtended = 1
+		$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
+		If Not (UBound(ProcessList()) = $iProcesses) Then ; Skip Optimization if there are no new processes
+			For $iLoop = 0 to $aRunning[0][0] Step 1
+				If _ArraySearch($aProcesses[0], $aRunning[$iLoop][0]) = -1 Then
+					;;;
+				Else
+					ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
+					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
+						_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
 					EndIf
-				Next
-				Sleep($iSleepTime)
-			EndIf
+					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+				EndIf
+			Next
 		EndIf
 	Else
+		For $iLoop = 0 To UBound($aProcesses) - 1 Step 1 ; Don't do anything unless the process(es) exist
+			If ProcessExists($aProcesses[$iLoop]) Then $iExists += 1
+		Next
+		If $iExists = 0 Then SetError(1, 1, 1)
 		Select
-			Case Not ProcessExists($aProcesses)
-				SetError(1,1,1)
 			Case Not IsInt($hCores)
 				SetError(1,2,1)
 			Case $hCores > $hAllCores
@@ -146,10 +146,11 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 				ContinueCase
 			Case Else
 				$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-				If ProcessExists($aProcesses) Then
-					Sleep($iSleepTime)
+				If Not (UBound(ProcessList()) = $iProcesses) Then ; Skip Optimization if there are no new processes
 					For $iLoop = 0 to $aRunning[0][0] Step 1
-						If $aRunning[$iLoop][0] = $aProcesses Then
+						If _ArraySearch($aProcesses[0], $aRunning[$iLoop][0]) = -1 Then
+							;;;
+						Else
 							ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 							$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 							If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
@@ -158,7 +159,6 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 						EndIf
 					Next
-					Sleep($iSleepTime)
 				EndIf
 		EndSelect
 	EndIf
@@ -204,7 +204,7 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/02/2019
+; Modified ......: 06/25/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -231,7 +231,6 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 			EndIf
 			$iProcessesLast = 0
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-			Sleep($iSleepTime)
 			For $iLoop = 0 to $aProcesses[0][0] Step 1
 				If _ArraySearch($aProcessList, $aProcesses[$iLoop][0]) = -1 Then
 					;;;
@@ -257,7 +256,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/02/2019
+; Modified ......: 06/25/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -266,6 +265,7 @@ EndFunc
 Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
 	Local $iExtended = 0
+	Local $aTemp
 
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
@@ -276,9 +276,13 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
 	#include <Array.au3>
 
-	Local $aTemp = $aExclusions[UBound($aExclusions) - 1]
+	$aTemp = $aExclusions[UBound($aExclusions) - 1]
 	_ArrayDelete($aExclusions, UBound($aExclusions) - 1)
 	_ArrayConcatenate($aExclusions, $aTemp)
+
+	$aTemp = $aExclusions[0]
+	_ArrayDelete($aExclusions, 0)
+	_ArrayConcatenate($aTemp, $aExclusions)
 
 	Select
 		Case $hCores > $hAllCores
@@ -289,7 +293,6 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 			ContinueCase
 		Case Else
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-			Sleep($iSleepTime)
 			For $iLoop = 0 to $aProcesses[0][0] Step 1
 				If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) = -1 Then
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1])  ; Select the Process
@@ -299,7 +302,6 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 					;;;
 				EndIf
 			Next
-			Sleep($iSleepTime)
 	EndSelect
 	Return SetError(0, $iExtended, 0)
 
