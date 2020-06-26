@@ -97,6 +97,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 
 	Local $iExtended = 0
 	Local $aRunning[1]
+	Local $iExists = 0
 
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $aPriorities[6] = ["LOW","BELOWNORMAL","NORMAL","ABOVENORMAL","HIGH","REALTIME"]
@@ -107,14 +108,10 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 	Next
 
 	If $iProcesses > 0 Then
-		If Not ProcessExists($aProcesses) Then
-			If FileExists($aProcesses) Then
-				Run($aProcesses)
-				Sleep(200)
-			Else
-				SetError(0, 1, 1)
-			EndIf
-		EndIf
+		For $iLoop = 0 To UBound($aProcesses) - 1 Step 1
+			If ProcessExists($aProcesses[$iLoop]) Then $iExists += 1
+		Next
+		If $iExists = 0 Then SetError(0, 1, 1)
 		If ProcessExists($aProcesses) Then
 			$iExtended = 1
 			$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority

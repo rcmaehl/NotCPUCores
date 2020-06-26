@@ -498,7 +498,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	#Region ; Single Line Tooltips
 	Global $_sLang_DebugTip    = IniRead($sPath, "Simple Tips", "Debug Tip"   , "Toggle Debug Mode"                              )
 	Global $_sLang_RefreshTip  = IniRead($sPath, "Simple Tips", "Refresh Tip" , "F5 or Sort to Refresh"                          )
-	Global $_sLang_OptimizeTip = IniRead($sPath, "Simple Tips", "Process Tip" , "Enter the name of the process here"             )
+	Global $_sLang_OptimizeTip = IniRead($sPath, "Simple Tips", "Process Tip" , "Enter the name of the process(es) here"         )
 	Global $_sLang_ImportTip   = IniRead($sPath, "Simple Tips", "Import Tip"  , "Import Selected Process from Process List"      )
 	Global $_sLang_ChildrenTip = IniRead($sPath, "Simple Tips", "Children Tip", "Include other Processes started by this Program")
 	#EndRegion

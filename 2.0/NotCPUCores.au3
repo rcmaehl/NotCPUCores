@@ -169,7 +169,8 @@ Func Main()
 
 	Local $hTask = GUICtrlCreateInput("", 150, 45, 100, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, $_sLang_OptimizeTip & @CRLF & _
-			$_sLang_Example & ": NOTEPAD.EXE", $_sLang_Usage, $TIP_NOICON)
+			$_sLang_Example & ": NOTEPAD.EXE" & @CRLF & _
+			$_sLang_Example & ": NOTEPAD.EXE|CHROME.EXE" , $_sLang_Usage, $TIP_NOICON)
 
 	Local $hSearch = GUICtrlCreateButton(ChrW(8678), 250, 45, 20, 20)
 		GUICtrlSetFont(-1, 12)
@@ -1164,6 +1165,7 @@ Func Main()
 							$aProcesses[0] = $aProcesses
 						EndIf
 				EndSwitch
+				$aProcesses[0] = StringSplit($aProcesses, "|", $STR_NOCOUNT)
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole)
 				Switch $iProcesses
 					Case 1
