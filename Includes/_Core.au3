@@ -87,7 +87,7 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - Optimization Exiting, Do not Continue
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/25/2020
+; Modified ......: 06/26/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -117,7 +117,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 		$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 		If Not (UBound(ProcessList()) = $iProcesses) Then ; Skip Optimization if there are no new processes
 			For $iLoop = 0 to $aRunning[0][0] Step 1
-				If _ArraySearch($aProcesses[0], $aRunning[$iLoop][0]) = -1 Then
+				If _ArraySearch($aProcesses, $aRunning[$iLoop][0]) = -1 Then
 					;;;
 				Else
 					ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
@@ -148,7 +148,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 				$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 				If Not (UBound(ProcessList()) = $iProcesses) Then ; Skip Optimization if there are no new processes
 					For $iLoop = 0 to $aRunning[0][0] Step 1
-						If _ArraySearch($aProcesses[0], $aRunning[$iLoop][0]) = -1 Then
+						If _ArraySearch($aProcesses, $aRunning[$iLoop][0]) = -1 Then
 							;;;
 						Else
 							ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
@@ -256,7 +256,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/25/2020
+; Modified ......: 06/26/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -282,7 +282,7 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
 	$aTemp = $aExclusions[0]
 	_ArrayDelete($aExclusions, 0)
-	_ArrayConcatenate($aTemp, $aExclusions)
+	_ArrayConcatenate($aExclusions, $aTemp)
 
 	Select
 		Case $hCores > $hAllCores

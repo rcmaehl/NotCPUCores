@@ -94,6 +94,7 @@ Func Main()
 
 	Local $aExclusions[0]
 
+	Local $aTemp[0]
 	Local $aCores
 	Local $bInit = True
 	Local $bReset = False
@@ -104,7 +105,7 @@ Func Main()
 	Local $iAllCores
 	Local $sPriority = "High"
 	Local $bInterrupt = False
-	Local $aProcesses[5] = ["", "obs.exe", "obs32.exe", "obs64.exe", $aExclusions]
+	Local $aProcesses[5] = [$aTemp, "obs.exe", "obs32.exe", "obs64.exe", $aExclusions]
 	Local $iProcesses = 0
 	Local $iProcessCores = 1
 	Local $iBroadcasterCores = 0
@@ -604,7 +605,7 @@ Func Main()
 				GUISetState(@SW_SHOW, $hGUI)
 
 			Case $hMsg = $hLoadLanguage ; LAZINESS... but saves a couple hundred lines of code
-				$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "Language File (*.ini)", $FD_FILEMUSTEXIST, @OSLang & ".ini", $hGUI)
+				$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "Language File (*.ini)", $FD_FILEMUSTEXIST, StringRight(@OSLang,2) & ".ini", $hGUI)
 				If @error Then
 					;;;
 				Else
