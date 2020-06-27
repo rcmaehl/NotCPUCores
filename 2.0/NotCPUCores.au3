@@ -92,18 +92,18 @@ Func Main()
 
 	Local $aExclusions[0]
 
-	Local $aTemp[0]
 	Local $aCores
 	Local $bInit = True
 	Local $bReset = False
 	Local $iSleep = 100
+	Local $aUnload[0]
 	Local $hLibrary = ""
 	Local $hProfile = "Autoload.ncc"
 	Local $sVersion = "1.7.2.0"
 	Local $iAllCores
 	Local $sPriority = "High"
 	Local $bInterrupt = False
-	Local $aProcesses[5] = [$aTemp, "obs.exe", "obs32.exe", "obs64.exe", $aExclusions]
+	Local $aProcesses[5] = [$aUnload, "obs.exe", "obs32.exe", "obs64.exe", $aExclusions]
 	Local $iProcesses = 0
 	Local $iProcessCores = 1
 	Local $iBroadcasterCores = 0
@@ -515,7 +515,16 @@ Func Main()
 				$bReset = True
 			Else
 				If Not (UBound(ProcessList()) = $iProcesses) Then
-					If GUICtrlRead($hTask) = "ACTIVE" Then $aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+					$aProcesses[0] = GUICtrlRead($hTask)
+					$aProcesses[0] = StringSplit($aProcesses[0], "|", $STR_NOCOUNT)
+					$aUnload = $aProcesses[0] ; Unload $aProcesses[0]
+					For $iLoop = 0 To UBound($aUnload) - 1 Step 1
+						Switch $aUnload[$iLoop]
+							Case "ACTIVE"
+								$aUnload[$iLoop] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+						EndSwitch
+					Next
+					$aProcesses[0] = $aUnload ; Reload $aProcesses[0]
 					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole)
 					Switch $iProcesses
 						Case 1
@@ -610,6 +619,7 @@ Func Main()
 					_LoadLanguage($hFile)
 					_GUICtrlListView_UnRegisterSortCallBack($hGames)
 					_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
+					_GUICtrlListView_UnRegisterSortCallBack($hExclusions)
 					GUIDelete($hQuickTabs)
 					GUIDelete($hTimerGUI)
 					GUIDelete($hGUI)
@@ -1150,27 +1160,31 @@ Func Main()
 				GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				GUICtrlSetData($hOptimize, $_sLang_OptimizeAlt)
 				$aProcesses[0] = GUICtrlRead($hTask)
-				Switch $aProcesses[0]
-					Case "ACTIVE"
-						$aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
-					Case 1 To 4294967295
-						If Not ProcessExists("steam.exe") And Not ProcessExists("steamservice.exe") Then
-							_ConsoleWrite("!> " & $_sLang_SteamNotRunning & @CRLF, $hConsole)
-							$iProcesses = 1
-							ContinueLoop
-						ElseIf ShellExecute("steam://rungameid/" & $aProcesses[0]) > 0 Then
-							$aPre = ProcessList()
-							Do
-								$aPost = ProcessList()
-								If $aPost[0][0] < $aPre[0][0] Then $aPre = $aPost
-							Until $aPost[0][0] > $aPre[0][0]
-							$iGame = $aPost[$aPost[0][0]][1]
-							$aProcesses[0] = _ProcessGetName($iGame)
-						Else
-							$aProcesses[0] = $aProcesses
-						EndIf
-				EndSwitch
 				$aProcesses[0] = StringSplit($aProcesses[0], "|", $STR_NOCOUNT)
+				$aUnload = $aProcesses[0] ; Unload $aProcesses[0]
+				For $iLoop = 0 To UBound($aUnload) - 1 Step 1
+					Switch $aUnload[$iLoop]
+						Case "ACTIVE"
+							$aUnload[$iLoop] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+						Case 1 To 4294967295
+							If Not ProcessExists("steam.exe") And Not ProcessExists("steamservice.exe") Then
+								_ConsoleWrite("!> " & $_sLang_SteamNotRunning & @CRLF, $hConsole)
+								$iProcesses = 1
+								ContinueLoop
+							ElseIf ShellExecute("steam://rungameid/" & $aUnload[$iLoop]) > 0 Then
+								$aPre = ProcessList()
+								Do
+									$aPost = ProcessList()
+									If $aPost[0][0] < $aPre[0][0] Then $aPre = $aPost
+								Until $aPost[0][0] > $aPre[0][0]
+								$iGame = $aPost[$aPost[0][0]][1]
+								$aUnload[$iLoop] = _ProcessGetName($iGame)
+							Else
+								$aUnload[$iLoop] = $aProcesses
+							EndIf
+					EndSwitch
+				Next
+				$aProcesses[0] = $aUnload ; Reload $aProcesses[0]
 				$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole)
 				Switch $iProcesses
 					Case 1

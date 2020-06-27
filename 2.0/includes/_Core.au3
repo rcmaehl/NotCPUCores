@@ -169,6 +169,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 				If _ArraySearch($aProcesses, $aRunning[$iLoop][0]) = -1 Then
 					;;;
 				Else
+;					_ConsoleWrite("Optimizing " & $aRunning[$iLoop][0] & ", PID: " & $aRunning[$iLoop][1] & @CRLF, $hOutput)
 					ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
@@ -200,6 +201,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 						If _ArraySearch($aProcesses, $aRunning[$iLoop][0]) = -1 Then
 							;;;
 						Else
+;							_ConsoleWrite("Optimizing " & $aRunning[$iLoop][0] & ", PID: " & $aRunning[$iLoop][1] & @CRLF, $hOutput)
 							ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 							$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 							If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
