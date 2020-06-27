@@ -621,6 +621,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_MaxCores              = IniRead($sPath, "Errors", "All Cores Used"          , "No Cores Left for Other Processes, defaulting to last core"                                )
 	Global $_sLang_TooManyCores          = IniRead($sPath, "Errors", "Too Many Cores"          , "You've specified more cores than available on your system"                                 )
 	Global $_sLang_TooManyTotalCores     = IniRead($sPath, "Errors", "Too Many Total Cores"    , "You've specified more cores between App/Game and Broadcaster than available on your system")
+	Global $_sLang_SteamNotRunning       = IniRead($sPath, "Errors", "Steam Not Running"       , "Can't launch Steam Games if Steam isn't running. Please launch Steam, wait, and try again" )
 	#EndRegion
 
 	#Region ; Future Possible Additions

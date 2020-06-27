@@ -11,7 +11,7 @@
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <Array.au3>
-#include <GUIEdit .au3>
+#include <GUIEdit.au3>
 #include <Process.au3>
 #include <Constants.au3>
 #include <GUIListView.au3>
@@ -1154,7 +1154,11 @@ Func Main()
 					Case "ACTIVE"
 						$aProcesses[0] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 					Case 1 To 4294967295
-						If ShellExecute("steam://rungameid/" & $aProcesses[0]) > 0 Then
+						If Not ProcessExists("steam.exe") And Not ProcessExists("steamservice.exe") Then
+							_ConsoleWrite("!> " & $_sLang_SteamNotRunning & @CRLF, $hConsole)
+							$iProcesses = 1
+							ContinueLoop
+						ElseIf ShellExecute("steam://rungameid/" & $aProcesses[0]) > 0 Then
 							$aPre = ProcessList()
 							Do
 								$aPost = ProcessList()
