@@ -123,6 +123,9 @@ Func Main()
 	Local $hInterrupt = GUICtrlCreateDummy()
 	#EndRegion
 
+	Local $aHotkeys[3][2] = [["{F5}", $hRefresh], ["{PAUSE}", $hInterrupt], ["{BREAK}", $hInterrupt]]
+	GUISetAccelerators($aHotkeys)
+
 	#Region ; File Menu
 	Local $hMenu1 = GUICtrlCreateMenu($_sLang_FileMenu)
 	Local $hLoad = GUICtrlCreateMenuItem($_sLang_FileLoad, $hMenu1)
@@ -416,9 +419,6 @@ Func Main()
 
 	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
 
-	Local $aHotkeys[3][2] = [["{F5}", $hRefresh], ["{PAUSE}", $hInterrupt], ["{BREAK}", $hInterrupt]]
-	GUISetAccelerators($aHotkeys)
-
 	$hTabs = GUICtrlCreateTab(0, 0, 360, 300)
 
 	#Region ; Process List
@@ -466,8 +466,6 @@ Func Main()
 	$bCHidden = True
 	#EndRegion
 
-	GUISetAccelerators($aHotkeys)
-
 	WinMove($hGUI, "", Default, Default, 285, 345, 1)
 	GUISetState(@SW_SHOW, $hGUI)
 
@@ -502,6 +500,7 @@ Func Main()
 				$bInterrupt = False
 				_ConsoleWrite($_sLang_Interrupt, $hConsole)
 				$iProcesses = 1
+				ContinueLoop
 			ElseIf $iProcesses = 1 Then
 				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
 				_Restore($aExclusions, $iThreads, $hConsole) ; Do Clean Up
@@ -522,7 +521,7 @@ Func Main()
 				Select
 ;					Case Not $aActive[1] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 ;						ContinueCase
-					Case Not (UBound(ProcessList()) = $iProcesses)
+					Case Not UBound(ProcessList()) = $iProcesses
 						If $aActive[0] Then
 							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[0] = StringSplit($aProcesses[0], "|", $STR_NOCOUNT)
@@ -671,12 +670,7 @@ Func Main()
 ;				GUISetState(@SW_HIDE, $hSettingsGUI)
 
 			Case $hMsg = $hSave
-				If GUICtrlRead($hTask) = "" Then
-					$sFile = "profile.ncc"
-				Else
-					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
-				EndIf
-				$hFile = FileSaveDialog($_sLang_SaveProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, $sFile, $hGUI)
+				$hFile = FileSaveDialog($_sLang_SaveProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_PROMPTOVERWRITE, "", $hGUI)
 				If @error Then
 					;;;
 				Else
@@ -748,12 +742,7 @@ Func Main()
 				GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
 			Case $hMsg = $hLoad
-				If GUICtrlRead($hTask) = "" Then
-					$sFile = "profile.ncc"
-				Else
-					$sFile = StringLower(GUICtrlRead($hTask)) & ".ncc"
-				EndIf
-				$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, $sFile, $hGUI)
+				$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, "profile.ncc", $hGUI)
 				If @error Then
 					;;;
 				Else
