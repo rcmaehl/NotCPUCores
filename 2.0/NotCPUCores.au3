@@ -96,6 +96,7 @@ Func Main()
 	Local $bInit = True
 	Local $bReset = False
 	Local $iSleep = 100
+	Local $aActive[2] = [False, ""]
 	Local $aUnload[0]
 	Local $hLibrary = ""
 	Local $hProfile = "Autoload.ncc"
@@ -512,75 +513,83 @@ Func Main()
 				GUICtrlSetState($hReset   , $GUI_ENABLE)
 				GUICtrlSetState($hOptimize, $GUI_ENABLE)
 				$iProcesses = 0
+				$aActive[0] = False
+				$aActive[1] = ""
 				$bReset = True
 			Else
-				If Not (UBound(ProcessList()) = $iProcesses) Then
-					$aProcesses[0] = GUICtrlRead($hTask)
-					$aProcesses[0] = StringSplit($aProcesses[0], "|", $STR_NOCOUNT)
-					$aUnload = $aProcesses[0] ; Unload $aProcesses[0]
-					For $iLoop = 0 To UBound($aUnload) - 1 Step 1
-						Switch $aUnload[$iLoop]
-							Case "ACTIVE"
-								$aUnload[$iLoop] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+				Select
+					Case Not $aActive[1] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+						ContinueCase
+					Case Not (UBound(ProcessList()) = $iProcesses)
+						If $aActive[0] Then
+							$aProcesses[0] = GUICtrlRead($hTask)
+							$aProcesses[0] = StringSplit($aProcesses[0], "|", $STR_NOCOUNT)
+							$aUnload = $aProcesses[0] ; Unload $aProcesses[0]
+							For $iLoop = 0 To UBound($aUnload) - 1 Step 1
+								Switch $aUnload[$iLoop]
+									Case "ACTIVE"
+										$aUnload[$iLoop] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+										$aActive[1] = $aUnload[$iLoop]
+								EndSwitch
+							Next
+							$aProcesses[0] = $aUnload ; Reload $aProcesses[0]
+						EndIf
+						$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole)
+						Switch $iProcesses
+							Case 1
+								Switch @error
+									Case 0
+										Switch @extended
+											Case 1
+												_ConsoleWrite($aProcesses[0] & " " & $_sLang_RestoringState & @CRLF, $hConsole)
+										EndSwitch
+									Case 1
+										Switch @extended
+											Case 1
+												_ConsoleWrite("!> " & $aProcesses[0] & " " & $_sLang_NotRunning & @CRLF, $hConsole)
+											Case 2
+												_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+											Case 3
+												_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
+											Case 4
+												_ConsoleWrite("!> " & $sPriority & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
+										EndSwitch
+								EndSwitch
+							Case Else
+								Switch @extended
+									Case 0
+										_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+									Case 1
+										_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
+									Case 2
+										_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
+										_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+								EndSwitch
 						EndSwitch
-					Next
-					$aProcesses[0] = $aUnload ; Reload $aProcesses[0]
-					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole)
-					Switch $iProcesses
-						Case 1
-							Switch @error
-								Case 0
-									Switch @extended
-										Case 1
-											_ConsoleWrite($aProcesses[0] & " " & $_sLang_RestoringState & @CRLF, $hConsole)
-									EndSwitch
-								Case 1
-									Switch @extended
-										Case 1
-											_ConsoleWrite("!> " & $aProcesses[0] & " " & $_sLang_NotRunning & @CRLF, $hConsole)
-										Case 2
-											_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
-										Case 3
-											_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
-										Case 4
-											_ConsoleWrite("!> " & $sPriority & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
-									EndSwitch
-							EndSwitch
-						Case Else
-							Switch @extended
-								Case 0
-									_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
-								Case 1
-									_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
-								Case 2
-									_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
-									_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
-							EndSwitch
-					EndSwitch
-					Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
-						Case 1
-							$iProcesses = 1
-							Switch @error
-								Case 1
-									_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
-								Case 2
-									_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
-							EndSwitch
-					EndSwitch
-					Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sPriority, $hConsole)
-						Case 0
-							Switch @extended
-								Case 1
-									_ConsoleWrite("!> " & $_sLang_MaxCores & @CRLF, $hConsole)
-							EndSwitch
-						Case 1
-							$iProcesses = 1
-							Switch @error
-								Case 1
-									_ConsoleWrite("!> " & $_sLang_TooManyTotalCores & @CRLF, $hConsole)
-							EndSwitch
-					EndSwitch
-				EndIf
+						Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
+							Case 1
+								$iProcesses = 1
+								Switch @error
+									Case 1
+										_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+									Case 2
+										_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
+								EndSwitch
+						EndSwitch
+						Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sPriority, $hConsole)
+							Case 0
+								Switch @extended
+									Case 1
+										_ConsoleWrite("!> " & $_sLang_MaxCores & @CRLF, $hConsole)
+								EndSwitch
+							Case 1
+								$iProcesses = 1
+								Switch @error
+									Case 1
+										_ConsoleWrite("!> " & $_sLang_TooManyTotalCores & @CRLF, $hConsole)
+								EndSwitch
+						EndSwitch
+				EndSelect
 			EndIf
 			_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 		EndIf
@@ -1165,7 +1174,9 @@ Func Main()
 				For $iLoop = 0 To UBound($aUnload) - 1 Step 1
 					Switch $aUnload[$iLoop]
 						Case "ACTIVE"
+							$aActive[0] = True
 							$aUnload[$iLoop] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+							$aActive[1] = $aUnload[$iLoop]
 						Case 1 To 4294967295
 							If Not ProcessExists("steam.exe") And Not ProcessExists("steamservice.exe") Then
 								_ConsoleWrite("!> " & $_sLang_SteamNotRunning & @CRLF, $hConsole)
