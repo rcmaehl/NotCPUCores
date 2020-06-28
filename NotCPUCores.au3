@@ -520,8 +520,8 @@ Func Main()
 				$bReset = True
 			Else
 				Select
-					Case Not $aActive[1] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
-						ContinueCase
+;					Case Not $aActive[1] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+;						ContinueCase
 					Case Not (UBound(ProcessList()) = $iProcesses)
 						If $aActive[0] Then
 							$aProcesses[0] = GUICtrlRead($hTask)
