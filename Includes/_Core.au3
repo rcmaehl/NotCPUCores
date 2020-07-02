@@ -11,29 +11,35 @@
 ; Description ...: Get State of Window's High Precision Event Timer
 ; Syntax ........: _GetHPETState()
 ; Parameters ....: None
-; Return values .: Returns HPET state as True or False
+; Return values .: 1                    - HPET in use
+;                  0                    - HPET not in use
+;                  -1                   - Function called without Admin Rights
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/8/2018
-; Remarks .......:
+; Modified ......: 05/06/2020
+; Remarks .......: Requires Admin Rights
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _GetHPETState()
 
-	DllCall("kernel32.dll", "int", "Wow64DisableWow64FsRedirection", "int", 1)
-	$hDOS = Run(@ComSpec & ' /c C:\Windows\System32\bcdedit.exe /enum Active | find "useplatformclock"', "", @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD)
-	ProcessWaitClose($hDOS)
-	$sMessage = StdoutRead($hDOS) & StderrRead($hDOS)
-	$aMessage = StringSplit($sMessage, @CRLF)
-	For $iLoop = UBound($aMessage) - 1 To 0 Step -1
-		If $aMessage[$iLoop] = "" Then
-			_ArrayDelete($aMessage, $iLoop)
-		EndIf
-	Next
-	$aMessage[0] = UBound($aMessage) - 1
-	If $aMessage[0] >= 1 Then $aMessage[1] = StringStripWS($aMessage[1], $STR_STRIPALL)
-	Return $aMessage
+	If IsAdmin() Then
+		DllCall("kernel32.dll", "int", "Wow64DisableWow64FsRedirection", "int", 1)
+		$hDOS = Run(@ComSpec & ' /c C:\Windows\System32\bcdedit.exe /enum Active | find "useplatformclock"', "", @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD)
+		ProcessWaitClose($hDOS)
+		$sMessage = StdoutRead($hDOS) & StderrRead($hDOS)
+		$aMessage = StringSplit($sMessage, @CRLF)
+		For $iLoop = UBound($aMessage) - 1 To 0 Step -1
+			If $aMessage[$iLoop] = "" Then
+				_ArrayDelete($aMessage, $iLoop)
+			EndIf
+		Next
+		$aMessage[0] = UBound($aMessage) - 1
+		If $aMessage[0] >= 1 Then $aMessage[1] = StringStripWS($aMessage[1], $STR_STRIPALL)
+		Return $aMessage[1]
+	Else
+		Return SetError(0, 0, -1)
+	EndIf
 
 EndFunc
 
@@ -41,10 +47,10 @@ EndFunc
 ; Name ..........: _GetModifiedProcesses
 ; Description ...: Get a list of Processes with Modified Affinity
 ; Syntax ........: _GetModifiedProcesses()
-; Parameters ....: NOne
-; Return values .: Returns an array containing exceptions
+; Parameters ....: None
+; Return values .: Returns an array containing modified processes
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/02/2019
+; Modified ......: 05/06/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -54,7 +60,7 @@ Func _GetModifiedProcesses()
 
 	Local $aAffinity
 	Local $aProcesses
-	Local $aExclusions[0]
+	Local $aModified[0]
 
 	$aProcesses = ProcessList()
 	For $Loop = 3 To $aProcesses[0][0] ; Skip System
@@ -64,13 +70,13 @@ Func _GetModifiedProcesses()
 		If $aAffinity[1] = $aAffinity[2] Then
 			;;;
 		Else
-			ReDim $aExclusions[UBound($aExclusions) + 1]
-			$aExclusions[UBound($aExclusions)-1] = $aProcesses[$Loop][0]
+			ReDim $aModified[UBound($aModified) + 1]
+			$aModified[UBound($aModified)-1] = $aProcesses[$Loop][0]
 		EndIf
 		_WinAPI_CloseHandle($hCurProcess)
 	Next
 
-	Return $aExclusions
+	Return $aModified
 
 EndFunc
 
@@ -87,7 +93,7 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - Optimization Exiting, Do not Continue
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/26/2020
+; Modified ......: 07/01/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -112,7 +118,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 		For $iLoop = 0 To UBound($aProcesses) - 1 Step 1 ; Don't do anything unless the process(es) exist
 			If ProcessExists($aProcesses[$iLoop]) Then $iExists += 1
 		Next
-		If $iExists = 0 Then SetError(0, 1, 1)
+		If $iExists = 0 Then Return SetError(0, 1, 1)
 		$iExtended = 1
 		$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 		If Not (UBound(ProcessList()) = $iProcesses) Then ; Skip Optimization if there are no new processes
@@ -134,34 +140,32 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 		For $iLoop = 0 To UBound($aProcesses) - 1 Step 1 ; Don't do anything unless the process(es) exist
 			If ProcessExists($aProcesses[$iLoop]) Then $iExists += 1
 		Next
-		If $iExists = 0 Then SetError(1, 1, 1)
+		If $iExists = 0 Then Return SetError(1, 1, 1)
 		Select
 			Case Not IsInt($hCores)
-				SetError(1,2,1)
+				Return SetError(1,2,1)
 			Case $hCores > $hAllCores
-				SetError(1,3,1)
+				Return SetError(1,3,1)
 			Case _ArraySearch($aPriorities, $sPriority) = -1
-				SetError(1,4,1)
+				Return SetError(1,4,1)
 			Case $hCores = $hAllCores
 				$iExtended = 2
 				ContinueCase
 			Case Else
 				$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-				If Not (UBound(ProcessList()) = $iProcesses) Then ; Skip Optimization if there are no new processes
-					For $iLoop = 0 to $aRunning[0][0] Step 1
-						If _ArraySearch($aProcesses, $aRunning[$iLoop][0]) = -1 Then
-							;;;
-						Else
-							_ConsoleWrite("Optimizing " & $aRunning[$iLoop][0] & ", PID: " & $aRunning[$iLoop][1] & @CRLF, $hOutput)
-							ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
-							$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
-							If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-								_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
-							EndIf
-							_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+				For $iLoop = 0 to $aRunning[0][0] Step 1
+					If _ArraySearch($aProcesses, $aRunning[$iLoop][0]) = -1 Then
+						;;;
+					Else
+						_ConsoleWrite("Optimizing " & $aRunning[$iLoop][0] & ", PID: " & $aRunning[$iLoop][1] & @CRLF, $hOutput)
+						ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
+						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
+						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
+							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
 						EndIf
-					Next
-				EndIf
+						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
+					EndIf
+				Next
 		EndSelect
 	EndIf
 	Return SetError(0, $iExtended, UBound($aRunning))
@@ -206,7 +210,7 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/25/2020
+; Modified ......: 07/01/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -222,14 +226,14 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 
 	Select
 		Case Not IsInt($hCores)
-			SetError(1,0,1)
+			Return SetError(1,0,1)
 		Case Else
 			Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 			For $iLoop = 0 To $iThreads - 1
 				$hAllCores += 2^$iLoop
 			Next
 			If $hCores > $hAllCores Then
-				SetError(2,0,1)
+				Return SetError(2,0,1)
 			EndIf
 			$iProcessesLast = 0
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
@@ -258,7 +262,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/26/2020
+; Modified ......: 07/01/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -288,7 +292,7 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
 	Select
 		Case $hCores > $hAllCores
-			SetError(1,0,1)
+			Return SetError(1,0,1)
 		Case $hCores <= 0
 			$hCores = 2^($iThreads - 1)
 			$iExtended = 1

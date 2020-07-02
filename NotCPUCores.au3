@@ -119,11 +119,12 @@ Func Main()
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitOr($WS_MINIMIZEBOX, $WS_CAPTION, $WS_SYSMENU))
 
 	#Region ; Dummy Controls
+	Local $hClear = GUICtrlCreateDummy()
 	Local $hRefresh = GUICtrlCreateDummy()
 	Local $hInterrupt = GUICtrlCreateDummy()
 	#EndRegion
 
-	Local $aHotkeys[3][2] = [["{F5}", $hRefresh], ["{PAUSE}", $hInterrupt], ["{BREAK}", $hInterrupt]]
+	Local $aHotkeys[4][2] = [["{F5}", $hRefresh], ["{PAUSE}", $hInterrupt], ["{BREAK}", $hInterrupt], ["{DEL}", $hClear]]
 	GUISetAccelerators($aHotkeys)
 
 	#Region ; File Menu
@@ -521,7 +522,7 @@ Func Main()
 				Select
 ;					Case Not $aActive[1] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 ;						ContinueCase
-					Case Not UBound(ProcessList()) = $iProcesses
+					Case UBound(ProcessList()) <> $iProcesses
 						If $aActive[0] Then
 							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[0] = StringSplit($aProcesses[0], "|", $STR_NOCOUNT)
@@ -592,8 +593,8 @@ Func Main()
 						EndSwitch
 				EndSelect
 			EndIf
-			_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 		EndIf
+		_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 		$hMsg = GUIGetMsg()
 		$hTMsg = TrayGetMsg()
@@ -611,6 +612,9 @@ Func Main()
 
 			Case $hMsg = $hInterrupt
 				$bInterrupt = True
+
+			Case $hMsg = $hClear
+				GUICtrlSetData($hConsole, "")
 
 			Case $hMsg = $GUI_EVENT_MINIMIZE
 				Opt("TrayIconHide", 0)
@@ -1153,6 +1157,7 @@ Func Main()
 				$bReset = True
 
 			Case $hMsg = $hOptimize
+				GUICtrlSetData($hConsole, "")
 				For $Loop = $hTask to $hOAssign Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
