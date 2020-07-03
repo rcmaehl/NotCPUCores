@@ -150,6 +150,8 @@ Func Main()
 	#Region ; Help Menu
 	Local $hMenu3 = GUICtrlCreateMenu($_sLang_HelpMenu)
 	Local $hGithub = GUICtrlCreateMenuItem($_sLang_HelpSite, $hMenu3)
+	Local $hDiscord = GUICtrlCreateMenuItem($_sLang_HelpCord, $hMenu3)
+	GUICtrlCreateMenuItem("", $hMenu3)
 	Local $hHowTo = GUICtrlCreateMenuItem($_sLang_HelpHowTo, $hMenu3)
 	Local $hDonate = GUICtrlCreateMenuItem($_sLang_HelpDonate, $hMenu3)
 	GUICtrlCreateMenuItem("", $hMenu3)
@@ -1272,7 +1274,10 @@ Func Main()
 				Run(@ComSpec & " /c " & 'control wscui.cpl', "", @SW_HIDE)
 
 			Case $hMsg = $hGithub
-				ShellExecute("http://www.github.com/rcmaehl/NotCPUCores")
+				ShellExecute("https://www.github.com/rcmaehl/NotCPUCores")
+
+			Case $hMsg = $hDiscord
+				ShellExecute("https://discord.gg/uBnBcBx")
 
 			Case $hMsg = $hHowTo
 				ShellExecute("https://github.com/rcmaehl/NotCPUCores/blob/master/FAQ.md#is-it-possible-to-get-the-benefits-of-notcpucores-without-installing-it")

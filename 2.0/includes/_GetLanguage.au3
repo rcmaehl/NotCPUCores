@@ -462,6 +462,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	#Region ; Help Menu
 	Global $_sLang_HelpMenu     = IniRead($sPath, "Help Menu", "Help Menu"     , "Help"             )
 	Global $_sLang_HelpSite     = IniRead($sPath, "Help Menu", "Website Option", "Website"          )
+	Global $_sLang_HelpCord     = IniRead($sPath, "Help Menu", "Discord Option", "Discord"          )
 	Global $_sLang_HelpHowTo    = IniRead($sPath, "Help Menu", "HowTo Option"  , "How It Works"     )
 	Global $_sLang_HelpDonate   = IniRead($sPath, "Help Menu", "Donate Option" , "Buy me a drink?"  )
 	Global $_sLang_HelpUpdate   = IniRead($sPath, "Help Menu", "Update Option" , "Check for Updates")
