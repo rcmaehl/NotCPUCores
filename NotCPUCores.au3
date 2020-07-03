@@ -545,12 +545,12 @@ Func Main()
 									Case 0
 										Switch @extended
 											Case 1
-												_ConsoleWrite($aProcesses[0] & " " & $_sLang_RestoringState & @CRLF, $hConsole)
+												_ConsoleWrite(_ArrayToString($aProcesses[0], " and ") & " " & $_sLang_RestoringState & @CRLF, $hConsole)
 										EndSwitch
 									Case 1
 										Switch @extended
 											Case 1
-												_ConsoleWrite("!> " & $aProcesses[0] & " " & $_sLang_NotRunning & @CRLF, $hConsole)
+												_ConsoleWrite("!> " & _ArrayToString($aProcesses[0], " and ") & " " & $_sLang_NotRunning & @CRLF, $hConsole)
 											Case 2
 												_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 											Case 3
@@ -562,12 +562,12 @@ Func Main()
 							Case Else
 								Switch @extended
 									Case 0
-										_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+										_ConsoleWrite(_ArrayToString($aProcesses[0], " and ") & " " & $_sLang_Optimizing & @CRLF, $hConsole)
 									Case 1
 										_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
 									Case 2
 										_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
-										_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+										_ConsoleWrite(_ArrayToString($aProcesses[0], " and ") & " " & $_sLang_Optimizing & @CRLF, $hConsole)
 								EndSwitch
 						EndSwitch
 						Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
@@ -1201,12 +1201,12 @@ Func Main()
 							Case 0
 								Switch @extended
 									Case 1
-										_ConsoleWrite($aProcesses[0] & " " & $_sLang_RestoringState & @CRLF, $hConsole)
+										_ConsoleWrite(_ArrayToString($aProcesses[0], " and ") & " " & $_sLang_RestoringState & @CRLF, $hConsole)
 								EndSwitch
 							Case 1
 								Switch @extended
 									Case 1
-										_ConsoleWrite("!> " & $aProcesses[0] & " " & $_sLang_NotRunning & @CRLF, $hConsole)
+										_ConsoleWrite("!> " & _ArrayToString($aProcesses[0], " and ") & " " & $_sLang_NotRunning & @CRLF, $hConsole)
 									Case 2
 										_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 									Case 3
@@ -1218,12 +1218,12 @@ Func Main()
 					Case Else
 						Switch @extended
 							Case 0
-								_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+								_ConsoleWrite(_ArrayToString($aProcesses[0], " and ") & " " & $_sLang_Optimizing & @CRLF, $hConsole)
 							Case 1
 								_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
 							Case 2
 								_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
-								_ConsoleWrite($aProcesses[0] & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+								_ConsoleWrite(_ArrayToString($aProcesses[0], " and ") & " " & $_sLang_Optimizing & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
 				Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)

@@ -579,7 +579,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; Drop Downs
-	Global $_sLang_AllocOff          = IniRead($sPath, "Dropdowns", "Disabled"             , "Disabled"         )
+	Global $_sLang_AllocOff          = IniRead($sPath, "Dropdowns", "Disabled"             , "Disabled"          )
 	Global $_sLang_AllocAll          = IniRead($sPath, "Dropdowns", "All Cores"            , "All Cores"         )
 	Global $_sLang_AllocFirst        = IniRead($sPath, "Dropdowns", "First Core"           , "First Core"        )
 	Global $_sLang_AllocFirstTwo     = IniRead($sPath, "Dropdowns", "First Two Cores"      , "First 2 Cores"     )
@@ -607,7 +607,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; Normal Execution
-	Global $_sLang_Optimizing       = IniRead($sPath, "Running", "Optimizing"      , "is optimizing in the background until it closes..."                                            )
+	Global $_sLang_Optimizing       = IniRead($sPath, "Running", "Optimizing"      , "optimizing in the background until all close..."                                               )
 	Global $_sLang_ReOptimizing     = IniRead($sPath, "Running", "Reoptimizing"    , "Process Count Changed, Optimization Reran"                                                     )
 	Global $_sLang_MaxPerformance   = IniRead($sPath, "Running", "Performance Mode", "All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance")
 	Global $_sLang_RestoringState   = IniRead($sPath, "Running", "RestoringState"  , "Exited. Restoring Previous State..."                                                           )
@@ -618,7 +618,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_InvalidProcessCores   = IniRead($sPath, "Errors", "Process Assignment"      , "Invalid App/Game Assigment Mode!"                                                          )
 	Global $_sLang_InvalidOtherCores     = IniRead($sPath, "Errors", "Other Process Assignment", "Invalid Other Process Assigment Mode!"                                                     )
 	Global $_sLang_InvalidPriority       = IniRead($sPath, "Errors", "Priority Assignment"     , "Invalid Priority Mode!"                                                                    )
-	Global $_sLang_NotRunning            = IniRead($sPath, "Errors", "Not Running"             , "is not currently running. Please run the program first"                                    )
+	Global $_sLang_NotRunning            = IniRead($sPath, "Errors", "Not Running"             , "not currently running. Please run the program(s) first"                                    )
 	Global $_sLang_MaxCores              = IniRead($sPath, "Errors", "All Cores Used"          , "No Cores Left for Other Processes, defaulting to last core"                                )
 	Global $_sLang_TooManyCores          = IniRead($sPath, "Errors", "Too Many Cores"          , "You've specified more cores than available on your system"                                 )
 	Global $_sLang_TooManyTotalCores     = IniRead($sPath, "Errors", "Too Many Total Cores"    , "You've specified more cores between App/Game and Broadcaster than available on your system")
