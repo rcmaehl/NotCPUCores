@@ -147,6 +147,9 @@ Func Main()
 	GUICtrlSetState(-1, $GUI_DISABLE)
 	GUICtrlCreateMenuItem("", $hTimer)
 	Local $hSetTimer = GUICtrlCreateMenuItem($_sLang_SleepSet, $hTimer)
+	Local $hSteam = GUICtrlCreateMenu("Steam", $hMenu2)
+	Local $hSetLibrary = GUICtrlCreateMenuItem($_sLang_SetLibrary, $hSteam)
+	Local $hRemLibrary = GUICtrlCreateMenuItem($_sLang_RemLibrary, $hSteam)
 	#EndRegion
 
 	#Region ; Help Menu

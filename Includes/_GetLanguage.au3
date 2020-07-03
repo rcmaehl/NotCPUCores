@@ -450,13 +450,15 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; Options Menu
-	Global $_sLang_OptionsMenu  = IniRead($sPath, "Options Menu", "Options Menu"    , "Options"           )
-	Global $_sLang_TextMenu     = IniRead($sPath, "Options Menu", "Language Menu"   , "Language"          )
-	Global $_sLang_TextCurrent  = IniRead($sPath, "Options Menu", "Current Language", "Current"           )
-	Global $_sLang_TextLoad     = IniRead($sPath, "Options Menu", "Load Language"   , "Load Lanugage File")
-	Global $_sLang_SleepMenu    = IniRead($sPath, "Options Menu", "Sleep Menu"      , "Sleep Timer"       )
-	Global $_sLang_SleepCurrent = IniRead($sPath, "Options Menu", "Current Sleep"   , "Current Timer"     )
-	Global $_sLang_SleepSet     = IniRead($sPath, "Options Menu", "Set Sleep"       , "Set Sleep Timer"   )
+	Global $_sLang_OptionsMenu  = IniRead($sPath, "Options Menu", "Options Menu"    , "Options"             )
+	Global $_sLang_TextMenu     = IniRead($sPath, "Options Menu", "Language Menu"   , "Language"            )
+	Global $_sLang_TextCurrent  = IniRead($sPath, "Options Menu", "Current Language", "Current"             )
+	Global $_sLang_TextLoad     = IniRead($sPath, "Options Menu", "Load Language"   , "Load Language File"  )
+	Global $_sLang_SleepMenu    = IniRead($sPath, "Options Menu", "Sleep Menu"      , "Sleep Timer"         )
+	Global $_sLang_SleepCurrent = IniRead($sPath, "Options Menu", "Current Sleep"   , "Current Timer"       )
+	Global $_sLang_SleepSet     = IniRead($sPath, "Options Menu", "Set Sleep"       , "Set Sleep Timer"     )
+	Global $_sLang_SetLibrary   = IniRead($sPath, "Options Menu", "Set Library"     , "Set Steam Library"   )
+	Global $_sLang_RemLibrary   = IniRead($sPath, "Options Menu", "Remove Library"  , "Remove Steam Library")
 	#EndRegion
 
 	#Region ; Help Menu
