@@ -872,7 +872,7 @@ Func Main()
 						ReDim $aProcesses[7]
 						$aProcesses[0] = GUICtrlRead($hTask)
 						$aProcesses[1] = "nvcontainer.exe"
-						$aProcesses[3] = "nvscaphelper.exe"
+						$aProcesses[2] = "nvscaphelper.exe"
 						$aProcesses[3] = "nvsphelper.exe"
 						$aProcesses[4] = "nvsphelper64.exe"
 						$aProcesses[5] = "GFExperience.exe"
