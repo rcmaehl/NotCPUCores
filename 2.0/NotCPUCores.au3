@@ -861,10 +861,20 @@ Func Main()
 						$aProcesses[4] = "obs-ffmpeg-mux.exe"
 						$aProcesses[5] = $aExclusions
 					Case "ReLive"
-						ReDim $aProcesses[3]
+						ReDim $aProcesses[13]
 						$aProcesses[0] = GUICtrlRead($hTask)
 						$aProcesses[1] = "RadeonSoftware.exe"
-						$aProcesses[2] = $aExclusions
+						$aProcesses[2] = "FacebookClient.exe"
+						$aProcesses[3] = "GfycatWrapper.exe"
+						$aProcesses[4] = "QuanminTVWrapper.exe"
+						$aProcesses[5] = "RestreamAPIWrapper.exe"
+						$aProcesses[6] = "SinaWeiboWrapper.exe"
+						$aProcesses[7] = "StreamableAPIWrapper.exe"
+						$aProcesses[8] = "TwitchClient.exe"
+						$aProcesses[9] = "TwitterWrapperClient.exe"
+						$aProcesses[10] = "YoukuWrapper.exe"
+						$aProcesses[11] = "YoutubeAPIWrapper.exe"
+						$aProcesses[12] = $aExclusions
 					Case "StreamLabs"
 						ReDim $aProcesses[6]
 						$aProcesses[0] = GUICtrlRead($hTask)
