@@ -292,6 +292,7 @@ Func Main()
 			$_sLang_AllocLastAMD & "|" & _
 			$_sLang_AllocCustom, $_sLang_AllocAll)
 		EndIf
+		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 100, 140, 15)
 
@@ -513,8 +514,9 @@ Func Main()
 				_Restore($aExclusions, $iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
 				_ConsoleWrite("---" & @CRLF, $hConsole)
+				GUICtrlSetData($hReset, $_sLang_Restore)
 				GUICtrlSetData($hOptimize, $_sLang_Optimize)
-				For $iLoop = $hTask to $hOAssign Step 1
+				For $iLoop = $hTask - 1 to $hBroChild + 1 Step 1
 					If $iLoop = $hChildren Then ContinueLoop
 					If $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
@@ -844,12 +846,19 @@ Func Main()
 				ContinueCase
 
 			Case $hMsg = $hBroadcaster
+				For $iLoop = $hSplitMode To $hOAssign Step 2
+					If $iLoop = $hBroChild Then ContinueLoop
+					GUICtrlSetState($iLoop, $GUI_ENABLE)
+				Next
 				Switch GUICtrlRead($hBroadcaster)
 					Case "-"
 						ReDim $aProcesses[3]
 						$aProcesses[0] = GUICtrlRead($hTask)
 						$aProcesses[1] = ""
 						$aProcesses[2] = $aExclusions
+						For $iLoop = $hSplitMode To $hOAssign Step 2
+							GUICtrlSetState($iLoop, $GUI_DISABLE)
+						Next
 					Case "LightStream"
 						ReDim $aProcesses[7]
 						$aProcesses[0] = GUICtrlRead($hTask)
@@ -925,7 +934,13 @@ Func Main()
 						$aProcesses[4] = "XSplit.xbcbp.exe"
 						$aProcesses[5] = $aExclusions
 					Case Else
+						ReDim $aProcesses[3]
 						$aProcesses[0] = GUICtrlRead($hTask)
+						$aProcesses[1] = ""
+						$aProcesses[2] = $aExclusions
+						For $iLoop = $hSplitMode To $hOAssign Step 2
+							GUICtrlSetState($iLoop, $GUI_DISABLE)
+						Next
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
 						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
@@ -966,81 +981,54 @@ Func Main()
 			Case $hMsg = $hSplitMode
 				$iBroadcasterCores = 0
 				$aSplitMode = StringSplit(_GUICtrlComboBox_GetList($hSplitMode), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
+				GUICtrlSetState($hBCores, $GUI_DISABLE)
 				Switch GUICtrlRead($hSplitMode)
 
 					Case $aSplitMode[0] ; All Cores
 						$iBroadcasterCores = 0
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
-						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						$aProcesses[0] = GUICtrlRead($hTask)
 
 					Case $aSplitMode[1] ; Last Core
 						$iBroadcasterCores = 2^($iThreads - 1)
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
-						GUICtrlSetState($hOAssign, $GUI_ENABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case $aSplitMode[2] ; Last 2 Cores
 						For $iLoop = ($iThreads - 2) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
-						GUICtrlSetState($hOAssign, $GUI_ENABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case $aSplitMode[3] ; Last 4 Cores
 						For $iLoop = ($iThreads-4) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
-						GUICtrlSetState($hOAssign, $GUI_ENABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case $aSplitMode[4] ; Last Half
 						For $iLoop = Ceiling(($iThreads - ($iThreads/2))) To $iThreads - 1
 							$iBroadcasterCores += 2^($iLoop)
 						Next
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
-						GUICtrlSetState($hOAssign, $GUI_ENABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case $aSplitMode[5] ; Physical Cores
 						For $iLoop = 0 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
-						GUICtrlSetState($hOAssign, $GUI_ENABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case $aSplitMode[6] ; Non-Physical Cores
 						For $iLoop = 1 To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
-						GUICtrlSetState($hOAssign, $GUI_ENABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case $aSplitMode[7] ; Pairs
 						For $iLoop = 2 To $iThreads - 1 Step 4
 							$iBroadcasterCores += 2^($iLoop)
 							$iBroadcasterCores += 2^($iLoop + 1)
 						Next
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
-						GUICtrlSetState($hOAssign, $GUI_ENABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case $aSplitMode[8] ; CPU Optimized
 						For $iLoop = ($iThreads - _CalculateCCX()) To $iThreads - 1 Step 2
 							$iBroadcasterCores += 2^($iLoop)
 						Next
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
-						GUICtrlSetState($hOAssign, $GUI_ENABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 
 					Case $aSplitMode[9] ; Custom
 						GUICtrlSetState($hBCores, $GUI_ENABLE)
-						GUICtrlSetState($hOAssign, $GUI_ENABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_ENABLE)
 						If Not StringRegExp(GUICtrlRead($hBCores), "^(?:[1-9]\d*-?(?!\d+-)(?:[1-9]\d*)?(?!,$),?)+$") Then ;\A[0-9]+?(,[0-9]+)*\Z
 							GUICtrlSetColor($hBCores, 0xFF0000)
 							GUICtrlSetState($hOptimize, $GUI_DISABLE)
@@ -1071,9 +1059,7 @@ Func Main()
 						EndIf
 
 					Case Else
-						GUICtrlSetState($hBCores, $GUI_DISABLE)
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcastCores & @CRLF, $hConsole)
 						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
@@ -1226,7 +1212,7 @@ Func Main()
 				EndSwitch
 
 			Case $hMsg = $hReset
-				For $Loop = $hTask to $hOAssign Step 1
+				For $Loop = $hTask - 1 to $hOAssign Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetState($hReset   , $GUI_DISABLE)
@@ -1238,7 +1224,6 @@ Func Main()
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
 				_ConsoleWrite("---"        & @CRLF, $hConsole)
 				_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
-				GUICtrlSetData($hReset, $_sLang_Restore)
 				For $iLoop = $hTask to $hOAssign Step 1
 					If $iLoop = $hChildren Or $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
@@ -1252,7 +1237,7 @@ Func Main()
 
 			Case $hMsg = $hOptimize
 				GUICtrlSetData($hConsole, "")
-				For $Loop = $hTask to $hOAssign Step 1
+				For $Loop = $hTask - 1 to $hOAssign Step 1
 					GUICtrlSetState($Loop, $GUI_DISABLE)
 				Next
 				GUICtrlSetState($hReset   , $GUI_DISABLE)
