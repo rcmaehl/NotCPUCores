@@ -1,7 +1,7 @@
 # NotCPUCores
 Work, Play, Stream - Without the Stutter | [Download Under Releases](https://github.com/rcmaehl/NotCPUCores/releases) | [Check out my new Discord](https://discord.gg/uBnBcBx)
 
-![Version 1.5.0.0](https://i.imgur.com/NSZQc0b.gif)
+![Version 1.7.2.0](https://i.imgur.com/pfayHD5.gif)
 
 ## What is NotCPUCores?
 
