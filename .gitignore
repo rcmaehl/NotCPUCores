@@ -11,3 +11,4 @@ cert-key-20190522-121211.p12
 2.0/includes/_Core.exe
 *.exe
 NotCPUCores_stripped.au3
+*.zip

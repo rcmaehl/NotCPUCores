@@ -245,6 +245,8 @@ Func Main()
 
 	Local $hPPriority = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, _
+		$_sLang_PriorityLow & "|" & _
+		$_sLang_PriorityBNormal & "|" & _
 		$_sLang_PriorityNormal & "|" & _
 		$_sLang_PriorityANormal & "|" & _
 		$_sLang_PriorityHigh & "|" & _
@@ -514,7 +516,6 @@ Func Main()
 				GUICtrlSetData($hOptimize, $_sLang_Optimize)
 				For $iLoop = $hTask to $hOAssign Step 1
 					If $iLoop = $hChildren Then ContinueLoop
-					If $iLoop = $hBroadcaster Then ContinueLoop
 					If $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
@@ -901,16 +902,22 @@ Func Main()
 				$aPriorities = StringSplit(_GUICtrlComboBox_GetList($hPPriority), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
 				Switch GUICtrlRead($hPPriority)
 
-					Case $aPriorities[0] ; Normal
+					Case $aPriorities[0] ; Low
+						$sPriority = "LOW"
+
+					Case $aPriorities[1] ; Below Normal
+						$sPriority = "BELOWNORMAL"
+
+					Case $aPriorities[2] ; Normal
 						$sPriority = "NORMAL"
 
-					Case $aPriorities[1] ; Above Normal
+					Case $aPriorities[3] ; Above Normal
 						$sPriority = "ABOVENORMAL"
 
-					Case $aPriorities[2] ; High
+					Case $aPriorities[4] ; High
 						$sPriority = "HIGH"
 
-					Case $aPriorities[3] ; Realtime
+					Case $aPriorities[5] ; Realtime
 						$sPriority = "REALTIME"
 
 					Case Else
