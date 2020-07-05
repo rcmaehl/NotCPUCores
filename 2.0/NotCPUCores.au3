@@ -851,7 +851,14 @@ Func Main()
 						$aProcesses[1] = ""
 						$aProcesses[2] = $aExclusions
 					Case "LightStream"
-						;;;
+						ReDim $aProcesses[7]
+						$aProcesses[0] = GUICtrlRead($hTask)
+						$aProcesses[1] = "iexplore.exe"
+						$aProcesses[2] = "msedge.exe"
+						$aProcesses[3] = "chrome.exe"
+						$aProcesses[4] = "firefox.exe"
+						$aProcesses[5] = "opera.exe"
+						$aProcesses[6] = $aExclusions
 					Case "OBS"
 						ReDim $aProcesses[6]
 						$aProcesses[0] = GUICtrlRead($hTask)
