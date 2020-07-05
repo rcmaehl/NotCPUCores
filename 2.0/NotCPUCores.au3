@@ -106,7 +106,7 @@ Func Main()
 	Local $iAllCores
 	Local $sPriority = "High"
 	Local $bInterrupt = False
-	Local $aProcesses[5] = [$aUnload, "obs.exe", "obs32.exe", "obs64.exe", $aExclusions]
+	Local $aProcesses[3] = [$aUnload, "", $aExclusions]
 	Local $iProcesses = 0
 	Local $iProcessCores = 1
 	Local $iBroadcasterCores = 0
@@ -257,9 +257,14 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_StreamText, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel($_sLang_AllocationMode & ":", 10, 50, 140, 15)
+	GUICtrlCreateLabel($_sLang_StreamSoftware & ":", 10, 50, 140, 15)
 
-	Local $hSplitMode = GUICtrlCreateCombo("", 150, 45, 120, 20, $CBS_DROPDOWNLIST)
+	Local $hBroadcaster = GUICtrlCreateCombo("", 150, 45, 120, 20, $CBS_DROPDOWNLIST)
+		GUICtrlSetData(-1, "-|LightStream|OBS|StreamLabs|ShadowPlay|vMix|Wirecast|XSplit", "-")
+
+	GUICtrlCreateLabel($_sLang_AllocationMode & ":", 10, 75, 140, 15)
+
+	Local $hSplitMode = GUICtrlCreateCombo("", 150, 70, 120, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
 			GUICtrlSetData(-1, _
 			$_sLang_AllocAll & "|" & _
@@ -286,9 +291,9 @@ Func Main()
 			$_sLang_AllocCustom, $_sLang_AllocAll)
 		EndIf
 
-	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 75, 140, 15)
+	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 100, 140, 15)
 
-	Local $hBCores = GUICtrlCreateInput("2", 150, 70, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hBCores = GUICtrlCreateInput("2", 150, 95, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, $_sLang_AssignTip1 & @CRLF & _
 			$_sLang_AssignTip2 & @CRLF & _
 			$_sLang_AssignTip3 & @CRLF & _
@@ -301,12 +306,6 @@ Func Main()
 				GUICtrlSetData(-1, Ceiling($iThreads/2) + 1 & "-" & $iThreads)
 			EndIf
 		EndIf
-
-	GUICtrlCreateLabel($_sLang_StreamSoftware & ":", 10, 100, 140, 15)
-
-	Local $hBroadcaster = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
-		GUICtrlSetData(-1, "-|LightStream|OBS|StreamLabs|ShadowPlay|vMix|Wirecast|XSplit", "-")
-		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	GUICtrlCreateLabel($_sLang_IncludeChildren, 10, 125, 140, 20)
 
@@ -779,7 +778,7 @@ Func Main()
 					GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
 					GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
 					GUICtrlSetData($hBCores     , String(_IniRead($hFile, "Streaming", "Threads"   ,                                      "",               "2")))
-					GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
+					GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),               "-")))
 					GUICtrlSetState($hBroChild  , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
 					GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
 				EndIf
@@ -800,7 +799,7 @@ Func Main()
 					GUICtrlSetData($hPPriority  , String(_IniRead($hProfile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
 					GUICtrlSetData($hSplitMode  , String(_IniRead($hProfile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
 					GUICtrlSetData($hBCores     , String(_IniRead($hProfile, "Streaming", "Threads"   ,                                      "",               "2")))
-					GUICtrlSetData($hBroadcaster, String(_IniRead($hProfile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),             "OBS")))
+					GUICtrlSetData($hBroadcaster, String(_IniRead($hProfile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),               "-")))
 					GUICtrlSetState($hBroChild  , Number(_IniRead($hProfile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
 					GUICtrlSetData($hOAssign    , String(_IniRead($hProfile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
 				EndIf
@@ -843,7 +842,7 @@ Func Main()
 				EndIf
 				ContinueCase
 
-			Case $hMsg = $hBroadcaster ; 		GUICtrlSetData(-1, "-|LightStream|OBS|StreamLabs|ShadowPlay|vMix|Wirecast|XSplit", "-")
+			Case $hMsg = $hBroadcaster
 				Switch GUICtrlRead($hBroadcaster)
 					Case "-"
 						ReDim $aProcesses[3]
