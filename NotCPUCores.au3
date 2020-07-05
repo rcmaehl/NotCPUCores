@@ -910,7 +910,12 @@ Func Main()
 						$aProcesses[6] = "ffmpeg.exe"
 						$aProcesses[7] = $aExclusions
 					Case "Wirecast"
-						;;
+						ReDim $aProcesses[5]
+						$aProcesses[0] = GUICtrlRead($hTask)
+						$aProcesses[1] = "CEFChildProcess.exe"
+						$aProcesses[2] = "Wirecast.exe"
+						$aProcesses[3] = "wirecastd.exe"
+						$aProcesses[4] = $aExclusions
 					Case "XSplit"
 						ReDim $aProcesses[6]
 						$aProcesses[0] = GUICtrlRead($hTask)
