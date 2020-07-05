@@ -305,7 +305,7 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_StreamSoftware & ":", 10, 100, 140, 15)
 
 	Local $hBroadcaster = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
-		GUICtrlSetData(-1, "OBS|XSplit", "OBS")
+		GUICtrlSetData(-1, "-|LightStream|OBS|StreamLabs|ShadowPlay|vMix|Wirecast|XSplit", "-")
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	GUICtrlCreateLabel($_sLang_IncludeChildren, 10, 125, 140, 20)
@@ -514,7 +514,9 @@ Func Main()
 				_ConsoleWrite("---" & @CRLF, $hConsole)
 				GUICtrlSetData($hOptimize, $_sLang_Optimize)
 				For $iLoop = $hTask to $hOAssign Step 1
-					If $iLoop = $hChildren Or $iLoop = $hBroChild Then ContinueLoop
+					If $iLoop = $hChildren Then ContinueLoop
+					If $iLoop = $hBroadcaster Then ContinueLoop
+					If $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
 				GUICtrlSetState($hReset   , $GUI_ENABLE)
@@ -675,6 +677,21 @@ Func Main()
 				GUICtrlSetData($hGetTimer, $_sLang_SleepCurrent & ": " & $iSleep & "ms")
 				GUISetState(@SW_HIDE, $hTimerGUI)
 
+			Case $hMsg = $hSetLibrary
+				$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "SteamLibrary (*.vdf)", $FD_FILEMUSTEXIST, "libraryfolders.vdf", $hGUI)
+				If @error Then
+					;;;
+				Else
+					$hLibrary = $hFile
+					_GetSteamGames($hGames, $hLibrary)
+					_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
+				EndIf
+
+			Case $hMsg = $hRemLibrary
+				$hLibrary = ""
+				_GetSteamGames($hGames, $hLibrary)
+				_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
+
 ;			Case $hMsg = $hSettingsOK
 ;				GUISetState(@SW_HIDE, $hSettingsGUI)
 
@@ -826,15 +843,44 @@ Func Main()
 				EndIf
 				ContinueCase
 
-			Case $hMsg = $hBroadcaster
+			Case $hMsg = $hBroadcaster ; 		GUICtrlSetData(-1, "-|LightStream|OBS|StreamLabs|ShadowPlay|vMix|Wirecast|XSplit", "-")
 				Switch GUICtrlRead($hBroadcaster)
+					Case "-"
+						ReDim $aProcesses[3]
+						$aProcesses[0] = GUICtrlRead($hTask)
+						$aProcesses[1] = ""
+						$aProcesses[2] = $aExclusions
+					Case "LightStream"
+						;;;
 					Case "OBS"
-						ReDim $aProcesses[5]
+						ReDim $aProcesses[6]
 						$aProcesses[0] = GUICtrlRead($hTask)
 						$aProcesses[1] = "obs.exe"
 						$aProcesses[2] = "obs32.exe"
 						$aProcesses[3] = "obs64.exe"
-						$aProcesses[4] = $aExclusions
+						$aProcesses[4] = "obs-ffmpeg-mux.exe"
+						$aProcesses[5] = $aExclusions
+					Case "StreamLabs"
+						ReDim $aProcesses[6]
+						$aProcesses[0] = GUICtrlRead($hTask)
+						$aProcesses[1] = "Streamlabs OBS.exe"
+						$aProcesses[2] = "obs32.exe"
+						$aProcesses[3] = "obs64.exe"
+						$aProcesses[4] = "obs-ffmpeg-mux.exe"
+						$aProcesses[5] = $aExclusions
+					Case "ShadowPlay"
+						ReDim $aProcesses[7]
+						$aProcesses[0] = GUICtrlRead($hTask)
+						$aProcesses[1] = "nvcontainer.exe"
+						$aProcesses[3] = "nvscaphelper.exe"
+						$aProcesses[3] = "nvsphelper.exe"
+						$aProcesses[4] = "nvsphelper64.exe"
+						$aProcesses[5] = "GFExperience.exe"
+						$aProcesses[6] = $aExclusions
+					Case "vMix"
+						;;;
+					Case "Wirecast"
+						;;
 					Case "XSplit"
 						ReDim $aProcesses[6]
 						$aProcesses[0] = GUICtrlRead($hTask)
@@ -881,11 +927,10 @@ Func Main()
 				$aSplitMode = StringSplit(_GUICtrlComboBox_GetList($hSplitMode), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
 				Switch GUICtrlRead($hSplitMode)
 
-					Case $aSplitMode[0] ; OFF
+					Case $aSplitMode[0] ; All Cores
 						$iBroadcasterCores = 0
 						GUICtrlSetState($hBCores, $GUI_DISABLE)
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
-						GUICtrlSetState($hBroadcaster, $GUI_DISABLE)
 						$aProcesses[0] = GUICtrlRead($hTask)
 
 					Case $aSplitMode[1] ; Last Core
@@ -1146,6 +1191,7 @@ Func Main()
 				GUICtrlSetState($hReset   , $GUI_DISABLE)
 				GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
+				#cs Revert if needed, 99% the same as $iProcesses = 1
 				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
 				_Restore("", $iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
@@ -1160,6 +1206,8 @@ Func Main()
 				GUICtrlSetState($hOptimize, $GUI_ENABLE)
 				$aExclusions = _GetExclusionsList($hExclusions)
 				$bReset = True
+				#ce
+				$iProcesses = 1
 
 			Case $hMsg = $hOptimize
 				GUICtrlSetData($hConsole, "")

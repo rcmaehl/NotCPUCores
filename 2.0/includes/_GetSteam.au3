@@ -12,7 +12,7 @@
 ;                  |1 - Steam Install Location Error, sets @extended: (1, Unable to read Registry; 2, Path Invalid)
 ;                  |2 - Steam Library File Error, sets @extended: (1, File does not exist; 2, File could not be read)
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 03/20/19
+; Modified ......: 07/05/20
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -32,22 +32,24 @@ Func _GetSteamLibraries($hPath = "None")
 		Else
 			$hSteamDir = StringReplace($hSteamDir, "/", "\")
 		EndIf
+		$hSteamDir &= "\steamapps\libraryfolders.vdf"
 	Else
 		If FileExists($hPath) Then
 			Local $hSteamDir = $hPath
+			$hSteamDir = StringReplace($hSteamDir, "/", "\")
 		Else
 			SetError(1,1,0)
 		EndIf
 	EndIf
 
-	If FileExists($hSteamDir & "\steamapps\libraryfolders.vdf") Then
-		$hLibraryFile = FileOpen($hSteamDir & "\steamapps\libraryfolders.vdf")
+	If FileExists($hSteamDir) Then
+		$hLibraryFile = FileOpen($hSteamDir)
 		If @error Then SetError(2,0,0)
 	Else
 		SetError(2,1,0)
 	EndIf
 
-	Local $iLines = _FileCountLines($hSteamDir & "\steamapps\libraryfolders.vdf")
+	Local $iLines = _FileCountLines($hSteamDir)
 
 	For $iLine = 1 to $iLines Step 1
 		$sLine = FileReadLine($hLibraryFile, $iLine)
