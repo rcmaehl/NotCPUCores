@@ -900,7 +900,15 @@ Func Main()
 						$aProcesses[5] = "GFExperience.exe"
 						$aProcesses[6] = $aExclusions
 					Case "vMix"
-						;;;
+						ReDim $aProcesses[8]
+						$aProcesses[0] = GUICtrlRead($hTask)
+						$aProcesses[1] = "vMixService.exe"
+						$aProcesses[2] = "vMix.exe"
+						$aProcesses[3] = "vMix64.exe"
+						$aProcesses[4] = "vMixDesktopCapture.exe"
+						$aProcesses[5] = "vMixNDIHelper.exe"
+						$aProcesses[6] = "ffmpeg.exe"
+						$aProcesses[7] = $aExclusions
 					Case "Wirecast"
 						;;
 					Case "XSplit"
