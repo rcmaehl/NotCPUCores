@@ -860,6 +860,11 @@ Func Main()
 						$aProcesses[3] = "obs64.exe"
 						$aProcesses[4] = "obs-ffmpeg-mux.exe"
 						$aProcesses[5] = $aExclusions
+					Case "ReLive"
+						ReDim $aProcesses[3]
+						$aProcesses[0] = GUICtrlRead($hTask)
+						$aProcesses[1] = "RadeonSoftware.exe"
+						$aProcesses[2] = $aExclusions
 					Case "StreamLabs"
 						ReDim $aProcesses[6]
 						$aProcesses[0] = GUICtrlRead($hTask)
