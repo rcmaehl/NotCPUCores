@@ -262,7 +262,7 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_StreamSoftware & ":", 10, 50, 140, 15)
 
 	Local $hBroadcaster = GUICtrlCreateCombo("", 150, 45, 120, 20, $CBS_DROPDOWNLIST)
-		GUICtrlSetData(-1, "-|LightStream|OBS|StreamLabs|ShadowPlay|vMix|Wirecast|XSplit", "-")
+		GUICtrlSetData(-1, "-|LightStream|OBS|ReLive|StreamLabs|ShadowPlay|vMix|Wirecast|XSplit", "-")
 
 	GUICtrlCreateLabel($_sLang_AllocationMode & ":", 10, 75, 140, 15)
 
