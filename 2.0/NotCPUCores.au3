@@ -105,6 +105,7 @@ Func Main()
 	Local $sVersion = "1.7.2.0"
 	Local $iAllCores
 	Local $sPriority = "High"
+	Local $sBPriority = "High"
 	Local $bInterrupt = False
 	Local $aProcesses[3] = [$aUnload, "", $aExclusions]
 	Local $iProcesses = 0
@@ -264,9 +265,15 @@ Func Main()
 	Local $hBroadcaster = GUICtrlCreateCombo("", 150, 45, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, "-|LightStream|OBS|ReLive|StreamLabs|ShadowPlay|vMix|Wirecast|XSplit", "-")
 
-	GUICtrlCreateLabel($_sLang_AllocationMode & ":", 10, 75, 140, 15)
+	GUICtrlCreateLabel($_sLang_IncludeChildren, 10, 75, 140, 20)
 
-	Local $hSplitMode = GUICtrlCreateCombo("", 150, 70, 120, 20, $CBS_DROPDOWNLIST)
+	Local $hBroChild = GUICtrlCreateCheckbox("", 150, 70, 120, 20, $BS_RIGHTBUTTON)
+		GUICtrlSetTip(-1, $_sLang_ChildrenTip, $_sLang_Usage, $TIP_NOICON)
+		GUICtrlSetState(-1, $GUI_DISABLE)
+
+	GUICtrlCreateLabel($_sLang_AllocationMode & ":", 10, 100, 140, 15)
+
+	Local $hSplitMode = GUICtrlCreateCombo("", 150, 95, 120, 20, $CBS_DROPDOWNLIST)
 		If $iCores = $iThreads Then
 			GUICtrlSetData(-1, _
 			$_sLang_AllocAll & "|" & _
@@ -294,9 +301,9 @@ Func Main()
 		EndIf
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 100, 140, 15)
+	GUICtrlCreateLabel($_sLang_Assignments & ":", 10, 125, 140, 15)
 
-	Local $hBCores = GUICtrlCreateInput("2", 150, 95, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
+	Local $hBCores = GUICtrlCreateInput("2", 150, 120, 120, 20, $ES_UPPERCASE + $ES_RIGHT + $ES_AUTOHSCROLL)
 		GUICtrlSetTip(-1, $_sLang_AssignTip1 & @CRLF & _
 			$_sLang_AssignTip2 & @CRLF & _
 			$_sLang_AssignTip3 & @CRLF & _
@@ -310,15 +317,20 @@ Func Main()
 			EndIf
 		EndIf
 
-	GUICtrlCreateLabel($_sLang_IncludeChildren, 10, 125, 140, 20)
+	GUICtrlCreateLabel($_sLang_OptimizePriority & ":", 10, 150, 140, 15)
 
-	Local $hBroChild = GUICtrlCreateCheckbox("", 150, 120, 120, 20, $BS_RIGHTBUTTON)
-		GUICtrlSetTip(-1, $_sLang_ChildrenTip, $_sLang_Usage, $TIP_NOICON)
-		GUICtrlSetState(-1, $GUI_DISABLE)
+	Local $hBPriority = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
+		GUICtrlSetData(-1, _
+		$_sLang_PriorityLow & "|" & _
+		$_sLang_PriorityBNormal & "|" & _
+		$_sLang_PriorityNormal & "|" & _
+		$_sLang_PriorityANormal & "|" & _
+		$_sLang_PriorityHigh & "|" & _
+		$_sLang_PriorityRealtime, $_sLang_PriorityHigh)
 
-	GUICtrlCreateLabel($_sLang_StreamOtherAssign & ":", 10, 150, 140, 20)
+	GUICtrlCreateLabel($_sLang_StreamOtherAssign & ":", 10, 175, 140, 20)
 
-	Local $hOAssign = GUICtrlCreateCombo("", 150, 145, 120, 20, $CBS_DROPDOWNLIST)
+	Local $hOAssign = GUICtrlCreateCombo("", 150, 170, 120, 20, $CBS_DROPDOWNLIST)
 		GUICtrlSetData(-1, _
 			$_sLang_AllocBroadcaster & "|" & _
 			$_sLang_AllocProcess & "|" & _
@@ -397,16 +409,16 @@ Func Main()
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel($_sLang_SpecsMobo & ":", 10, 110, 70, 15)
-		GUICtrlCreateLabel(_GetMotherboardInfo(0) & " " & _GetMotherboardInfo(1), 60, 130, 210, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetMotherboardInfo(0) & " " & _GetMotherboardInfo(1), 10, 130, 260, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel($_sLang_SpecsCPU & ":", 10, 150, 50, 15)
-		GUICtrlCreateLabel(_GetCPUInfo(2), 60, 170, 210, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetCPUInfo(2), 10, 170, 260, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel($_sLang_SpecsRAM & ":", 10, 190, 70, 15)
-		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & " MHz", 80, 210, 190, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & " MHz", 10, 210, 260, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel($_sLang_SpecsGPU & ":", 10, 230, 70, 15)
-		GUICtrlCreateLabel(_GetGPUInfo(0), 80, 250, 190, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetGPUInfo(0), 10, 250, 260, 20, $ES_RIGHT)
 
 	#EndRegion
 
@@ -516,7 +528,7 @@ Func Main()
 				_ConsoleWrite("---" & @CRLF, $hConsole)
 				GUICtrlSetData($hReset, $_sLang_Restore)
 				GUICtrlSetData($hOptimize, $_sLang_Optimize)
-				For $iLoop = $hTask - 1 to $hBroChild + 1 Step 1
+				For $iLoop = $hTask - 1 to $hBPriority + 1 Step 1
 					If $iLoop = $hChildren Then ContinueLoop
 					If $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
@@ -587,7 +599,7 @@ Func Main()
 										_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 								EndSwitch
 						EndSwitch
-						Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sPriority, $hConsole)
+						Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sBPriority, $hConsole)
 							Case 0
 								Switch @extended
 									Case 1
@@ -942,6 +954,37 @@ Func Main()
 							GUICtrlSetState($iLoop, $GUI_DISABLE)
 						Next
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
+						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
+
+				EndSwitch
+				ContinueCase
+
+			Case $hMsg = $hBPriority
+				$sBPriority = "HIGH"
+				$aPriorities = StringSplit(_GUICtrlComboBox_GetList($hBPriority), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
+				Switch GUICtrlRead($hBPriority)
+
+					Case $aPriorities[0] ; Low
+						$sBPriority = "LOW"
+
+					Case $aPriorities[1] ; Below Normal
+						$sBPriority = "BELOWNORMAL"
+
+					Case $aPriorities[2] ; Normal
+						$sBPriority = "NORMAL"
+
+					Case $aPriorities[3] ; Above Normal
+						$sBPriority = "ABOVENORMAL"
+
+					Case $aPriorities[4] ; High
+						$sBPriority = "HIGH"
+
+					Case $aPriorities[5] ; Realtime
+						$sBPriority = "REALTIME"
+
+					Case Else
+						$sBPriority = "HIGH"
+						_ConsoleWrite("!> " & $_sLang_InvalidPriority & @CRLF, $hConsole)
 						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
@@ -1313,7 +1356,7 @@ Func Main()
 								_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
-				Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sPriority, $hConsole)
+				Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sBPriority, $hConsole)
 					Case 0
 						Switch @extended
 							Case 1
