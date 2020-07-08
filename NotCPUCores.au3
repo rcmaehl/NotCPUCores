@@ -286,7 +286,7 @@ Func Main()
 			$_sLang_AllocOdd & "|" & _
 			$_sLang_AllocPairs & "|" & _
 			$_sLang_AllocLastAMD & "|" & _
-			$_sLang_AllocCustom, $_sLang_AllocAll)
+			$_sLang_AllocCustom, $_sLang_AllocLastHalf)
 		Else
 			GUICtrlSetData(-1, _
 			$_sLang_AllocAll & "|" & _
@@ -298,7 +298,7 @@ Func Main()
 			$_sLang_AllocVirtual & "|" & _
 			$_sLang_AllocPairs & "|" & _
 			$_sLang_AllocLastAMD & "|" & _
-			$_sLang_AllocCustom, $_sLang_AllocAll)
+			$_sLang_AllocCustom, $_sLang_AllocLastHalf)
 		EndIf
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
@@ -871,6 +871,7 @@ Func Main()
 						For $iLoop = $hSplitMode To $hOAssign Step 2
 							GUICtrlSetState($iLoop, $GUI_DISABLE)
 						Next
+						_GUICtrlComboBox_SetCurSel($hOAssign, 2)
 					Case "LightStream"
 						ReDim $aProcesses[7]
 						$aProcesses[0] = GUICtrlRead($hTask)
@@ -953,6 +954,7 @@ Func Main()
 						For $iLoop = $hSplitMode To $hOAssign Step 2
 							GUICtrlSetState($iLoop, $GUI_DISABLE)
 						Next
+						_GUICtrlComboBox_SetCurSel($hOAssign, 2)
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
 
 				EndSwitch
