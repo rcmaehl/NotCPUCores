@@ -83,6 +83,7 @@ Optimize PC
 ; Set Core Count as Global to Reduce WMIC calls
 Global $iCores = _GetCPUInfo(0)
 Global $iThreads = _GetCPUInfo(1)
+Global $sSocket = _GetCPUInfo(3)
 
 _LoadLanguage()
 
@@ -615,7 +616,6 @@ Func Main()
 				EndSelect
 			EndIf
 		EndIf
-		_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 		$hMsg = GUIGetMsg()
 		$hTMsg = TrayGetMsg()
@@ -954,7 +954,6 @@ Func Main()
 							GUICtrlSetState($iLoop, $GUI_DISABLE)
 						Next
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
-						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
 				ContinueCase
@@ -985,7 +984,6 @@ Func Main()
 					Case Else
 						$sBPriority = "HIGH"
 						_ConsoleWrite("!> " & $_sLang_InvalidPriority & @CRLF, $hConsole)
-						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
 				ContinueCase
@@ -1016,7 +1014,6 @@ Func Main()
 					Case Else
 						$sPriority = "HIGH"
 						_ConsoleWrite("!> " & $_sLang_InvalidPriority & @CRLF, $hConsole)
-						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
 				ContinueCase
@@ -1066,9 +1063,19 @@ Func Main()
 						Next
 
 					Case $aSplitMode[8] ; CPU Optimized
-						For $iLoop = ($iThreads - _CalculateCCX()) To $iThreads - 1 Step 2
-							$iBroadcasterCores += 2^($iLoop)
-						Next
+						Switch $sSocket
+							Case "AM4"
+								For $iLoop = ($iThreads - ($iThreads/2)) To $iThreads - 1 Step 2
+									$iBroadcasterCores += 2^($iLoop)
+								Next
+							Case "TR4", "sTRX4"
+								For $iLoop = ($iThreads - ($iThreads/4)) To $iThreads - 1 Step 2
+									$iBroadcasterCores += 2^($iLoop)
+								Next
+							Case Else
+								GUICtrlSetState($hOAssign, $GUI_DISABLE)
+								_ConsoleWrite("!> " & $_sLang_InvalidBroadcastCores & @CRLF, $hConsole)
+						EndSwitch
 
 					Case $aSplitMode[9] ; Custom
 						GUICtrlSetState($hBCores, $GUI_ENABLE)
@@ -1104,7 +1111,6 @@ Func Main()
 					Case Else
 						GUICtrlSetState($hOAssign, $GUI_DISABLE)
 						_ConsoleWrite("!> " & $_sLang_InvalidBroadcastCores & @CRLF, $hConsole)
-						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
 				ContinueCase
@@ -1144,54 +1150,57 @@ Func Main()
 			Case $hMsg = $hAssignMode
 				$iProcessCores = 0
 				$aAssignMode = StringSplit(_GUICtrlComboBox_GetList($hAssignMode), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
+				GUICtrlSetState($hCores, $GUI_DISABLE)
 				Switch GUICtrlRead($hAssignMode)
 
 					Case $aAssignMode[0] ; All Cores
 						$iProcessCores = $iAllCores
-						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case $aAssignMode[1] ; First Core
 						$iProcessCores = 1
-						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case $aAssignMode[2] ; First 2 Cores
 						$iProcessCores = 3
-						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case $aAssignMode[3] ; First 4 Cores
 						$iProcessCores = 15
-						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case $aAssignMode[4] ; First Half
 						For $iLoop = 0 To (Floor(($iThreads - ($iThreads/2))) - 1)
 							$iProcessCores += 2^($iLoop)
 						Next
-						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case $aAssignMode[5] ; Physical Cores
 						For $iLoop = 0 To $iThreads - 1 Step 2
 							$iProcessCores += 2^($iLoop)
 						Next
-						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case $aAssignMode[6] ; Non-Physical Cores
 						For $iLoop = 1 To $iThreads - 1 Step 2
 							$iProcessCores += 2^($iLoop)
 						Next
-						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case $aAssignMode[7] ; Every Other Pair
 						For $iLoop = 0 To $iThreads - 1 Step 4
 							$iProcessCores += 2^($iLoop)
 							$iProcessCores += 2^($iLoop + 1)
 						Next
-						GUICtrlSetState($hCores, $GUI_DISABLE)
 
 					Case $aAssignMode[8] ; First AMD CCX
-						For $iLoop = 0 To (_CalculateCCX() - 1) Step 2
-							$iProcessCores += 2^($iLoop)
-						Next
-						GUICtrlSetState($hCores, $GUI_DISABLE)
+						Switch $sSocket
+							Case "AM4"
+								For $iLoop = 0 To (($iThreads/2) - 1) Step 2
+									$iBroadcasterCores += 2^($iLoop)
+								Next
+							Case "TR4", "sTRX4"
+								For $iLoop = 0 To (($iThreads/4) - 1) Step 2
+									$iBroadcasterCores += 2^($iLoop)
+								Next
+							Case Else
+								_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+								GUICtrlSetState($hOptimize, $GUI_DISABLE)
+								GUICtrlSetState($hCores, $GUI_DISABLE)
+						EndSwitch
 
 					Case $aAssignMode[9] ; Custom
 						GUICtrlSetState($hCores, $GUI_ENABLE)
@@ -1226,7 +1235,6 @@ Func Main()
 
 					Case Else
 					_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
-					_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 					GUICtrlSetState($hOptimize, $GUI_DISABLE)
 					GUICtrlSetState($hCores, $GUI_DISABLE)
 
@@ -1250,7 +1258,6 @@ Func Main()
 					Case Else
 						$iOtherProcessCores = 1
 						_ConsoleWrite("!> " & $_sLang_InvalidOtherCores & @CRLF, $hConsole)
-						_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 				EndSwitch
 
@@ -1261,22 +1268,25 @@ Func Main()
 				GUICtrlSetState($hReset   , $GUI_DISABLE)
 				GUICtrlSetState($hOptimize, $GUI_DISABLE)
 				GUICtrlSetData($hReset, $_sLang_RestoreAlt)
-				#cs Revert if needed, 99% the same as $iProcesses = 1
+				; Do not merge with $iProcesses = 0 or Exclusions list can't be reset
 				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
 				_Restore("", $iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
-				_ConsoleWrite("---"        & @CRLF, $hConsole)
-				_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
-				For $iLoop = $hTask to $hOAssign Step 1
-					If $iLoop = $hChildren Or $iLoop = $hBroChild Then ContinueLoop
+				_ConsoleWrite("---" & @CRLF, $hConsole)
+				GUICtrlSetData($hReset, $_sLang_Restore)
+				GUICtrlSetData($hOptimize, $_sLang_Optimize)
+				For $iLoop = $hTask - 1 to $hBPriority + 1 Step 1
+					If $iLoop = $hChildren Then ContinueLoop
+					If $iLoop = $hBroChild Then ContinueLoop
 					GUICtrlSetState($iLoop, $GUI_ENABLE)
 				Next
 				GUICtrlSetState($hReset   , $GUI_ENABLE)
 				GUICtrlSetState($hOptimize, $GUI_ENABLE)
+				$iProcesses = 0
+				$aActive[0] = False
+				$aActive[1] = ""
 				$aExclusions = _GetExclusionsList($hExclusions)
 				$bReset = True
-				#ce
-				$iProcesses = 1
 
 			Case $hMsg = $hOptimize
 				GUICtrlSetData($hConsole, "")
@@ -1369,7 +1379,6 @@ Func Main()
 								_ConsoleWrite("!> " & $_sLang_TooManyTotalCores & @CRLF, $hConsole)
 						EndSwitch
 				EndSwitch
-				_GUICtrlEdit_LineScroll($hConsole, 0, _GUICtrlEdit_GetLineCount($hConsole))
 
 			Case $hMsg = $hGameM
 				ShellExecute("ms-settings:gaming-gamemode")
@@ -1415,18 +1424,6 @@ Func Main()
 
 		EndSelect
 	WEnd
-EndFunc
-
-Func _CalculateCCX()
-
-	If $iThreads > 16 Then ; Threadripper
-		$iDivisor = 4
-	Else
-		$iDivisor = 2
-	EndIf
-
-	Return ($iThreads/$iDivisor)
-
 EndFunc
 
 Func _GetChildProcesses($i_pid) ; First level children processes only

@@ -24,6 +24,7 @@ Func _ConsoleWrite($sMessage, $hOutput = False)
 	Else
 		_GUICtrlEdit_SetSel($hOutput, StringLen(GUICtrlRead($hOutput)), -1)
 		GUICtrlSetData($hOutput, $sMessage, True)
+		_GUICtrlEdit_LineScroll($hOutput, 0, _GUICtrlEdit_GetLineCount($hOutput))
 	EndIf
 
 	If IsBinary($sMessage) Then

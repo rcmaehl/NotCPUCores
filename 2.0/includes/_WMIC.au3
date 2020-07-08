@@ -15,6 +15,7 @@ Func _GetCPUInfo($iFlag = 0)
 			$sCores = $Obj_Item.NumberOfCores
 			$sThreads = $Obj_Item.NumberOfLogicalProcessors
 			$sName = $obj_Item.Name
+			$sSocket = $Obj_Item.SocketDesignation
         Next
 
 		Switch $iFlag
@@ -24,6 +25,8 @@ Func _GetCPUInfo($iFlag = 0)
 				Return String($sThreads)
 			Case 2
 				Return String($sName)
+			Case 3
+				Return String($sSocket)
 			Case Else
 				Return 0
 		EndSwitch
