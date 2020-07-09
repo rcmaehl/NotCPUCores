@@ -24,9 +24,9 @@ Func _GetCPUInfo($iFlag = 0)
 			Case 1
 				Return String($sThreads)
 			Case 2
-				Return String($sName)
+				Return StringStripWS(String($sName), $STR_STRIPTRAILING)
 			Case 3
-				Return String($sSocket)
+				Return StringStripWS(String($sSocket), $STR_STRIPTRAILING)
 			Case Else
 				Return 0
 		EndSwitch
@@ -52,7 +52,7 @@ Func _GetGPUInfo($iFlag = 0)
 			Case 0
 				Return StringTrimRight(String($sName), 2)
 			Case 1
-				Return String($sMemory)
+				Return StringStripWS(String($sMemory), $STR_STRIPTRAILING)
 			Case Else
 				Return 0
 		EndSwitch
@@ -76,9 +76,9 @@ Func _GetMotherboardInfo($iFlag = 0)
 
 		Switch $iFlag
 			Case 0
-				Return String($sManufacturer)
+				Return StringStripWS(String($sManufacturer), $STR_STRIPTRAILING)
 			Case 1
-				Return String($sProduct)
+				Return StringStripWS(String($sProduct), $STR_STRIPTRAILING)
 			Case Else
 				Return 0
 		EndSwitch
