@@ -44,7 +44,7 @@ Func _GetGPUInfo($iFlag = 0)
 
         Local $Obj_Item
         For $Obj_Item In $Col_Items
-            $sName &= $Obj_Item.Name & ", "
+            $sName &= $Obj_Item.Name & @CRLF
 			$sMemory = $obj_Item.AdapterRAM
         Next
 

@@ -410,16 +410,16 @@ Func Main()
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel($_sLang_SpecsMobo & ":", 10, 110, 70, 15)
-		GUICtrlCreateLabel(_GetMotherboardInfo(0) & " " & _GetMotherboardInfo(1), 10, 130, 260, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetMotherboardInfo(0) & " " & _GetMotherboardInfo(1), 10, 125, 260, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel($_sLang_SpecsCPU & ":", 10, 150, 50, 15)
-		GUICtrlCreateLabel(_GetCPUInfo(2), 10, 170, 260, 20, $ES_RIGHT)
+	GUICtrlCreateLabel($_sLang_SpecsCPU & ":", 10, 145, 50, 15)
+		GUICtrlCreateLabel(_GetCPUInfo(2), 10, 160, 260, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel($_sLang_SpecsRAM & ":", 10, 190, 70, 15)
-		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & " MHz", 10, 210, 260, 20, $ES_RIGHT)
+	GUICtrlCreateLabel($_sLang_SpecsRAM & ":", 10, 180, 70, 15)
+		GUICtrlCreateLabel(Round(MemGetStats()[1]/1048576) & " GB @ " & _GetRAMInfo(0) & " MHz", 10, 195, 260, 20, $ES_RIGHT)
 
-	GUICtrlCreateLabel($_sLang_SpecsGPU & ":", 10, 230, 70, 15)
-		GUICtrlCreateLabel(_GetGPUInfo(0), 10, 250, 260, 20, $ES_RIGHT)
+	GUICtrlCreateLabel($_sLang_SpecsGPU & ":", 10, 215, 70, 15)
+		GUICtrlCreateLabel(_GetGPUInfo(0), 10, 230, 260, 30, $ES_RIGHT)
 
 	#EndRegion
 
