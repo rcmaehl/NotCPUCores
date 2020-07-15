@@ -12,7 +12,9 @@
 #Au3Stripper_Parameters=/pe /so
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
+#include <Misc.au3>
 #include <Array.au3>
+#include <String.au3>
 #include <GUIEdit.au3>
 #include <Process.au3>
 #include <Constants.au3>
@@ -1419,7 +1421,8 @@ Func Main()
 				ShellExecute("https://www.paypal.me/rhsky")
 
 			Case $hMsg = $hUpdate
-				ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases/latest")
+				_GetLatestRelease($sVersion)
+				;ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases/latest")
 
 			Case Else
 				Sleep($iSleep /  10)
@@ -1585,6 +1588,31 @@ Func _GetSteamGames($hControl, $hLibrary)
 	Next
 
 EndFunc
+
+Func _GetLatestRelease($sCurrent)
+
+	Local $dAPIBin
+	Local $sAPIJSON
+
+	$dAPIBin = InetRead("https://api.github.com/repos/rcmaehl/NotCPUCores/releases")
+	If @error Then Return False
+	$sAPIJSON = BinaryToString($dAPIBin)
+
+	Local $aReleases = _StringBetween($sAPIJSON, '"tag_name":"', '",')
+	If @error Then Return False
+	Local $aRelTypes = _StringBetween($sAPIJSON, '"prerelease":', ',')
+	If @error Then Return False
+	Local $aCombined[UBound($aReleases)][2]
+
+	For $iLoop = 0 To UBound($aReleases) - 1 Step 1
+		$aCombined[$iLoop][0] = $aReleases[$iLoop]
+		$aCombined[$iLoop][1] = $aRelTypes[$iLoop]
+	Next
+
+	Return _VersionCompare($aCombined[0][0], $sCurrent)
+
+EndFunc
+
 
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
