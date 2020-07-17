@@ -1421,8 +1421,14 @@ Func Main()
 				ShellExecute("https://www.paypal.me/rhsky")
 
 			Case $hMsg = $hUpdate
-				_GetLatestRelease($sVersion)
-				;ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases/latest")
+				Switch _GetLatestRelease($sVersion)
+					Case -1
+						; Hi Self
+					Case 0
+						;;;
+					Case 1
+						ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases")
+				EndSwitch
 
 			Case Else
 				Sleep($iSleep /  10)
@@ -1595,13 +1601,13 @@ Func _GetLatestRelease($sCurrent)
 	Local $sAPIJSON
 
 	$dAPIBin = InetRead("https://api.github.com/repos/rcmaehl/NotCPUCores/releases")
-	If @error Then Return False
+	If @error Then Return SetError(1, 0, 0)
 	$sAPIJSON = BinaryToString($dAPIBin)
 
 	Local $aReleases = _StringBetween($sAPIJSON, '"tag_name":"', '",')
-	If @error Then Return False
+	If @error Then Return SetError(2, 0, 0)
 	Local $aRelTypes = _StringBetween($sAPIJSON, '"prerelease":', ',')
-	If @error Then Return False
+	If @error Then Return SetError(2, 1, 0)
 	Local $aCombined[UBound($aReleases)][2]
 
 	For $iLoop = 0 To UBound($aReleases) - 1 Step 1
