@@ -616,17 +616,26 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_MaxPerformance   = IniRead($sPath, "Running", "Performance Mode", "All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance")
 	Global $_sLang_RestoringState   = IniRead($sPath, "Running", "RestoringState"  , "Exited. Restoring Previous State..."                                                           )
 
+	#Region ; Updater
+	Global $_sLang_TooNew     = IniRead($sPath, "Updater", "Too New"     , "You're running a newer version than publicly available on Github")
+	Global $_sLang_NoUpdates  = IniRead($sPath, "Updater", "No Updates"  , "Your NotCPUCores version is up to date")
+	Global $_sLang_NewVersion = IniRead($sPath, "Updater", "New Version" , "An update is available, opening download page")
+
 	#Region ; Errors
-	Global $_sLang_InvalidBroadcast      = IniRead($sPath, "Errors", "Broadcaster"             , "Invalid Broadcaster Software!"                                                             )
-	Global $_sLang_InvalidBroadcastCores = IniRead($sPath, "Errors", "Broadcast Assignment"    , "Invalid Broadcaster Assignment Mode!"                                                      )
-	Global $_sLang_InvalidProcessCores   = IniRead($sPath, "Errors", "Process Assignment"      , "Invalid App/Game Assigment Mode!"                                                          )
-	Global $_sLang_InvalidOtherCores     = IniRead($sPath, "Errors", "Other Process Assignment", "Invalid Other Process Assigment Mode!"                                                     )
-	Global $_sLang_InvalidPriority       = IniRead($sPath, "Errors", "Priority Assignment"     , "Invalid Priority Mode!"                                                                    )
-	Global $_sLang_NotRunning            = IniRead($sPath, "Errors", "Not Running"             , "not currently running. Please run the program(s) first"                                    )
-	Global $_sLang_MaxCores              = IniRead($sPath, "Errors", "All Cores Used"          , "No Cores Left for Other Processes, defaulting to last core"                                )
-	Global $_sLang_TooManyCores          = IniRead($sPath, "Errors", "Too Many Cores"          , "You've specified more cores than available on your system"                                 )
-	Global $_sLang_TooManyTotalCores     = IniRead($sPath, "Errors", "Too Many Total Cores"    , "You've specified more cores between App/Game and Broadcaster than available on your system")
-	Global $_sLang_SteamNotRunning       = IniRead($sPath, "Errors", "Steam Not Running"       , "Can't launch Steam Games if Steam isn't running. Please launch Steam, wait, and try again" )
+	Global $_sLang_InvalidBroadcast      = IniRead($sPath, "Errors", "Broadcaster"             , "Invalid Broadcaster Software!"                                                              )
+	Global $_sLang_InvalidBroadcastCores = IniRead($sPath, "Errors", "Broadcast Assignment"    , "Invalid Broadcaster Assignment Mode!"                                                       )
+	Global $_sLang_InvalidProcessCores   = IniRead($sPath, "Errors", "Process Assignment"      , "Invalid App/Game Assigment Mode!"                                                           )
+	Global $_sLang_InvalidOtherCores     = IniRead($sPath, "Errors", "Other Process Assignment", "Invalid Other Process Assigment Mode!"                                                      )
+	Global $_sLang_InvalidPriority       = IniRead($sPath, "Errors", "Priority Assignment"     , "Invalid Priority Mode!"                                                                     )
+	Global $_sLang_NotRunning            = IniRead($sPath, "Errors", "Not Running"             , "not currently running. Please run the program(s) first"                                     )
+	Global $_sLang_MaxCores              = IniRead($sPath, "Errors", "All Cores Used"          , "No Cores Left for Other Processes, defaulting to last core"                                 )
+	Global $_sLang_TooManyCores          = IniRead($sPath, "Errors", "Too Many Cores"          , "You've specified more cores than available on your system"                                  )
+	Global $_sLang_TooManyTotalCores     = IniRead($sPath, "Errors", "Too Many Total Cores"    , "You've specified more cores between App/Game and Broadcaster than available on your system" )
+	Global $_sLang_SteamNotRunning       = IniRead($sPath, "Errors", "Steam Not Running"       , "Can't launch Steam Games if Steam isn't running. Please launch Steam, wait, and try again"  )
+	Global $_sLang_LoadFail              = IniRead($sPath, "Errors", "Update Check Fail"       , "Unable to load Github API to check for updates. Are you connected to the internet?       "  )
+	Global $_sLang_DataFail              = IniRead($sPath, "Errors", "Update Data Fail"        , "Data returned for Update Check was invalid or blocked. Please check your internet and retry")
+	Global $_sLang_TagsFail              = IniRead($sPath, "Errors", "Update Tags Fail"        , "Data for available updates was missing or incomplete. Please try again later"               )
+	Global $_sLang_TypeFail              = IniRead($sPath, "Errors", "Update Type Fail"        , "Data for available update types was missing or incomplete. Please try again later"          )
 	#EndRegion
 
 	#Region ; Future Possible Additions
