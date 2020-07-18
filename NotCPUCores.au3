@@ -1430,6 +1430,7 @@ Func Main()
 								_ConsoleWrite("!> " & $_sLang_NoUpdates & @CRLF, $hConsole)
 							Case 1
 								_ConsoleWrite("!> " & $_sLang_LoadFail & @CRLF, $hConsole)
+							Case 2
 								_ConsoleWrite("!> " & $_sLang_DataFail & @CRLF, $hConsole)
 							Case 3
 								Switch @extended
