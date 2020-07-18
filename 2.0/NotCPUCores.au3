@@ -1423,9 +1423,23 @@ Func Main()
 			Case $hMsg = $hUpdate
 				Switch _GetLatestRelease($sVersion)
 					Case -1
-						; Hi Self
+						_ConsoleWrite("!> " & $_sLang_TooNew & @CRLF, $hConsole)
 					Case 0
-						;;;
+						Switch @error
+							Case 0
+								_ConsoleWrite("!> " & $_sLang_NoUpdates & @CRLF, $hConsole)
+							Case 1
+								_ConsoleWrite("!> " & $_sLang_LoadFail & @CRLF, $hConsole)
+							Case 2
+								_ConsoleWrite("!> " & $_sLang_DataFail & @CRLF, $hConsole)
+							Case 3
+								Switch @extended
+									Case 0
+										_ConsoleWrite("!> " & $_sLang_TagsFail & @CRLF, $hConsole)
+									Case 1
+										_ConsoleWrite("!> " & $_sLang_TypeFail & @CRLF, $hConsole)
+								EndSwitch
+						EndSwitch
 					Case 1
 						ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases")
 				EndSwitch
@@ -1603,11 +1617,12 @@ Func _GetLatestRelease($sCurrent)
 	$dAPIBin = InetRead("https://api.github.com/repos/rcmaehl/NotCPUCores/releases")
 	If @error Then Return SetError(1, 0, 0)
 	$sAPIJSON = BinaryToString($dAPIBin)
+	If @error Then Return SetError(2, 0, 0)
 
 	Local $aReleases = _StringBetween($sAPIJSON, '"tag_name":"', '",')
-	If @error Then Return SetError(2, 0, 0)
+	If @error Then Return SetError(3, 0, 0)
 	Local $aRelTypes = _StringBetween($sAPIJSON, '"prerelease":', ',')
-	If @error Then Return SetError(2, 1, 0)
+	If @error Then Return SetError(3, 1, 0)
 	Local $aCombined[UBound($aReleases)][2]
 
 	For $iLoop = 0 To UBound($aReleases) - 1 Step 1
