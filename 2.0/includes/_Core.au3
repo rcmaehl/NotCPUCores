@@ -461,7 +461,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 1/11/2018
+; Modified ......: 7/20/2020
 ; Remarks .......: TO DO: Return values
 ; Related .......:
 ; Link ..........:
@@ -469,12 +469,12 @@ EndFunc
 ; ===============================================================================================================================
 Func _ToggleHPET($bState, $hOutput = False)
 
-	If $bState = "True" Then
-;		_ConsoleWrite("HPET State Changed, Please Reboot to Apply Changes" & @CRLF, $hOutput)
+	If $bState Then
+		;_ConsoleWrite("HPET Enabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
 		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
-	ElseIf $bState = "False" Then
-		Run("bcdedit /set useplatformclock false") ; Disable System Event Timer
-;		_ConsoleWrite("HPET State Changed, Please Reboot to Apply Changes" & @CRLF, $hOutput)
+	Else
+		Run("bcdedit /deletevalue useplatformclock") ; Disable System Event Timer
+		;_ConsoleWrite("HPET Disabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
 	EndIf
 
 EndFunc

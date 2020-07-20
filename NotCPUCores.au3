@@ -20,6 +20,7 @@
 #include <Constants.au3>
 #include <GUIListView.au3>
 #include <GuiComboBox.au3>
+#include <WinAPISysWin.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
 #include <ComboConstants.au3>
@@ -42,6 +43,7 @@ Opt("TrayMenuMode", 1)
 Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
+Opt("GUIOnEventMode", 0)
 
 #cs
 
@@ -86,10 +88,16 @@ Optimize PC
 Global $iCores = _GetCPUInfo(0)
 Global $iThreads = _GetCPUInfo(1)
 Global $sSocket = _GetCPUInfo(3)
+Global $bInterrupt = False
 
 _LoadLanguage()
 
 Main()
+
+Func _Interrupt()
+	Global $bInterrupt = True
+	MsgBox(0, "Interrupt", "")
+EndFunc
 
 Func Main()
 
@@ -98,6 +106,7 @@ Func Main()
 	Local $aExclusions[0]
 
 	Local $aCores
+	Local $bHPET = False
 	Local $bInit = True
 	Local $bReset = False
 	Local $iSleep = 100
@@ -126,8 +135,10 @@ Func Main()
 	Local $hClear = GUICtrlCreateDummy()
 	Local $hRefresh = GUICtrlCreateDummy()
 	Local $hInterrupt = GUICtrlCreateDummy()
+	;_WinAPI_SetWindowLong($hInterrupt, $GWL_WNDPROC, 0)
 	#EndRegion
 
+	;HotKeySet("{PAUSE}", "_Interrupt")
 	Local $aHotkeys[4][2] = [["{F5}", $hRefresh], ["{PAUSE}", $hInterrupt], ["{BREAK}", $hInterrupt], ["{DEL}", $hClear]]
 	GUISetAccelerators($aHotkeys)
 
@@ -350,7 +361,6 @@ Func Main()
 
 	Local $hHPET = GUICtrlCreateButton($_sLang_HPET, 5, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "imageres.dll", -30)
-		GUICtrlSetState(-1, $GUI_DISABLE)
 
 	Local $hGameM = GUICtrlCreateButton($_sLang_GameMode, 100, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
@@ -517,14 +527,19 @@ Func Main()
 
 	While 1
 
+		If $bInterrupt = True Then
+			$bInterrupt = False
+			$iProcesses = 1
+			_ConsoleWrite($_sLang_Interrupt, $hConsole)
+			ContinueLoop
+		EndIf
+
+		;WinSetTitle($hGUI, "", "520")
 		; Optimize first, always
 		If Not $iProcesses = 0 Then
-			If $bInterrupt = True Then
-				$bInterrupt = False
-				_ConsoleWrite($_sLang_Interrupt, $hConsole)
-				$iProcesses = 1
-				ContinueLoop
-			ElseIf $iProcesses = 1 Then
+			;WinSetTitle($hGUI, "", "523")
+			If $iProcesses = 1 Then
+				;WinSetTitle($hGUI, "", "529")
 				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
 				_Restore($aExclusions, $iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
@@ -543,10 +558,12 @@ Func Main()
 				$aActive[1] = ""
 				$bReset = True
 			Else
+				;WinSetTitle($hGUI, "", "548")
 				Select
 ;					Case Not $aActive[1] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
 ;						ContinueCase
 					Case UBound(ProcessList()) <> $iProcesses
+						;WinSetTitle($hGUI, "", "553")
 						If $aActive[0] Then
 							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[0] = StringSplit($aProcesses[0], "|", $STR_NOCOUNT)
@@ -561,6 +578,7 @@ Func Main()
 							$aProcesses[0] = $aUnload ; Reload $aProcesses[0]
 						EndIf
 						$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole)
+						;WinSetTitle($hGUI, "", "568")
 						Switch $iProcesses
 							Case 1
 								Switch @error
@@ -592,6 +610,7 @@ Func Main()
 										_ConsoleWrite(_ArrayToString($aProcesses[0], " and ") & " " & $_sLang_Optimizing & @CRLF, $hConsole)
 								EndSwitch
 						EndSwitch
+						;WinSetTitle($hGUI, "", "600")
 						Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole)
 							Case 1
 								$iProcesses = 1
@@ -602,6 +621,7 @@ Func Main()
 										_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 								EndSwitch
 						EndSwitch
+						;WinSetTitle($hGUI, "", "611")
 						Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sBPriority, $hConsole)
 							Case 0
 								Switch @extended
@@ -622,6 +642,7 @@ Func Main()
 		$hMsg = GUIGetMsg()
 		$hTMsg = TrayGetMsg()
 
+		;WinSetTitle($hGUI, "", "632")
 		Select
 
 			Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hQuit
@@ -634,7 +655,10 @@ Func Main()
 				Exit
 
 			Case $hMsg = $hInterrupt
+				;WinSetTitle($hGUI, "", "645")
 				$bInterrupt = True
+				$iProcesses = 1
+				ContinueLoop
 
 			Case $hMsg = $hClear
 				GUICtrlSetData($hConsole, "")
@@ -1024,6 +1048,7 @@ Func Main()
 
 			Case $hMsg = $hSplitMode
 				$iBroadcasterCores = 0
+				If GUICtrlRead($hBroadcaster) = "-" Then ContinueCase
 				$aSplitMode = StringSplit(_GUICtrlComboBox_GetList($hSplitMode), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
 				GUICtrlSetState($hBCores, $GUI_DISABLE)
 				Switch GUICtrlRead($hSplitMode)
@@ -1384,6 +1409,10 @@ Func Main()
 						EndSwitch
 				EndSwitch
 
+			Case $hMsg = $hHPET
+				_ToggleHPET($bHPET, $hConsole)
+				$bHPET = Not $bHPET
+
 			Case $hMsg = $hGameM
 				ShellExecute("ms-settings:gaming-gamemode")
 
@@ -1441,6 +1470,7 @@ Func Main()
 								EndSwitch
 						EndSwitch
 					Case 1
+						_ConsoleWrite("!> " & $_sLang_NewVersion & @CRLF, $hConsole)
 						ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases")
 				EndSwitch
 
