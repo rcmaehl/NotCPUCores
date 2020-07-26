@@ -112,7 +112,6 @@ Func Main()
 	Local $iAllCores
 	Local $sPriority = "High"
 	Local $sBPriority = "High"
-	;Local $bInterrupt = False
 	Local $aProcesses[3] = [$aUnload, "", $aExclusions]
 	Local $iProcesses = 0
 	Local $iProcessCores = 1
@@ -538,6 +537,9 @@ Func Main()
 				_ConsoleWrite("---" & @CRLF, $hConsole)
 				GUICtrlSetData($hReset, $_sLang_Restore)
 				GUICtrlSetData($hOptimize, $_sLang_Optimize)
+				GUICtrlSetState($hMenu1, $GUI_ENABLE)
+				GUICtrlSetState($hMenu2, $GUI_ENABLE)
+				GUICtrlSetState($hMenu3, $GUI_ENABLE)
 				For $iLoop = $hTask - 1 to $hBPriority + 1 Step 1
 					If $iLoop = $hChildren Then ContinueLoop
 					If $iLoop = $hBroChild Then ContinueLoop
@@ -1279,6 +1281,9 @@ Func Main()
 					EndSwitch
 
 				Case $hMsg = $hReset
+					GUICtrlSetState($hMenu1, $GUI_DISABLE)
+					GUICtrlSetState($hMenu2, $GUI_DISABLE)
+					GUICtrlSetState($hMenu3, $GUI_DISABLE)
 					For $Loop = $hTask - 1 to $hOAssign Step 1
 						GUICtrlSetState($Loop, $GUI_DISABLE)
 					Next
@@ -1292,6 +1297,9 @@ Func Main()
 					_ConsoleWrite("---" & @CRLF, $hConsole)
 					GUICtrlSetData($hReset, $_sLang_Restore)
 					GUICtrlSetData($hOptimize, $_sLang_Optimize)
+					GUICtrlSetState($hMenu1, $GUI_ENABLE)
+					GUICtrlSetState($hMenu2, $GUI_ENABLE)
+					GUICtrlSetState($hMenu3, $GUI_ENABLE)
 					For $iLoop = $hTask - 1 to $hBPriority + 1 Step 1
 						If $iLoop = $hChildren Then ContinueLoop
 						If $iLoop = $hBroChild Then ContinueLoop
@@ -1308,6 +1316,9 @@ Func Main()
 				Case $hMsg = $hOptimize
 					Opt("GUIOnEventMode", 1)
 					GUICtrlSetData($hConsole, "")
+					GUICtrlSetState($hMenu1, $GUI_DISABLE)
+					GUICtrlSetState($hMenu2, $GUI_DISABLE)
+					GUICtrlSetState($hMenu3, $GUI_DISABLE)
 					For $Loop = $hTask - 1 to $hOAssign Step 1
 						GUICtrlSetState($Loop, $GUI_DISABLE)
 					Next
