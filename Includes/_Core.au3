@@ -1,5 +1,6 @@
 #include-once
 
+#include <File.au3>
 #include <Array.au3>
 #include <WinAPI.au3>
 #include <Constants.au3>
@@ -15,8 +16,8 @@
 ;                  0                    - HPET not in use
 ;                  -1                   - Function called without Admin Rights
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 05/06/2020
-; Remarks .......: Requires Admin Rights
+; Modified ......: 08/04/2020
+; Remarks .......: Nuke and replace with _ToggleHPET
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
@@ -413,25 +414,64 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _ToggleHPET
 ; Description ...: Toggle the High Precision Event Timer
-; Syntax ........: _ToggleHPET($bState[, $hOutput = False])
-; Parameters ....: $bState              - Set HPET On or Off
+; Syntax ........: _ToggleHPET([$bState = "", $hOutput = False])
+; Parameters ....: $bState              - [optional] Set HPET On or Off. Default is "", for detect and toggle
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 7/20/2020
+; Modified ......: 8/4/2020
 ; Remarks .......: TO DO: Return values
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _ToggleHPET($bState, $hOutput = False)
+Func _ToggleHPET($bState = "", $hOutput = False)
 
-	If $bState Then
-		_ConsoleWrite("HPET Enabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
-		Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
-	Else
-		Run("bcdedit /deletevalue useplatformclock") ; Disable System Event Timer
-		_ConsoleWrite("HPET Disabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
-	EndIf
+	Switch $bState
+		Case ""
+
+			Local $sFile = @TempDir & "\bcdedit.txt"
+			RunWait(@ComSpec & ' /c bcdedit /enum {current} >> ' & $sFile, "", @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD)
+
+			If FileExists($sFile) Then
+				Local $hFile = FileOpen($sFile)
+				If @error Then Return SetError(1,0,0)
+			Else
+				Return SetError(1,1,0)
+			EndIf
+
+			Local $sLine
+			Local $iLines = _FileCountLines($sFile)
+
+			For $iLine = 1 to $iLines Step 1
+				$sLine = FileReadLine($hFile, $iLine)
+				If @error = -1 Then ExitLoop
+				If StringLeft($sLine, 16) = "useplatformclock" Then
+					$sLine = StringStripWS($sLine, $STR_STRIPALL)
+					$sLine = StringReplace($sLine, "useplatformclock", "")
+					ExitLoop
+				EndIf
+			Next
+
+			FileClose($sFile)
+			FileDelete($sFile)
+
+			If $sLine = "Yes" Then
+				Run("bcdedit /deletevalue useplatformclock") ; Disable System Event Timer
+				_ConsoleWrite("HPET Disabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
+			Else
+				Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
+				_ConsoleWrite("HPET Enabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
+			EndIf
+
+		Case True
+			Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
+			_ConsoleWrite("HPET Enabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
+
+		Case False
+			Run("bcdedit /deletevalue useplatformclock") ; Disable System Event Timer
+			_ConsoleWrite("HPET Disabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
+
+	EndSwitch
 
 EndFunc

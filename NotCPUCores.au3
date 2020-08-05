@@ -15,7 +15,6 @@
 #include <Misc.au3>
 #include <Array.au3>
 #include <String.au3>
-#include <GUIEdit.au3>
 #include <Process.au3>
 #include <Constants.au3>
 #include <GUIListView.au3>
@@ -1410,8 +1409,7 @@ Func Main()
 					EndSwitch
 
 				Case $hMsg = $hHPET
-					_ToggleHPET($bHPET, $hConsole)
-					$bHPET = Not $bHPET
+					_ToggleHPET("", $hConsole)
 
 				Case $hMsg = $hGameM
 					ShellExecute("ms-settings:gaming-gamemode")
