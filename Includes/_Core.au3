@@ -345,6 +345,7 @@ Func _Restore($aExclusions = Null, $hCores = _GetCPUInfo(1), $hOutput = False)
 		Else
 			ContinueLoop
 		EndIf
+		ProcessSetPriority($aProcesses[$iLoop][0], $PROCESS_NORMAL)
 		$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1])  ; Select the Process
 		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
 		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it

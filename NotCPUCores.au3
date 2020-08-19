@@ -1,4 +1,5 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Version=Beta
 #AutoIt3Wrapper_Icon=icon.ico
 #AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_Compile_Both=y
@@ -8,6 +9,7 @@
 #AutoIt3Wrapper_Res_Fileversion=1.7.2.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
+#AutoIt3Wrapper_Res_requestedExecutionLevel=highestAvailable
 #AutoIt3Wrapper_Run_Au3Stripper=y
 #Au3Stripper_Parameters=/pe /so
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
