@@ -7,6 +7,9 @@
 #include ".\_WMIC.au3"
 #include ".\_ExtendedFunctions.au3"
 
+Func _DeepFreeze($aProcesses)
+EndFunc
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _GetHPETState
 ; Description ...: Get State of Window's High Precision Event Timer
@@ -323,7 +326,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 06/02/2019
+; Modified ......: 08/19/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:

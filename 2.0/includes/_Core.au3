@@ -50,6 +50,9 @@ Func _Main()
 	WEnd
 EndFunc
 
+Func _DeepFreeze($aProcesses)
+EndFunc
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _GetHPETState
 ; Description ...: Get State of Window's High Precision Event Timer
