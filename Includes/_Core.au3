@@ -33,8 +33,11 @@ Func _Main()
 		Switch $aStatus[0]
 
 			Case "Include"
+				Switch $
 
 			Case "Exclude"
+
+			Case "Remove"
 
 			Case "Start"
 				$bOptimize = True
@@ -48,6 +51,20 @@ Func _Main()
 		EndSwitch
 
 	WEnd
+EndFunc
+
+Func _ArrayRemove(ByRef $aArray, $sRemString)
+	$sTemp = "," & _ArrayToString($aArray, ",") & ","
+	$sTemp = StringReplace($sTemp, "," & $sRemString & ",", ",")
+	$sTemp = StringReplace($sTemp, ",,", ",")
+	If StringLeft($sTemp, 1) = "," Then $sTemp = StringTrimLeft($sTemp, 1)
+	If StringRight($sTemp, 1) = "," Then $sTemp = StringTrimRight($sTemp, 1)
+	If $sTemp = "" Or $sTemp = "," Then
+		$aArray = StringSplit($sTemp, ",", $STR_NOCOUNT)
+		_ArrayDelete($aArray, 0)
+	Else
+		$aArray = StringSplit($sTemp, ",", $STR_NOCOUNT)
+	EndIf
 EndFunc
 
 Func _DeepFreeze($aProcesses)
@@ -208,8 +225,8 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 						ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
 						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
-;						EndIf
+;							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
+						EndIf
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
 				Next
@@ -320,7 +337,7 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 	Local $iExtended = 0
 	Local $aTemp
 
-;	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
+	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 
 	For $iLoop = 0 To $iThreads - 1
