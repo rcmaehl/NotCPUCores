@@ -4,9 +4,10 @@
 #AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
-#AutoIt3Wrapper_Res_Comment=Compiled 9/1/2020 @ 10:00 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 9/15/2020 @ 10:00 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
-#AutoIt3Wrapper_Res_Fileversion=1.7.2.0
+#AutoIt3Wrapper_Res_Fileversion=1.7.2.1
+#AutoIt3Wrapper_Res_ProductVersion=1.7.2.1
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=highestAvailable
@@ -1483,7 +1484,7 @@ Func Main()
 EndFunc
 
 Func OnInterrupt()
-	$bInterrupt = True
+	If Not $bInterrupt Then $bInterrupt = True
 EndFunc
 
 Func _GetChildProcesses($i_pid) ; First level children processes only
