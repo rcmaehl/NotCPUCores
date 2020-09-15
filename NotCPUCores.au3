@@ -1085,11 +1085,11 @@ Func Main()
 						Case $aSplitMode[8] ; CPU Optimized
 							Switch $sSocket
 								Case "AM4"
-									For $iLoop = ($iThreads - ($iThreads/2)) To $iThreads - 1 Step 2
+									For $iLoop = ($iThreads - ($iThreads/2)) To $iThreads - 1 Step 1
 										$iBroadcasterCores += 2^($iLoop)
 									Next
 								Case "TR4", "sTRX4"
-									For $iLoop = ($iThreads - ($iThreads/4)) To $iThreads - 1 Step 2
+									For $iLoop = ($iThreads - ($iThreads/4)) To $iThreads - 1 Step 1
 										$iBroadcasterCores += 2^($iLoop)
 									Next
 								Case Else
@@ -1209,11 +1209,11 @@ Func Main()
 						Case $aAssignMode[8] ; First AMD CCX
 							Switch $sSocket
 								Case "AM4"
-									For $iLoop = 0 To (($iThreads/2) - 1) Step 2
+									For $iLoop = 0 To (($iThreads/2) - 1) Step 1
 										$iBroadcasterCores += 2^($iLoop)
 									Next
 								Case "TR4", "sTRX4"
-									For $iLoop = 0 To (($iThreads/4) - 1) Step 2
+									For $iLoop = 0 To (($iThreads/4) - 1) Step 1
 										$iBroadcasterCores += 2^($iLoop)
 									Next
 								Case Else

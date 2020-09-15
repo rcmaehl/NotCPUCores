@@ -33,7 +33,6 @@ Func _Main()
 		Switch $aStatus[0]
 
 			Case "Include"
-				Switch $
 
 			Case "Exclude"
 
