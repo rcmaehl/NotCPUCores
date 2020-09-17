@@ -90,6 +90,7 @@ Global $iCores = _GetCPUInfo(0)
 Global $iThreads = _GetCPUInfo(1)
 Global $sSocket = _GetCPUInfo(3)
 Global $bInterrupt = False
+Global $hLastInterrupt = TimerInit()
 
 _LoadLanguage()
 
@@ -1484,7 +1485,10 @@ Func Main()
 EndFunc
 
 Func OnInterrupt()
-	If Not $bInterrupt Then $bInterrupt = True
+	If TimerDiff($hLastInterrupt) >= 2000 And Not $bInterrupt Then
+		$bInterrupt = True
+		$hLastInterrupt = TimerInit()
+	EndIf
 EndFunc
 
 Func _GetChildProcesses($i_pid) ; First level children processes only
