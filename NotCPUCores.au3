@@ -90,7 +90,6 @@ Global $iCores = _GetCPUInfo(0)
 Global $iThreads = _GetCPUInfo(1)
 Global $sSocket = _GetCPUInfo(3)
 Global $bInterrupt = False
-Global $hLastInterrupt = TimerInit()
 
 _LoadLanguage()
 
@@ -111,7 +110,7 @@ Func Main()
 	Local $aUnload[0]
 	Local $hLibrary = ""
 	Local $hProfile = "Autoload.ncc"
-	Local $sVersion = "1.7.2.0"
+	Local $sVersion = "1.7.2.1"
 	Local $iAllCores
 	Local $sPriority = "High"
 	Local $sBPriority = "High"
@@ -533,7 +532,6 @@ Func Main()
 				_ConsoleWrite($_sLang_Interrupt, $hConsole)
 				ContinueLoop
 			ElseIf $iProcesses = 1 Then
-				Opt("GUIOnEventMode", 0)
 				_ConsoleWrite($_sLang_RestoringState & @CRLF, $hConsole)
 				_Restore($aExclusions, $iThreads, $hConsole) ; Do Clean Up
 				_ConsoleWrite($_sLang_Done & @CRLF, $hConsole)
@@ -1485,10 +1483,8 @@ Func Main()
 EndFunc
 
 Func OnInterrupt()
-	If TimerDiff($hLastInterrupt) >= 2000 And Not $bInterrupt Then
-		$bInterrupt = True
-		$hLastInterrupt = TimerInit()
-	EndIf
+	If Not $bInterrupt Then $bInterrupt = True
+	Opt("GUIOnEventMode", 0)
 EndFunc
 
 Func _GetChildProcesses($i_pid) ; First level children processes only
