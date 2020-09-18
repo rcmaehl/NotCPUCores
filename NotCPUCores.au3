@@ -353,13 +353,10 @@ Func Main()
 	#Region ; Tools Tab
 	GUICtrlCreateTabItem($_sLang_ToolTab)
 
-	GUICtrlCreateLabel($_sLang_GameSection, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_GameSection, 5, 25, 80, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hHPET = GUICtrlCreateButton($_sLang_HPET, 5, 40, 80, 40, $BS_MULTILINE)
-		GUICtrlSetImage(-1, "imageres.dll", -30)
-
-	Local $hGameM = GUICtrlCreateButton($_sLang_GameMode, 100, 40, 80, 40, $BS_MULTILINE)
+	Local $hGameM = GUICtrlCreateButton($_sLang_GameMode, 5, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 15007 Then GUICtrlSetState(-1, $GUI_DISABLE)
@@ -367,39 +364,49 @@ Func Main()
 			GUICtrlSetState(-1, $GUI_DISABLE)
 		EndIf
 
-	Local $hPower = GUICtrlCreateButton($_sLang_PowerOptions, 195, 40, 80, 40, $BS_MULTILINE)
-		GUICtrlSetImage(-1, "powercpl.dll", 1)
+	Local $hHAGS = GUICtrlCreateButton("HAGS", 5, 85, 80, 40, $BS_MULTILINE)
+		GUICtrlSetImage(-1, "imageres.dll", -30)
+		If @OSVersion = "WIN_10" Then
+			If @OSBuild < 19041 Then GUICtrlSetState(-1, $GUI_DISABLE)
+			If Not StringInStr(_GetGPUInfo(0), "nvidia") Then GUICtrlSetState(-1, $GUI_DISABLE)
+		Else
+			GUICtrlSetState(-1, $GUI_DISABLE)
+		EndIf
 
-	GUICtrlCreateLabel($_sLang_DiskSection, 5, 85, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	Local $hHPET = GUICtrlCreateButton($_sLang_HPET, 5, 130, 80, 40, $BS_MULTILINE)
+		GUICtrlSetImage(-1, "imageres.dll", -30)
+
+	GUICtrlCreateLabel($_sLang_DiskSection, 100, 25, 80, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hDefrag = GUICtrlCreateButton($_sLang_DiskDefrag, 5, 100, 80, 40, $BS_MULTILINE)
+	Local $hDefrag = GUICtrlCreateButton($_sLang_DiskDefrag, 100, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -81)
 
-	Local $hCheck = GUICtrlCreateButton($_sLang_DiskCheck, 100, 100, 80, 40, $BS_MULTILINE)
-		GUICtrlSetImage(-1, "shell32.dll", -271)
-
-	GUICtrlCreateLabel($_sLang_StorageSection, 5, 145, 270, 15, $SS_CENTER + $SS_SUNKEN)
-		GUICtrlSetBkColor(-1, 0xF0F0F0)
-
-	Local $hCleanup = GUICtrlCreateButton($_sLang_DiskCleanup, 5, 160, 80, 40, $BS_MULTILINE)
+	Local $hCleanup = GUICtrlCreateButton($_sLang_DiskCleanup, 100, 85, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -32)
 
-	Local $hSSense = GUICtrlCreateButton($_sLang_StorageSense, 100, 160, 80, 40, $BS_MULTILINE)
-		GUICtrlSetImage(-1, "shell32.dll", -167)
+	Local $hCheck = GUICtrlCreateButton($_sLang_DiskCheck, 100, 130, 80, 40, $BS_MULTILINE)
+		GUICtrlSetImage(-1, "shell32.dll", -271)
+
+	Local $hSSense = GUICtrlCreateButton($_sLang_StorageSense, 100, 175, 80, 40, $BS_MULTILINE)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 16299 Then GUICtrlSetState(-1, $GUI_DISABLE)
 		Else
 			GUICtrlSetState(-1, $GUI_DISABLE)
 		EndIf
-	GUICtrlCreateLabel($_sLang_ReliabilitySection, 5, 205, 270, 15, $SS_CENTER + $SS_SUNKEN)
+		GUICtrlSetImage(-1, "shell32.dll", -167)
+
+	GUICtrlCreateLabel($_sLang_ReliabilitySection, 195, 25, 80, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	Local $hEvents = GUICtrlCreateButton($_sLang_RecentEvents, 5, 220, 80, 40, $BS_MULTILINE)
+	Local $hEvents = GUICtrlCreateButton($_sLang_RecentEvents, 195, 40, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "shell32.dll", -208)
 
-	Local $hActions = GUICtrlCreateButton($_sLang_ActionCenter, 100, 220, 80, 40, $BS_MULTILINE)
+	Local $hActions = GUICtrlCreateButton($_sLang_ActionCenter, 195, 85, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "ActionCenter.dll", 1)
+
+	Local $hPower = GUICtrlCreateButton($_sLang_PowerOptions, 195, 130, 80, 40, $BS_MULTILINE)
+		GUICtrlSetImage(-1, "powercpl.dll", 1)
 
 	#EndRegion
 
@@ -1405,6 +1412,7 @@ Func Main()
 							EndSwitch
 					EndSwitch
 
+#cs
 				Case $hMsg = $hHPET
 					_ToggleHPET("", $hConsole)
 
@@ -1431,7 +1439,7 @@ Func Main()
 
 				Case $hMsg = $hActions
 					Run(@ComSpec & " /c " & 'control wscui.cpl', "", @SW_HIDE)
-
+#ce
 				Case $hMsg = $hGithub
 					ShellExecute("https://www.github.com/rcmaehl/NotCPUCores")
 
