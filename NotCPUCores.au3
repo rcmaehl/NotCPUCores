@@ -1412,7 +1412,7 @@ Func Main()
 							EndSwitch
 					EndSwitch
 
-#cs
+
 				Case $hMsg = $hHPET
 					_ToggleHPET("", $hConsole)
 
@@ -1439,7 +1439,10 @@ Func Main()
 
 				Case $hMsg = $hActions
 					Run(@ComSpec & " /c " & 'control wscui.cpl', "", @SW_HIDE)
-#ce
+
+				Case $hMsg = $hHAGS
+					ShellExecute("ms-settings:display-advancedgraphics")
+
 				Case $hMsg = $hGithub
 					ShellExecute("https://www.github.com/rcmaehl/NotCPUCores")
 
