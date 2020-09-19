@@ -368,7 +368,11 @@ Func Main()
 		GUICtrlSetImage(-1, "imageres.dll", -30)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 19041 Then GUICtrlSetState(-1, $GUI_DISABLE)
-			If Not StringInStr(_GetGPUInfo(0), "nvidia") Then GUICtrlSetState(-1, $GUI_DISABLE)
+			If StringInStr(_GetGPUInfo(0), "nvidia") Then
+				If StringReplace(FileGetVersion("C:\Program Files\NVIDIA Corporation\NVSMI\nvml.dll", $FV_FILEDESCRIPTION), "NVIDIA Management Library ", "") < 451.48 Then GUICtrlSetState(-1, $GUI_DISABLE)
+			Else
+				GUICtrlSetState(-1, $GUI_DISABLE)
+			EndIf
 		Else
 			GUICtrlSetState(-1, $GUI_DISABLE)
 		EndIf
