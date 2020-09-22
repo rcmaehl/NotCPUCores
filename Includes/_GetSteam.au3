@@ -20,10 +20,11 @@
 ; ===============================================================================================================================
 Func _GetSteamLibraries($hPath = "None")
 
-	Local $aLibraries[1]
+	Local $aLibraries[2]
 	Local $hLibraryFile
 
-	$aLibraries[0] = 0
+	$aLibraries[0] = 1
+
 
 	If $hPath = "None" Then
 		Local $hSteamDir = RegRead("HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath")
@@ -41,6 +42,8 @@ Func _GetSteamLibraries($hPath = "None")
 			SetError(1,1,0)
 		EndIf
 	EndIf
+
+	$aLibraries[1] = StringReplace($hSteamDir, "\libraryfolders.vdf", "")
 
 	If FileExists($hSteamDir) Then
 		$hLibraryFile = FileOpen($hSteamDir)
@@ -61,9 +64,9 @@ Func _GetSteamLibraries($hPath = "None")
 		$aLine = StringSplit($sLine, '?')
 
 		If $aLine[0] = 2 And StringIsInt($aLine[1]) Then
-			ReDim $aLibraries[$aLine[1] + 1]
+			ReDim $aLibraries[UBound($aLibraries) + 1]
 			$aLibraries[0] = UBound($aLibraries) - 1
-			$aLibraries[$aLine[1]] = $aLine[2]
+			$aLibraries[$aLine[1] + 1] = $aLine[2]
 		EndIf
 	Next
 
