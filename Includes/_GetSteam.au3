@@ -43,7 +43,7 @@ Func _GetSteamLibraries($hPath = "None")
 		EndIf
 	EndIf
 
-	$aLibraries[1] = StringReplace($hSteamDir, "\libraryfolders.vdf", "")
+	$aLibraries[1] = StringReplace($hSteamDir, "steamapps\libraryfolders.vdf", "")
 
 	If FileExists($hSteamDir) Then
 		$hLibraryFile = FileOpen($hSteamDir)
