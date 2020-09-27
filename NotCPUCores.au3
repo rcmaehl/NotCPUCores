@@ -126,6 +126,7 @@ Func Main()
 	Local $PSBR = False ; Process Significant Bit Removed
 	Local $BSBR = False ; Broadcaster Significant Bit Removed
 
+	If $iThreads > 32 Then $iThreads = 32
 
 	For $iLoop = 0 To $iThreads - 1
 		$iAllCores += 2^$iLoop
