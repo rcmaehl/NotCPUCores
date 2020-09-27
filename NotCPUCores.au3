@@ -88,8 +88,8 @@ Optimize PC
 #ce
 
 ; Set Core Count as Global to Reduce WMIC calls
-Global $iCores = _GetCPUInfo(0)
-Global $iThreads = _GetCPUInfo(1)
+Global $iCores = 16;_GetCPUInfo(0)
+Global $iThreads = 32;_GetCPUInfo(1)
 Global $sSocket = _GetCPUInfo(3)
 Global $bInterrupt = False
 
@@ -122,16 +122,15 @@ Func Main()
 	Local $iBroadcasterCores = 0
 	Local $iOtherProcessCores = 1
 
+	; Significant Bit Workaround
+	Local $PSBR = False ; Process Significant Bit Removed
+	Local $BSBR = False ; Broadcaster Significant Bit Removed
 
-	If @OSArch = "X86" Then
-		Local $tCoreGroupings = DllStructCreate("struct;uint var1;unit var2;uint var3;endstruct")
-	Else
-		Local $tCoreGroupings = DllStructCreate("struct;uint64 var1;unit64 var2;uint64 var3;endstruct")
-	EndIf
 
 	For $iLoop = 0 To $iThreads - 1
 		$iAllCores += 2^$iLoop
 	Next
+	ConsoleWrite($iAllCores & @CRLF)
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitOr($WS_MINIMIZEBOX, $WS_CAPTION, $WS_SYSMENU))
 	GUISetOnEvent($GUI_EVENT_CLOSE, "OnInterrupt")
@@ -1289,7 +1288,18 @@ Func Main()
 							$iOtherProcessCores = $iProcessCores
 
 						Case $aOAssign[2] ; Remaining Cores
+							If $iProcessCores >= 2147483648 Then ; Remove Most Significant Bit
+								$PSBR = True
+								$iProcessCores = $iProcessCores - 2147483648
+							EndIf
+							If $iBroadcasterCores >= 2147483648 Then ; Remove Most Significant Bit
+								$BSBR = True
+								$iBroadcasterCores = $iBroadcasterCores - 2147483648
+							EndIf
 							$iOtherProcessCores = $iAllCores - BitOR($iProcessCores, $iBroadcasterCores)
+							ConsoleWrite($iOtherProcessCores & @CRLF)
+							If $PSBR Then $iProcessCores = $iProcessCores + 2147483648
+							If $BSBR Then $iBroadcasterCores = $iBroadcasterCores + 2147483648
 
 						Case Else
 							$iOtherProcessCores = 1
@@ -1429,6 +1439,7 @@ Func Main()
 
 				Case $hMsg = $hHPET
 					_ToggleHPET("", $hConsole)
+					_ConsoleWrite($_sLang_HPETChange & @CRLF, $hConsole)
 
 				Case $hMsg = $hGameM
 					ShellExecute("ms-settings:gaming-gamemode")
