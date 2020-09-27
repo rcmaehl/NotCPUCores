@@ -521,19 +521,15 @@ Func _ToggleHPET($bState = "", $hOutput = False)
 
 			If $sLine = "Yes" Then
 				Run("bcdedit /deletevalue useplatformclock") ; Disable System Event Timer
-				;_ConsoleWrite("HPET Disabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
 			Else
 				Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
-				;_ConsoleWrite("HPET Enabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
 			EndIf
 
 		Case True
 			Run("bcdedit /set useplatformclock true") ; Enable System Event Timer
-			;_ConsoleWrite("HPET Enabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
 
 		Case False
 			Run("bcdedit /deletevalue useplatformclock") ; Disable System Event Timer
-			;_ConsoleWrite("HPET Disabled, Please Reboot to Apply Changes" & @CRLF, $hOutput)
 
 	EndSwitch
 

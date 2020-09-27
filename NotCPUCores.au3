@@ -122,6 +122,13 @@ Func Main()
 	Local $iBroadcasterCores = 0
 	Local $iOtherProcessCores = 1
 
+
+	If @OSArch = "X86" Then
+		Local $tCoreGroupings = DllStructCreate("struct;uint var1;unit var2;uint var3;endstruct")
+	Else
+		Local $tCoreGroupings = DllStructCreate("struct;uint64 var1;unit64 var2;uint64 var3;endstruct")
+	EndIf
+
 	For $iLoop = 0 To $iThreads - 1
 		$iAllCores += 2^$iLoop
 	Next

@@ -621,6 +621,10 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_NoUpdates  = IniRead($sPath, "Updater", "No Updates"  , "Your NotCPUCores version is up to date")
 	Global $_sLang_NewVersion = IniRead($sPath, "Updater", "New Version" , "An update is available, opening download page")
 
+	#Region ; Messages
+	Global $_sLang_HPETChange       = IniRead($sPath, "Console", "HPETChange"      , "HPET State Changed, Please Reboot to Apply Changes"       )
+	#Region
+
 	#Region ; Errors
 	Global $_sLang_InvalidBroadcast      = IniRead($sPath, "Errors", "Broadcaster"             , "Invalid Broadcaster Software!"                                                              )
 	Global $_sLang_InvalidBroadcastCores = IniRead($sPath, "Errors", "Broadcast Assignment"    , "Invalid Broadcaster Assignment Mode!"                                                       )
@@ -642,7 +646,6 @@ Func _LoadLanguage($sPath = @OSLang)
 	; $_sLang_RestoringProcess = IniRead($sPath, "Console", "RestoringProcess", "Restoring Priority and Affinity of all Other Processes...")
 	; $_sLang_StoppingServices = IniRead($sPath, "Console", "StoppingServices", "Temporarily Pausing Game Impacting Services..."           )
 	; $_sLang_StartingServices = IniRead($sPath, "Console", "StartingServices", "Restarting Any Stopped Services..."                       )
-	; $_sLang_HPETChange       = IniRead($sPath, "Console", "HPETChange"      , "HPET State Changed, Please Reboot to Apply Changes"       )
 	#EndRegion
 
 EndFunc
