@@ -88,8 +88,8 @@ Optimize PC
 #ce
 
 ; Set Core Count as Global to Reduce WMIC calls
-Global $iCores = 16;_GetCPUInfo(0)
-Global $iThreads = 32;_GetCPUInfo(1)
+Global $iCores = _GetCPUInfo(0)
+Global $iThreads = _GetCPUInfo(1)
 Global $sSocket = _GetCPUInfo(3)
 Global $bInterrupt = False
 
