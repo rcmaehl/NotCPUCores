@@ -756,6 +756,7 @@ Func Main()
 						IniWrite($hFile, "Streaming", "Threads"    , GUICtrlRead($hBCores     ))
 						IniWrite($hFile, "Streaming", "Software"   , GUICtrlRead($hBroadcaster))
 						IniWrite($hFile, "Streaming", "Children"   , GUICtrlRead($hBroChild   ))
+						IniWrite($hFile, "Streaming", "Priority"   , GUICtrlRead($hBPriority  ))
 						IniWrite($hFile, "Streaming", "Assignment" , GUICtrlRead($hOAssign    ))
 					EndIf
 
@@ -828,6 +829,7 @@ Func Main()
 						GUICtrlSetData($hBCores     , String(_IniRead($hFile, "Streaming", "Threads"   ,                                      "",               "2")))
 						GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),               "-")))
 						GUICtrlSetState($hBroChild  , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
+						GUICtrlSetData($hBPriority  , String(_IniRead($hFile, "Streaming", "Priority"  , _GUICtrlComboBox_GetList($hBPriority  ), "Remaining Cores")))
 						GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
 					EndIf
 					ContinueCase
@@ -849,6 +851,7 @@ Func Main()
 						GUICtrlSetData($hBCores     , String(_IniRead($hProfile, "Streaming", "Threads"   ,                                      "",               "2")))
 						GUICtrlSetData($hBroadcaster, String(_IniRead($hProfile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),               "-")))
 						GUICtrlSetState($hBroChild  , Number(_IniRead($hProfile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
+						GUICtrlSetData($hBPriority  , String(_IniRead($hProfile, "Streaming", "Priority"  , _GUICtrlComboBox_GetList($hBPriority  ), "Remaining Cores")))
 						GUICtrlSetData($hOAssign    , String(_IniRead($hProfile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
 					EndIf
 					$bInit = False
