@@ -815,10 +815,24 @@ Func Main()
 					EndIf
 					GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
+				Case $bInit = True
+					ContinueCase
+
 				Case $hMsg = $hLoad
-					$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, "profile.ncc", $hGUI)
-					If @error Then
-						;;;
+					If $bInit Then
+						$bInit = False
+						$hFile = "Autoload.ncc"
+						If FileExists(@WorkingDir & "\Settings.ini") Then
+							$hLibrary = IniRead(@WorkingDir & "\Settings.ini", "Steam"  , "Library Path"   , "Auto")
+							$hFile = IniRead(@WorkingDir & "\Settings.ini", "General", "Default Profile", "Autoload.ncc")
+							If Not FileExists($hFile) Then $hFile = ""
+						EndIf
+					Else
+						$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "NotCPUCores Profile (*.ncc)", $FD_FILEMUSTEXIST, "profile.ncc", $hGUI)
+						If @error Then ContinueCase
+					EndIf
+					If Not FileExists($hFile) Then
+						ContinueCase
 					Else
 						GUICtrlSetData($hTask       , String(_IniRead($hFile, "General"  , "Process"   ,                                      "",                "")))
 						GUICtrlSetState($hChildren  , Number(_IniRead($hFile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
@@ -829,32 +843,9 @@ Func Main()
 						GUICtrlSetData($hBCores     , String(_IniRead($hFile, "Streaming", "Threads"   ,                                      "",               "2")))
 						GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),               "-")))
 						GUICtrlSetState($hBroChild  , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
-						GUICtrlSetData($hBPriority  , String(_IniRead($hFile, "Streaming", "Priority"  , _GUICtrlComboBox_GetList($hBPriority  ), "Remaining Cores")))
+						GUICtrlSetData($hBPriority  , String(_IniRead($hFile, "Streaming", "Priority"  , _GUICtrlComboBox_GetList($hBPriority  ),            "High")))
 						GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
 					EndIf
-					ContinueCase
-
-				Case $bInit = True
-					$hProfile = "Autoload.ncc"
-					If FileExists(@WorkingDir & "\Settings.ini") And $bInit = True Then
-						$hLibrary = IniRead(@WorkingDir & "\Settings.ini", "Steam"  , "Library Path"   , "Auto")
-						$hProfile = IniRead(@WorkingDir & "\Settings.ini", "General", "Default Profile", "Autoload.ncc")
-						If Not FileExists($hLibrary) Then $hLibrary = ""
-					EndIf
-					If FileExists($hProfile) Then
-						GUICtrlSetData($hTask       , String(_IniRead($hProfile, "General"  , "Process"   ,                                      "",                "")))
-						GUICtrlSetState($hChildren  , Number(_IniRead($hProfile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
-						GUICtrlSetData($hAssignMode , String(_IniRead($hProfile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
-						GUICtrlSetData($hCores      , String(_IniRead($hProfile, "General"  , "Threads"   ,                                      "",               "1")))
-						GUICtrlSetData($hPPriority  , String(_IniRead($hProfile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
-						GUICtrlSetData($hSplitMode  , String(_IniRead($hProfile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
-						GUICtrlSetData($hBCores     , String(_IniRead($hProfile, "Streaming", "Threads"   ,                                      "",               "2")))
-						GUICtrlSetData($hBroadcaster, String(_IniRead($hProfile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),               "-")))
-						GUICtrlSetState($hBroChild  , Number(_IniRead($hProfile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
-						GUICtrlSetData($hBPriority  , String(_IniRead($hProfile, "Streaming", "Priority"  , _GUICtrlComboBox_GetList($hBPriority  ), "Remaining Cores")))
-						GUICtrlSetData($hOAssign    , String(_IniRead($hProfile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
-					EndIf
-					$bInit = False
 					ContinueCase
 
 				Case $bReset = True
