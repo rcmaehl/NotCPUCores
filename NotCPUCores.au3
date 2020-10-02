@@ -143,7 +143,6 @@ Func Main()
 	GUICtrlSetOnEvent(-1, "OnInterrupt")
 	#EndRegion
 
-	;HotKeySet("{PAUSE}", "_Interrupt")
 	Local $aHotkeys[4][2] = [["{F5}", $hRefresh], ["{PAUSE}", $hInterrupt], ["{BREAK}", $hInterrupt], ["{DEL}", $hClear]]
 	GUISetAccelerators($aHotkeys)
 
@@ -468,6 +467,7 @@ Func Main()
 	Local $hOptimize = GUICtrlCreateButton($_sLang_Optimize, 140, 275, 135, 20)
 
 	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
+	GUISetAccelerators($aHotkeys)
 
 	$hTabs = GUICtrlCreateTab(0, 0, 360, 300)
 
