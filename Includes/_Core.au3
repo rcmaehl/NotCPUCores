@@ -3,7 +3,7 @@
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Comment=NotCPUCores Core Beta
 #AutoIt3Wrapper_Res_Description=NotCPUCores Core Beta
-#AutoIt3Wrapper_Res_Fileversion=1.8.0.0
+#AutoIt3Wrapper_Res_Fileversion=2.0.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert C Maehl (rcmaehl)
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=highestAvailable
@@ -15,15 +15,97 @@
 #include <Array.au3>
 #include <WinAPI.au3>
 #include <Constants.au3>
+
+
 ;#include ".\_WMIC.au3"
-;#include ".\_ExtendedFunctions.au3"
+#include ".\_GetLanguage.au3"
+#include ".\_ExtendedFunctions.au3"
 
 Func _Main()
 
 	Local $aExclusions, $aInclusions, $aStatus
 	Local $sStatus, $bOptimize
 
+	Local $hConsole ; Replace with STDOUT Stream
+	Local $iProcesses = 0
+
 	While True
+
+		If $bOptimize Then
+			Select
+				Case UBound(ProcessList()) <> $iProcesses
+					#cs / Refactor Active Process Handling
+					If $aActive[0] Then
+						$aProcesses[0] = GUICtrlRead($hTask)
+						$aProcesses[0] = StringSplit($aProcesses[0], "|", $STR_NOCOUNT)
+						$aUnload = $aProcesses[0] ; Unload $aProcesses[0]
+						For $iLoop = 0 To UBound($aUnload) - 1 Step 1
+							Switch $aUnload[$iLoop]
+								Case "ACTIVE"
+									$aUnload[$iLoop] = _ProcessGetName(WinGetProcess("[ACTIVE]"))
+									$aActive[1] = $aUnload[$iLoop]
+							EndSwitch
+						Next
+						$aProcesses[0] = $aUnload ; Reload $aProcesses[0]
+					EndIf
+					#ce
+					$iProcesses = _Optimize($iProcesses,$aProcesses[0],$iProcessCores,$iSleep,$sPriority,$hConsole) ; Convert to 2D Array
+					Switch $iProcesses
+						Case 1
+							Switch @error
+								Case 0
+									Switch @extended
+										Case 1
+											_ConsoleWrite(_ArrayToString($aProcesses[0], " & ") & " " & $_sLang_RestoringState & @CRLF, $hConsole)
+									EndSwitch
+								Case 1
+									Switch @extended
+										Case 1
+											_ConsoleWrite("!> " & _ArrayToString($aProcesses[0], " & ") & " " & $_sLang_NotRunning & @CRLF, $hConsole)
+										Case 2
+											_ConsoleWrite("!> E601" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+										Case 3
+											_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
+										Case 4
+											_ConsoleWrite("!> " & $sPriority & " - " & $_sLang_InvalidPriority & @CRLF, $hConsole)
+									EndSwitch
+							EndSwitch
+						Case Else
+							Switch @extended
+								Case 0
+									_ConsoleWrite(_ArrayToString($aProcesses[0], " & ") & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+								Case 1
+									_ConsoleWrite($_sLang_ReOptimizing & @CRLF, $hConsole)
+								Case 2
+									_ConsoleWrite("!> " & $_sLang_MaxPerformance & @CRLF, $hConsole)
+									_ConsoleWrite(_ArrayToString($aProcesses[0], " & ") & " " & $_sLang_Optimizing & @CRLF, $hConsole)
+							EndSwitch
+					EndSwitch
+					Switch _OptimizeOthers($aProcesses, $iOtherProcessCores, $iSleep, $hConsole) ; Convert to 2D Array
+						Case 1
+							$iProcesses = 1
+							Switch @error
+								Case 1
+									_ConsoleWrite("!> E624" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+								Case 2
+									_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
+							EndSwitch
+					EndSwitch
+					Switch _OptimizeBroadcaster($aProcesses, $iBroadcasterCores, $iSleep, $sBPriority, $hConsole) ; Convert to 2D Array
+						Case 0
+							Switch @extended
+								Case 1
+									_ConsoleWrite("!> " & $_sLang_MaxCores & @CRLF, $hConsole)
+							EndSwitch
+						Case 1
+							$iProcesses = 1
+							Switch @error
+								Case 1
+									_ConsoleWrite("!> " & $_sLang_TooManyTotalCores & @CRLF, $hConsole)
+							EndSwitch
+					EndSwitch
+			EndSelect
+		EndIf
 
 		$sStatus = ConsoleRead()
 		If @extended = 0 Then ContinueLoop
@@ -32,11 +114,37 @@ Func _Main()
 
 		Switch $aStatus[0]
 
+			Case "List"
+				Switch $aStatus[1]
+					Case "Processes" ; List,Processes - List Processes
+
+					Case "Services" ; List,Services - List Services (Windows), Daemons (Unix/Linux)
+
+				EndSwitch
+
 			Case "Include"
+				Switch $aStatus[1]
+					Case "Process" ; Include,Process Name,Affinity Bitmask,Priority - Assigns a Process to Specific Threads a a Specific Priority
+
+					Case "Service" ; Include,Service Name,Pause/Stop - Includes a Service to be Paused/Stopped
+
+				EndSwitch
 
 			Case "Exclude"
+				Switch $aStatus[1]
+					Case "Process" ; Exclude,Process Name - Excludes a Process from having it's affinity changed
+
+					Case "Service" ; Exclude,Service Name - Excludes a Service/Daemon from Pausing/Stopping
+
+				EndSwitch
 
 			Case "Remove"
+				Switch $aStatus[1]
+					Case "Process" ; Remove,Process Name - Removes Process from Include and Exclude List
+
+					Case "Service" ; Remove,Service Name - Removes Service/Daemon from Include and Exclude List
+
+				EndSwitch
 
 			Case "Start"
 				$bOptimize = True
