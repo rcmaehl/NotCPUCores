@@ -6,7 +6,7 @@
 #AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
-#AutoIt3Wrapper_Res_Comment=Compiled 9/23/2020 @ 17:55 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 10/09/2020 @ ~14:15 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.7.2.2
 #AutoIt3Wrapper_Res_ProductVersion=1.7.2.2
