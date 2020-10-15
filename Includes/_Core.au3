@@ -29,7 +29,14 @@ Func _Main()
 	Local $hConsole ; Replace with STDOUT Stream
 	Local $iProcesses = 0
 
+	; Required to pass compile
+	Local $iProcessCores, $iBroadcasterCores, $iOtherProcessCores
+	Local $sPriority, $sBPriority
+	Local $iSleep
+
 	While True
+
+		$aProcesses = ProcessList()
 
 		If $bOptimize Then
 			Select

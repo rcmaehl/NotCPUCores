@@ -1,3 +1,5 @@
+#include-once
+
 Func _GetLanguage($iFlag = 0)
 	Local $sLang = "Unknown"
 	Switch @OSLang
