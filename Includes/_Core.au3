@@ -24,7 +24,7 @@
 Func _Main()
 
 	Local $aExclusions, $aInclusions, $aStatus
-	Local $sStatus, $bOptimize
+	Local $sStatus, $bOptimize = False
 
 	Local $hConsole ; Replace with STDOUT Stream
 	Local $iProcesses = 0
