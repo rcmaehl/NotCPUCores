@@ -6,7 +6,7 @@
 #AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
-#AutoIt3Wrapper_Res_Comment=Compiled 10/09/2020 @ ~14:15 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 10/22/2020 @ ~14:25 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.7.2.2
 #AutoIt3Wrapper_Res_ProductVersion=1.7.2.2
@@ -131,7 +131,6 @@ Func Main()
 	For $iLoop = 0 To $iThreads - 1
 		$iAllCores += 2^$iLoop
 	Next
-	ConsoleWrite($iAllCores & @CRLF)
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitOr($WS_MINIMIZEBOX, $WS_CAPTION, $WS_SYSMENU))
 	GUISetOnEvent($GUI_EVENT_CLOSE, "OnInterrupt")
@@ -995,60 +994,60 @@ Func Main()
 					ContinueCase
 
 				Case $hMsg = $hBPriority
-					$sBPriority = "HIGH"
+					$sBPriority = $PROCESS_HIGH
 					$aPriorities = StringSplit(_GUICtrlComboBox_GetList($hBPriority), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
 					Switch GUICtrlRead($hBPriority)
 
 						Case $aPriorities[0] ; Low
-							$sBPriority = "LOW"
+							$sBPriority = $PROCESS_LOW
 
 						Case $aPriorities[1] ; Below Normal
-							$sBPriority = "BELOWNORMAL"
+							$sBPriority = $PROCESS_BELOWNORMAL
 
 						Case $aPriorities[2] ; Normal
-							$sBPriority = "NORMAL"
+							$sBPriority = $PROCESS_NORMAL
 
 						Case $aPriorities[3] ; Above Normal
-							$sBPriority = "ABOVENORMAL"
+							$sBPriority = $PROCESS_ABOVENORMAL
 
 						Case $aPriorities[4] ; High
-							$sBPriority = "HIGH"
+							$sBPriority = $PROCESS_HIGH
 
 						Case $aPriorities[5] ; Realtime
-							$sBPriority = "REALTIME"
+							$sBPriority = $PROCESS_REALTIME
 
 						Case Else
-							$sBPriority = "HIGH"
+							$sBPriority = $PROCESS_HIGH
 							_ConsoleWrite("!> " & $_sLang_InvalidPriority & @CRLF, $hConsole)
 
 					EndSwitch
 					ContinueCase
 
 				Case $hMsg = $hPPriority
-					$sPriority = "HIGH"
+					$sPriority = $PROCESS_HIGH
 					$aPriorities = StringSplit(_GUICtrlComboBox_GetList($hPPriority), Opt("GUIDataSeparatorChar"), $STR_NOCOUNT)
 					Switch GUICtrlRead($hPPriority)
 
 						Case $aPriorities[0] ; Low
-							$sPriority = "LOW"
+							$sPriority = $PROCESS_LOW
 
 						Case $aPriorities[1] ; Below Normal
-							$sPriority = "BELOWNORMAL"
+							$sPriority = $PROCESS_BELOWNORMAL
 
 						Case $aPriorities[2] ; Normal
-							$sPriority = "NORMAL"
+							$sPriority = $PROCESS_NORMAL
 
 						Case $aPriorities[3] ; Above Normal
-							$sPriority = "ABOVENORMAL"
+							$sPriority = $PROCESS_ABOVENORMAL
 
 						Case $aPriorities[4] ; High
-							$sPriority = "HIGH"
+							$sPriority = $PROCESS_HIGH
 
 						Case $aPriorities[5] ; Realtime
-							$sPriority = "REALTIME"
+							$sPriority = $PROCESS_REALTIME
 
 						Case Else
-							$sPriority = "HIGH"
+							$sPriority = $PROCESS_HIGH
 							_ConsoleWrite("!> " & $_sLang_InvalidPriority & @CRLF, $hConsole)
 
 					EndSwitch

@@ -277,7 +277,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority = "HIGH", $hOutput = False)
+Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority = $PROCESS_HIGH, $hOutput = False)
 
 	Local $iExtended = 0
 	Local $aRunning[1]
@@ -285,7 +285,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 	Local $aUnload
 
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
-	Local $aPriorities[6] = ["LOW","BELOWNORMAL","NORMAL","ABOVENORMAL","HIGH","REALTIME"]
+	Local $aPriorities[6] = [$PROCESS_LOW, $PROCESS_BELOWNORMAL, $PROCESS_NORMAL, $PROCESS_ABOVENORMAL, $PROCESS_HIGH, $PROCESS_REALTIME]
 
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 	For $iLoop = 0 To $iThreads - 1
@@ -305,7 +305,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 					;;;
 				Else
 ;					_ConsoleWrite("Optimizing " & $aRunning[$iLoop][0] & ", PID: " & $aRunning[$iLoop][1] & @CRLF, $hOutput)
-					ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
+					ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
 ;						_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
@@ -336,7 +336,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 						;;;
 					Else
 ;						_ConsoleWrite("Optimizing " & $aRunning[$iLoop][0] & ", PID: " & $aRunning[$iLoop][1] & @CRLF, $hOutput)
-						ProcessSetPriority($aRunning[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
+						ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
 						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
 ;							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
@@ -394,10 +394,10 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = "HIGH", $hOutput = False)
+Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority = $PROCESS_HIGH, $hOutput = False)
 
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
-	Local $aPriorities[6] = ["LOW","BELOW NORMAL","NORMAL","ABOVE NORMAL","HIGH","REALTIME"]
+	Local $aPriorities[6] = [$PROCESS_LOW, $PROCESS_BELOWNORMAL, $PROCESS_NORMAL, $PROCESS_ABOVENORMAL, $PROCESS_HIGH, $PROCESS_REALTIME]
 
 	_ArrayDelete($aProcessList, 0)
 	_ArrayDelete($aProcessList, UBound($aProcessList)-1)
@@ -419,7 +419,7 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 				If _ArraySearch($aProcessList, $aProcesses[$iLoop][0]) = -1 Then
 					;;;
 				Else
-					ProcessSetPriority($aProcesses[$iLoop][0],Eval("Process_" & StringStripWS($sPriority, $STR_STRIPALL)))
+					ProcessSetPriority($aProcesses[$iLoop][0], $sPriority)
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
 					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
