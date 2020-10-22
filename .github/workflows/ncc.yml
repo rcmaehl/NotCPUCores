@@ -1,0 +1,20 @@
+name: ncc
+
+on: push
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+      
+    - name: Compile
+      run: ./Aut2exe /in NotCPUCores.au3 /out NotCPUCores.exe /comp 4
+
+    - name: Upload a Artifactt
+      uses: actions/upload-artifact@v2
+      with:
+       name: NotCPUCores
+       path: NotCPUCores.exe
