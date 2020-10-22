@@ -223,12 +223,12 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _GetModifiedProcesses
-; Description ...: Get a list of Processes with Modified Affinity
+; Description ...: Get a list of Processes with Modified Affinity or Priority
 ; Syntax ........: _GetModifiedProcesses()
 ; Parameters ....: None
 ; Return values .: Returns an array containing modified processes
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 05/06/2020
+; Modified ......: 10/22/2020
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -245,12 +245,15 @@ Func _GetModifiedProcesses()
 		$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, False, $aProcesses[$Loop][1])
 		$aAffinity = _WinAPI_GetProcessAffinityMask($hCurProcess)
 		If @error Then ContinueLoop
-		If $aAffinity[1] = $aAffinity[2] Then
-			;;;
-		Else
-			ReDim $aModified[UBound($aModified) + 1]
-			$aModified[UBound($aModified)-1] = $aProcesses[$Loop][0]
-		EndIf
+		Select
+			Case $aAffinity[1] = $aAffinity[2]
+				;;;
+			Case _ProcessGetPriority($aProcesses[$Loop][1]) <> 2
+				ContinueCase
+			Case Else
+				ReDim $aModified[UBound($aModified) + 1]
+				$aModified[UBound($aModified)-1] = $aProcesses[$Loop][0]
+		EndSelect
 		_WinAPI_CloseHandle($hCurProcess)
 	Next
 

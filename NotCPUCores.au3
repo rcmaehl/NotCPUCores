@@ -1600,13 +1600,16 @@ Func _GetExclusionsList($hControl)
 		$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, False, $aProcesses[$Loop][1])
 		$aAffinity = _WinAPI_GetProcessAffinityMask($hCurProcess)
 		If @error Then ContinueLoop
-		If $aAffinity[1] = $aAffinity[2] Then
-			;;;
-		Else
-			ReDim $aExclusions[UBound($aExclusions) + 1]
-			$aExclusions[UBound($aExclusions)-1] = $aProcesses[$Loop][0]
-			GUICtrlCreateListViewItem($aProcesses[$Loop][0], $hControl)
-		EndIf
+		Select
+			Case $aAffinity[1] = $aAffinity[2]
+				;;;
+			Case _ProcessGetPriority($aProcesses[$Loop][1]) <> 2
+				ContinueCase
+			Case Else
+				ReDim $aExclusions[UBound($aExclusions) + 1]
+				$aExclusions[UBound($aExclusions)-1] = $aProcesses[$Loop][0]
+				GUICtrlCreateListViewItem($aProcesses[$Loop][0], $hControl)
+		EndSelect
 		_WinAPI_CloseHandle($hCurProcess)
 	Next
 	_ArrayDelete($aProcesses, 0)
