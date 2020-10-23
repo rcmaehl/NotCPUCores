@@ -1596,7 +1596,7 @@ Func _GetExclusionsList($hControl)
 
 	_GUICtrlListView_DeleteAllItems($hControl)
 	Local $aProcesses = ProcessList()
-	For $Loop = 3 To $aProcesses[0][0] ; Skip System
+	For $Loop = 5 To $aProcesses[0][0] ; Skip System
 		$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, False, $aProcesses[$Loop][1])
 		$aAffinity = _WinAPI_GetProcessAffinityMask($hCurProcess)
 		If @error Then ContinueLoop

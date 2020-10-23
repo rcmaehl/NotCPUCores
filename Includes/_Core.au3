@@ -241,7 +241,7 @@ Func _GetModifiedProcesses()
 	Local $aModified[0]
 
 	$aProcesses = ProcessList()
-	For $Loop = 3 To $aProcesses[0][0] ; Skip System
+	For $Loop = 5 To $aProcesses[0][0] ; Skip System
 		$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, False, $aProcesses[$Loop][1])
 		$aAffinity = _WinAPI_GetProcessAffinityMask($hCurProcess)
 		If @error Then ContinueLoop
@@ -303,7 +303,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 		$iExtended = 1
 		$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
 		If Not (UBound(ProcessList()) = $iProcesses) Then ; Skip Optimization if there are no new processes
-			For $iLoop = 0 to $aRunning[0][0] Step 1
+			For $iLoop = 5 to $aRunning[0][0] Step 1
 				If _ArraySearch($aProcesses, $aRunning[$iLoop][0]) = -1 Then
 					;;;
 				Else
@@ -311,7 +311,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 					ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-;						_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
+						_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
 					EndIf
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				EndIf
@@ -334,7 +334,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 				ContinueCase
 			Case Else
 				$aRunning = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-				For $iLoop = 0 to $aRunning[0][0] Step 1
+				For $iLoop = 5 to $aRunning[0][0] Step 1
 					If _ArraySearch($aProcesses, $aRunning[$iLoop][0]) = -1 Then
 						;;;
 					Else
@@ -342,7 +342,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 						ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
 						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-;							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
+							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
 						EndIf
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
@@ -418,7 +418,7 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 			EndIf
 			$iProcessesLast = 0
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-			For $iLoop = 0 to $aProcesses[0][0] Step 1
+			For $iLoop = 5 to $aProcesses[0][0] Step 1
 				If _ArraySearch($aProcessList, $aProcesses[$iLoop][0]) = -1 Then
 					;;;
 				Else
@@ -480,10 +480,12 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 			ContinueCase
 		Case Else
 			$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority
-			For $iLoop = 0 to $aProcesses[0][0] Step 1
+			For $iLoop = 5 to $aProcesses[0][0] Step 1
 				If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) = -1 Then
-					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1])  ; Select the Process
-					_WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) ; Set Affinity (which cores it's assigned to)
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1], IsAdmin())  ; Select the Process $PROCESS_SET_INFORMATION
+					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
+						_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & " - " & _WinAPI_GetLastError() & @CRLF, $hOutput)
+					EndIf
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				Else
 					;;;
@@ -519,14 +521,14 @@ Func _Restore($aExclusions = Null, $hCores = 16, $hOutput = False)
 ;	If $aExclusions = "" Then ReDim $aExclusions[0]
 
 	$aProcesses = ProcessList() ; Meat and Potatoes, Change Affinity and Priority back to normal
-	For $iLoop = 0 to $aProcesses[0][0] Step 1
+	For $iLoop = 5 to $aProcesses[0][0] Step 1
 		If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) = -1 Then
 			;;;
 		Else
 			ContinueLoop
 		EndIf
 		ProcessSetPriority($aProcesses[$iLoop][0], $PROCESS_NORMAL)
-		$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1])  ; Select the Process
+		$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1], IsAdmin())  ; Select the Process
 		_WinAPI_SetProcessAffinityMask($hCurProcess, $hAllCores) ; Set Affinity (which cores it's assigned to)
 		_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 	Next
