@@ -31,4 +31,5 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
        name: NotCPUCores
-       path: C:\Program Files (x86)\AutoIt3\Aut2Exe\NotCPUCores\NotCPUCores.exe
+       path: C:\Program Files (x86)\AutoIt3\Aut2Exe\NotCPUCores\NotCPUCores.ex
+       if-no-files-found: error
