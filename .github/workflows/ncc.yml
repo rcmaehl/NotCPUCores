@@ -24,7 +24,7 @@ jobs:
            cd Aut2Exe
            Move-Item aut2exe.exe NotCPUCores
            cd NotCPUCores
-           ./Aut2exe.exe /in NotCPUCores.au3 /out NotCPUCores.exe /comp 4 /no pack /icon icon.ico
+           ./Aut2exe.exe /in NotCPUCores.au3 /out NotCPUCores.exe /comp 4 /nopack /icon icon.ico
 
 
     - name: Upload
