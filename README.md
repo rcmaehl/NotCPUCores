@@ -15,4 +15,9 @@ All these "optimizers" do simple tweaks that you yourself can do, so probably no
 
 Visit the [FAQ Page](https://github.com/rcmaehl/NotCPUCores/blob/master/FAQ.md)
 
-This program is free and open source. Feel free to download and modify. Please do not sell exact copies.
+
+Aut2exe.exe and all files inside include folder are licensed under terms present in autoit-license.htm.
+
+NotCPUCores itself is free and open source software. Feel free to download and modify as long as you follow LGPL-3.0 License terms. Please do not sell exact copies.
+
+
