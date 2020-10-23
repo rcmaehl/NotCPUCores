@@ -1,0 +1,35 @@
+name: ncc
+
+on: push
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    steps:
+    - name: Install Autoit
+      run: |
+           Invoke-WebRequest -Uri https://www.autoitscript.com/cgi-bin/getfile.pl?autoit3/autoit-v3-setup.exe -OutFile autoit-v3-setup.exe
+           ./autoit-v3-setup.exe /S
+
+    - name: Checkout repo
+      run: |
+           cd C:\"Program Files (x86)"\AutoIt3\Aut2Exe
+           git clone https://github.com/rcmaehl/NotCPUCores --depth 1
+      
+    - name: Compile
+      run: |
+           cd C:\"Program Files (x86)"\AutoIt3
+           Move-Item Include Aut2Exe\NotCPUCores
+           cd Aut2Exe
+           Move-Item aut2exe.exe NotCPUCores
+           cd NotCPUCores
+           ./Aut2exe.exe /in NotCPUCores.au3 /out NotCPUCores.exe /comp 4 /nopack /icon icon.ico
+
+
+    - name: Upload
+      uses: actions/upload-artifact@v2
+      with:
+       name: NotCPUCores
+       path: C:\Program Files (x86)\AutoIt3\Aut2Exe\NotCPUCores\NotCPUCores.exe
+       if-no-files-found: error
