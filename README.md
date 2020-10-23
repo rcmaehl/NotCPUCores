@@ -5,7 +5,7 @@
 [![Join the Discord chat](https://img.shields.io/badge/Discord-chat-7289da.svg?&logo=discord)](https://discord.gg/uBnBcBx)
 
 # NotCPUCores
-Work, Play, Stream - Without the Stutter
+Work, Play, Stream - Without the Stutter | [Download Under Releases](https://github.com/rcmaehl/NotCPUCores/releases)
 
 ![Version 1.7.2.0](https://i.imgur.com/pfayHD5.gif)
 
