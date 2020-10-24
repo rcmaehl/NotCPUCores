@@ -48,46 +48,8 @@ Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
 
-#cs
-
-To Do
-
-1. Steam Game Auto-Detection (DONE)
-2. Allow Collapsing of Window/Process List (DONE)
-3. Move Back-End Console when running as GUI into a CLOSE-ABLE Window (Console UDF) (Embedded Console Created)
-4. Allow Selecting from Window/Process List instead of it just being a guide (DONE)
-5. Allow Optimization of Multiple Processes at once (Code added and used, Additional GUI Elements needed, v 1.8)
-6. Convert GUI to a Metro GUI or Allow Themes (v 2.0)
-7. Language Translation Options (DONE)
-
-
-== 2.0 Idea Master List ==
-
-Options for translation
-NCC launches on Start-up, automatically optimizes any processes chosen by user
-Upon Launch open a small Metro UI with some options w/ Graphics (Optimize Game, Manage Auto Optimized, Optimize PC) aka Imgburn start-up but smaller
-
-Optimize Game
-
-	Tabbed UI (Select from Steam, Select from GOG, Select from Running)
-		Options for Which Services to Stop Temporarily
-		More user friendly core selection (Checkboxes?)
-		Check-box to add game to games to be automatically optimized
-
-Manage Auto Optimize
-
-	List View/Icon View of Processes set to be automatically optimized
-
-Optimize PC
-
-	Tabbed UI
-		Defrag, Trim, Disk Cleanup, Power options
-		Delayed auto-run program start
-		Advanced Tweaks (Ultimate Windows Tweaker-esque)
-
-#ce
-
 ; Set Core Count as Global to Reduce WMIC calls
+Global $bAdmin = IsAdmin()
 Global $iCores = _GetCPUInfo(0)
 Global $iThreads = _GetCPUInfo(1)
 Global $sSocket = _GetCPUInfo(3)
@@ -371,7 +333,7 @@ Func Main()
 			GUICtrlSetState(-1, $GUI_DISABLE)
 		EndIf
 
-	Local $hHAGS = GUICtrlCreateButton("HAGS", 5, 85, 80, 40, $BS_MULTILINE)
+	Local $hHAGS = GUICtrlCreateButton($_sLang_HAGS, 5, 85, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "imageres.dll", -30)
 		If @OSVersion = "WIN_10" Then
 			If @OSBuild < 19041 Then GUICtrlSetState(-1, $GUI_DISABLE)
