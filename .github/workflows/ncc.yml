@@ -15,7 +15,7 @@ jobs:
     - name: Checkout repo
       run: |
            cd C:\"Program Files (x86)"\AutoIt3\Aut2Exe
-           git clone https://github.com/rcmaehl/NotCPUCores --depth 1
+           git clone https://github.com/rcmaehl/NotCPUCores
       
     - name: Compile
       run: |
@@ -24,12 +24,14 @@ jobs:
            cd Aut2Exe
            Move-Item aut2exe.exe NotCPUCores
            cd NotCPUCores
-           ./Aut2exe.exe /in NotCPUCores.au3 /out NotCPUCores.exe /comp 4 /nopack /icon icon.ico
+           $ver= git describe --tags
+           mkdir build
+           ./Aut2exe.exe /in NotCPUCores.au3 /out build\NotCPUCores$ver.exe /comp 4 /nopack /icon icon.ico
 
 
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
        name: NotCPUCores
-       path: C:\Program Files (x86)\AutoIt3\Aut2Exe\NotCPUCores\NotCPUCores.exe
+       path: C:\Program Files (x86)\AutoIt3\Aut2Exe\NotCPUCores\build
        if-no-files-found: error
