@@ -429,7 +429,7 @@ Func _LoadLanguage($sPath = @OSLang)
 
 	#Region ; File Info
 	Global $_sLang_Version    = IniRead($sPath, "File", "Version"   , "0"           )
-	Global $_sLang_Language   = IniRead($sPath, "File", "Langauge"  , "Default"     )
+	Global $_sLang_Language   = IniRead($sPath, "File", "Language"  , "Default"     )
 	Global $_sLang_Translator = IniRead($sPath, "File", "Translator", "Robert Maehl")
 	#EndRegion
 
