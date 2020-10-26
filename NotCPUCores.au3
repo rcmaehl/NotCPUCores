@@ -56,7 +56,8 @@ PreFlightCheck()
 Global $bInterrupt = False
 
 ; Reduce unneeded variable setting or function calls
-Global Static $bAdmin = IsAdmin()
+If Not IsDeclared("bAdmin") Then Global Static $bAdmin = IsAdmin()
+
 Global Static $iCores = _GetCPUInfo(0)
 Global Static $iThreads = _GetCPUInfo(1)
 Global Static $sSocket = _GetCPUInfo(3)
