@@ -418,6 +418,7 @@ EndFunc
 
 Func _LoadLanguage($sPath = @OSLang)
 
+	; Check for Specific language first then Generic
 	If Not FileExists($sPath) And $sPath = @OSLang Then
 		If FileExists(".\Lang\" & @OSLang & ".ini") Then
 			$sPath = ".\Lang\" & @OSLang & ".ini"
@@ -427,15 +428,15 @@ Func _LoadLanguage($sPath = @OSLang)
 	EndIf
 
 	#Region ; File Info
-	Global $_sLang_Version     = IniRead($sPath, "File", "Version"   , "0"           )
-	Global $_sLang_Language    = IniRead($sPath, "File", "Langauge"  , "Default"     )
-	Global $_sLang_Translator  = IniRead($sPath, "File", "Translator", "Robert Maehl")
+	Global $_sLang_Version    = IniRead($sPath, "File", "Version"   , "0"           )
+	Global $_sLang_Language   = IniRead($sPath, "File", "Langauge"  , "Default"     )
+	Global $_sLang_Translator = IniRead($sPath, "File", "Translator", "Robert Maehl")
 	#EndRegion
 
-	#Region ; Global Word Usage
-	Global $_sLang_Example     = IniRead($sPath, "Global", "Example", "Example")
-	Global $_sLang_Usage       = IniRead($sPath, "Global", "Usage"  , "Usage"  )
-	Global $_sLang_Done        = IniRead($sPath, "Global", "Done"   , "Done"   )
+	#Region ; Global Tips Usage
+	Global $_sLang_Example = IniRead($sPath, "Global Tips", "Example", "Example")
+	Global $_sLang_Usage   = IniRead($sPath, "Global Tips", "Usage"  , "Usage"  )
+	Global $_sLang_Done    = IniRead($sPath, "Global Tips", "Done"   , "Done"   )
 	#EndRegion
 
 	#Region ; Global UI Usage
@@ -445,10 +446,10 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; File Menu
-	Global $_sLang_FileMenu     = IniRead($sPath, "File Menu", "File Menu"  , "File"        )
-	Global $_sLang_FileLoad     = IniRead($sPath, "File Menu", "Load Option", "Load Profile")
-	Global $_sLang_FileSave     = IniRead($sPath, "File Menu", "Save Option", "Save Profile")
-	Global $_sLang_FileQuit     = IniRead($sPath, "File Menu", "Quit Option", "Quit"        )
+	Global $_sLang_FileMenu = IniRead($sPath, "File Menu", "File Menu"  , "File"        )
+	Global $_sLang_FileLoad = IniRead($sPath, "File Menu", "Load Option", "Load Profile")
+	Global $_sLang_FileSave = IniRead($sPath, "File Menu", "Save Option", "Save Profile")
+	Global $_sLang_FileQuit = IniRead($sPath, "File Menu", "Quit Option", "Quit"        )
 	#EndRegion
 
 	#Region ; Options Menu
@@ -464,19 +465,19 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; Help Menu
-	Global $_sLang_HelpMenu     = IniRead($sPath, "Help Menu", "Help Menu"     , "Help"             )
-	Global $_sLang_HelpSite     = IniRead($sPath, "Help Menu", "Website Option", "Website"          )
-	Global $_sLang_HelpCord     = IniRead($sPath, "Help Menu", "Discord Option", "Discord"          )
-	Global $_sLang_HelpHowTo    = IniRead($sPath, "Help Menu", "HowTo Option"  , "How It Works"     )
-	Global $_sLang_HelpDonate   = IniRead($sPath, "Help Menu", "Donate Option" , "Buy me a drink?"  )
-	Global $_sLang_HelpUpdate   = IniRead($sPath, "Help Menu", "Update Option" , "Check for Updates")
+	Global $_sLang_HelpMenu   = IniRead($sPath, "Help Menu", "Help Menu"     , "Help"             )
+	Global $_sLang_HelpSite   = IniRead($sPath, "Help Menu", "Website Option", "Website"          )
+	Global $_sLang_HelpCord   = IniRead($sPath, "Help Menu", "Discord Option", "Discord"          )
+	Global $_sLang_HelpHowTo  = IniRead($sPath, "Help Menu", "How To Option" , "How It Works"     )
+	Global $_sLang_HelpDonate = IniRead($sPath, "Help Menu", "Donate Option" , "Buy me a drink?"  )
+	Global $_sLang_HelpUpdate = IniRead($sPath, "Help Menu", "Update Option" , "Check for Updates")
 	#EndRegion
 
 	#Region ; Running Processes Tab
-	Global $_sLang_RunningTab    = IniRead($sPath, "Running", "Running Tab "  , "Running"        )
-	Global $_sLang_ProcessList   = IniRead($sPath, "Running", "Process List"  , "Window Process" )
-	Global $_sLang_ProcessTitle  = IniRead($sPath, "Running", "Process Title" , "Window Title"   )
-	Global $_sLang_ExclusionsTab = IniRead($sPath, "Running", "Excluded Tab"  , "Excluded"       )
+	Global $_sLang_RunningTab    = IniRead($sPath, "Processes", "Running Tab "  , "Running"        )
+	Global $_sLang_ProcessList   = IniRead($sPath, "Processes", "Process List"  , "Window Process" )
+	Global $_sLang_ProcessTitle  = IniRead($sPath, "Processes", "Process Title" , "Window Title"   )
+	Global $_sLang_ExclusionsTab = IniRead($sPath, "Processes", "Excluded Tab"  , "Excluded"       )
 	#EndRegion
 
 	#Region ; Steam Games Tab
@@ -497,8 +498,8 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; Debug Output
-	Global $_sLang_DebugStart       = IniRead($sPath, "Console", "Debug Started", "Debug Console Initialized"             )
-	Global $_sLang_Interrupt        = IniRead($sPath, "Console", "Interrupted"  , "Exiting Optimizations via Interrupt...")
+	Global $_sLang_DebugStart = IniRead($sPath, "Console", "Debug Started", "Debug Console Initialized"             )
+	Global $_sLang_Interrupt  = IniRead($sPath, "Console", "Interrupted"  , "Exiting Optimizations via Interrupt...")
 	#EndRegion
 
 	#Region ; Single Line Tooltips
@@ -528,10 +529,10 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; Stream Tab
-	Global $_sLang_StreamTab          = IniRead($sPath, "Stream", "Stream Tab"     , "Stream"                )
-	Global $_sLang_StreamText         = IniRead($sPath, "Stream", "Stream Text"    , "Streaming Settings"    )
-	Global $_sLang_StreamSoftware     = IniRead($sPath, "Stream", "Stream Software", "Broadcast Software"    )
-	Global $_sLang_StreamOtherAssign  = IniRead($sPath, "Stream", "Other Processes", "Assign Other Processes")
+	Global $_sLang_StreamTab         = IniRead($sPath, "Stream", "Stream Tab"     , "Stream"                )
+	Global $_sLang_StreamText        = IniRead($sPath, "Stream", "Stream Text"    , "Streaming Settings"    )
+	Global $_sLang_StreamSoftware    = IniRead($sPath, "Stream", "Stream Software", "Broadcast Software"    )
+	Global $_sLang_StreamOtherAssign = IniRead($sPath, "Stream", "Other Processes", "Assign Other Processes")
 	#EndRegion
 
 	#Region ; Tools Tab
@@ -576,47 +577,47 @@ Func _LoadLanguage($sPath = @OSLang)
 	#EndRegion
 
 	#Region ; About Tab
-	Global $_sLang_AboutTab         = IniRead($sPath, "About", "About Tab"     , "About"         )
-	Global $_sLang_AboutDeveloper   = IniRead($sPath, "About", "Developer"     , "Developed by"  )
-	Global $_sLang_AboutIcon        = IniRead($sPath, "About", "Icon By"       , "Icon by"       )
-	Global $_sLang_AboutLanugage    = IniRead($sPath, "About", "Translation By", "Translation By")
+	Global $_sLang_AboutTab       = IniRead($sPath, "About", "About Tab"     , "About"         )
+	Global $_sLang_AboutDeveloper = IniRead($sPath, "About", "Developer"     , "Developed by"  )
+	Global $_sLang_AboutIcon      = IniRead($sPath, "About", "Icon By"       , "Icon by"       )
+	Global $_sLang_AboutLanugage  = IniRead($sPath, "About", "Translation By", "Translation By")
 	#EndRegion
 
 	#Region ; Drop Downs
-	Global $_sLang_AllocOff          = IniRead($sPath, "Dropdowns", "Disabled"             , "Disabled"          )
-	Global $_sLang_AllocAll          = IniRead($sPath, "Dropdowns", "All Cores"            , "All Cores"         )
-	Global $_sLang_AllocFirst        = IniRead($sPath, "Dropdowns", "First Core"           , "First Core"        )
-	Global $_sLang_AllocFirstTwo     = IniRead($sPath, "Dropdowns", "First Two Cores"      , "First 2 Cores"     )
-	Global $_sLang_AllocFirstFour    = IniRead($sPath, "Dropdowns", "First Four Cores"     , "First 4 Cores"     )
-	Global $_sLang_AllocFirstHalf    = IniRead($sPath, "Dropdowns", "First Half"           , "First Half"        )
-	Global $_sLang_AllocFirstAMD     = IniRead($sPath, "Dropdowns", "First AMD CCX"        , "First AMD CCX"     )
-	Global $_sLang_AllocEven         = IniRead($sPath, "Dropdowns", "Even Cores"           , "Even Cores"        )
-	Global $_sLang_AllocPhysical     = IniRead($sPath, "Dropdowns", "Physcial Cores"       , "Physcial Cores"    )
-	Global $_sLang_AllocOdd          = IniRead($sPath, "Dropdowns", "Odd Cores"            , "Odd Cores"         )
-	Global $_sLang_AllocVirtual      = IniRead($sPath, "Dropdowns", "Non-Physical Cores"   , "Non-Physical Cores")
-	Global $_sLang_AllocLast         = IniRead($sPath, "Dropdowns", "Last Core"            , "Last Core"         )
-	Global $_sLang_AllocLastTwo      = IniRead($sPath, "Dropdowns", "Last Two Cores"       , "Last 2 Cores"      )
-	Global $_sLang_AllocLastFour     = IniRead($sPath, "Dropdowns", "Last Four Cores"      , "Last 4 Cores"      )
-	Global $_sLang_AllocLastHalf     = IniRead($sPath, "Dropdowns", "Last Half"            , "Last Half"         )
-	Global $_sLang_AllocLastAMD      = IniRead($sPath, "Dropdowns", "Last AMD CCX"         , "Last AMD CCX"      )
-	Global $_sLang_AllocPairs        = IniRead($sPath, "Dropdowns", "Pairs"                , "Every Other Pair"  )
-	Global $_sLang_AllocCustom       = IniRead($sPath, "Dropdowns", "Custom"               , "Custom"            )
-	Global $_sLang_AllocBroadcaster  = IniRead($sPath, "Dropdowns", "Broadcaster Cores"    , "Broadcaster Cores" )
-	Global $_sLang_AllocProcess      = IniRead($sPath, "Dropdowns", "Process Cores"        , "Game/App Cores"    )
-	Global $_sLang_AllocRemaining    = IniRead($sPath, "Dropdowns", "Remaining Cores"      , "Remaining Cores"   )
-	Global $_sLang_PriorityLow       = IniRead($sPath, "Dropdowns", "Low Priority"         , "Low"               )
-	Global $_sLang_PriorityBNormal   = IniRead($sPath, "Dropdowns", "Below Normal Priority", "Below Normal"      )
-	Global $_sLang_PriorityNormal    = IniRead($sPath, "Dropdowns", "Normal Priority"      , "Normal"            )
-	Global $_sLang_PriorityANormal   = IniRead($sPath, "Dropdowns", "Above Normal Priority", "Above Normal"      )
-	Global $_sLang_PriorityHigh      = IniRead($sPath, "Dropdowns", "High Priority"        , "High"              )
-	Global $_sLang_PriorityRealtime  = IniRead($sPath, "Dropdowns", "Realtime Priority"    , "Realtime"          )
+	Global $_sLang_AllocOff         = IniRead($sPath, "Dropdowns", "Disabled"             , "Disabled"          )
+	Global $_sLang_AllocAll         = IniRead($sPath, "Dropdowns", "All Cores"            , "All Cores"         )
+	Global $_sLang_AllocFirst       = IniRead($sPath, "Dropdowns", "First Core"           , "First Core"        )
+	Global $_sLang_AllocFirstTwo    = IniRead($sPath, "Dropdowns", "First Two Cores"      , "First 2 Cores"     )
+	Global $_sLang_AllocFirstFour   = IniRead($sPath, "Dropdowns", "First Four Cores"     , "First 4 Cores"     )
+	Global $_sLang_AllocFirstHalf   = IniRead($sPath, "Dropdowns", "First Half"           , "First Half"        )
+	Global $_sLang_AllocFirstAMD    = IniRead($sPath, "Dropdowns", "First AMD CCX"        , "First AMD CCX"     )
+	Global $_sLang_AllocEven        = IniRead($sPath, "Dropdowns", "Even Cores"           , "Even Cores"        )
+	Global $_sLang_AllocPhysical    = IniRead($sPath, "Dropdowns", "Physcial Cores"       , "Physcial Cores"    )
+	Global $_sLang_AllocOdd         = IniRead($sPath, "Dropdowns", "Odd Cores"            , "Odd Cores"         )
+	Global $_sLang_AllocVirtual     = IniRead($sPath, "Dropdowns", "Non-Physical Cores"   , "Non-Physical Cores")
+	Global $_sLang_AllocLast        = IniRead($sPath, "Dropdowns", "Last Core"            , "Last Core"         )
+	Global $_sLang_AllocLastTwo     = IniRead($sPath, "Dropdowns", "Last Two Cores"       , "Last 2 Cores"      )
+	Global $_sLang_AllocLastFour    = IniRead($sPath, "Dropdowns", "Last Four Cores"      , "Last 4 Cores"      )
+	Global $_sLang_AllocLastHalf    = IniRead($sPath, "Dropdowns", "Last Half"            , "Last Half"         )
+	Global $_sLang_AllocLastAMD     = IniRead($sPath, "Dropdowns", "Last AMD CCX"         , "Last AMD CCX"      )
+	Global $_sLang_AllocPairs       = IniRead($sPath, "Dropdowns", "Pairs"                , "Every Other Pair"  )
+	Global $_sLang_AllocCustom      = IniRead($sPath, "Dropdowns", "Custom"               , "Custom"            )
+	Global $_sLang_AllocBroadcaster = IniRead($sPath, "Dropdowns", "Broadcaster Cores"    , "Broadcaster Cores" )
+	Global $_sLang_AllocProcess     = IniRead($sPath, "Dropdowns", "Process Cores"        , "Game/App Cores"    )
+	Global $_sLang_AllocRemaining   = IniRead($sPath, "Dropdowns", "Remaining Cores"      , "Remaining Cores"   )
+	Global $_sLang_PriorityLow      = IniRead($sPath, "Dropdowns", "Low Priority"         , "Low"               )
+	Global $_sLang_PriorityBNormal  = IniRead($sPath, "Dropdowns", "Below Normal Priority", "Below Normal"      )
+	Global $_sLang_PriorityNormal   = IniRead($sPath, "Dropdowns", "Normal Priority"      , "Normal"            )
+	Global $_sLang_PriorityANormal  = IniRead($sPath, "Dropdowns", "Above Normal Priority", "Above Normal"      )
+	Global $_sLang_PriorityHigh     = IniRead($sPath, "Dropdowns", "High Priority"        , "High"              )
+	Global $_sLang_PriorityRealtime = IniRead($sPath, "Dropdowns", "Realtime Priority"    , "Realtime"          )
 	#EndRegion
 
 	#Region ; Normal Execution
-	Global $_sLang_Optimizing       = IniRead($sPath, "Running", "Optimizing"      , "optimizing in the background until all close..."                                               )
-	Global $_sLang_ReOptimizing     = IniRead($sPath, "Running", "Reoptimizing"    , "Process Count Changed, Optimization Reran"                                                     )
-	Global $_sLang_MaxPerformance   = IniRead($sPath, "Running", "Performance Mode", "All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance")
-	Global $_sLang_RestoringState   = IniRead($sPath, "Running", "RestoringState"  , "Exited. Restoring Previous State..."                                                           )
+	Global $_sLang_Optimizing     = IniRead($sPath, "Running", "Optimizing"      , "optimizing in the background until all close..."                                               )
+	Global $_sLang_ReOptimizing   = IniRead($sPath, "Running", "Reoptimizing"    , "Process Count Changed, Optimization Reran"                                                     )
+	Global $_sLang_MaxPerformance = IniRead($sPath, "Running", "Performance Mode", "All Cores used for Assignment, Max Performance will be prioritized over Consistent Performance")
+	Global $_sLang_RestoringState = IniRead($sPath, "Running", "Restoring State" , "Exited. Restoring Previous State..."                                                           )
 
 	#Region ; Updater
 	Global $_sLang_TooNew     = IniRead($sPath, "Updater", "Too New"     , "You're running a newer version than publicly available on Github")
@@ -624,7 +625,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_NewVersion = IniRead($sPath, "Updater", "New Version" , "An update is available, opening download page")
 
 	#Region ; Messages
-	Global $_sLang_HPETChange       = IniRead($sPath, "Console", "HPETChange"      , "HPET State Changed, Please Reboot to Apply Changes"       )
+	Global $_sLang_HPETChange = IniRead($sPath, "Console", "HPET Change", "HPET State Changed, Please Reboot to Apply Changes")
 	#Region
 
 	#Region ; Errors
