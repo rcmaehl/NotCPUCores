@@ -628,6 +628,10 @@ Func _LoadLanguage($sPath = @OSLang)
 	#Region
 
 	#Region ; Errors
+	Global $_sLang_AlreadyRunningTitle   = IniRead($sPath, "Errors", "Already Running Title"   , "Already Running"                                                                            )
+	Global $_sLang_AlreadyRunningMessage = IniRead($sPath, "Errors", "Already Running Message" , "NotCPUCores is already running. To prevent conflicts, this instance will now exit"          )
+	Global $_sLang_IncompatibleTitle     = IniRead($sPath, "Errors", "Incompatible Title"      , "Incompatible Program"                                                                       )
+	Global $_sLang_IncompatibleMessage   = IniRead($sPath, "Errors", "Incompatible Message"    , "is currently running. To prevent conflicts, NotCPUCores will now exit"                      )
 	Global $_sLang_InvalidBroadcast      = IniRead($sPath, "Errors", "Broadcaster"             , "Invalid Broadcaster Software!"                                                              )
 	Global $_sLang_InvalidBroadcastCores = IniRead($sPath, "Errors", "Broadcast Assignment"    , "Invalid Broadcaster Assignment Mode!"                                                       )
 	Global $_sLang_InvalidProcessCores   = IniRead($sPath, "Errors", "Process Assignment"      , "Invalid App/Game Assigment Mode!"                                                           )

@@ -48,6 +48,8 @@ Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
 
+_LoadLanguage()
+
 PreFlightCheck()
 
 ; Allow any function to set
@@ -58,8 +60,6 @@ Global Static $bAdmin = IsAdmin()
 Global Static $iCores = _GetCPUInfo(0)
 Global Static $iThreads = _GetCPUInfo(1)
 Global Static $sSocket = _GetCPUInfo(3)
-
-_LoadLanguage()
 
 Main()
 
@@ -1489,15 +1489,15 @@ Func PreFlightCheck()
 	Select
 
 		Case Not _Singleton("NotCPUCores", 1)
-			MsgBox($MB_ICONINFORMATION+$MB_OK, "Already Running", "NotCPUCores is already running. To prevent conflicts, this instance will now exit")
+			MsgBox($MB_ICONINFORMATION+$MB_OK, $_sLang_AlreadyRunningTitle, $_sLang_AlreadyRunningMessage)
 			Exit 1
 
 		Case ProcessExists("CpuCores.exe")
-			MsgBox($MB_ICONERROR+$MB_OK, "Incompatible Program", "NotCPUCores has detected CPUCores is currently running. To prevent conflicts, NotCPUCores will now exit")
+			MsgBox($MB_ICONERROR+$MB_OK, $_sLang_IncompatibleTitle, "CPUCores " & $_sLang_IncompatibleMessage)
 			Exit 1
 
 		Case ProcessExists("ProcessLasso.exe")
-			MsgBox($MB_YESNO+$MB_DEFBUTTON2, "Incompatible Program", "NotCPUCores has detected ProcessLasso is currently running. To prevent conflicts, NotCPUCores will now exit")
+			MsgBox($MB_YESNO+$MB_DEFBUTTON2, $_sLang_IncompatibleTitle, "ProcessLasso " & $_sLang_IncompatibleMessage)
 			Exit 1
 
 	EndSelect

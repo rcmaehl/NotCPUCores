@@ -398,8 +398,6 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 		$hAllCores += 2^$iLoop
 	Next
 
-	#include <Array.au3>
-
 	$aTemp = $aExclusions[UBound($aExclusions) - 1]
 	_ArrayDelete($aExclusions, UBound($aExclusions) - 1)
 	_ArrayConcatenate($aExclusions, $aTemp)
