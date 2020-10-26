@@ -17,9 +17,11 @@
 #include <Process.au3>
 #include <Constants.au3>
 
-;#include ".\_WMIC.au3"
+#include ".\_WMIC.au3"
 #include ".\_GetLanguage.au3"
 #include ".\_ExtendedFunctions.au3"
+
+If Not IsDeclared("bAdmin") Then Global Static $bAdmin = IsAdmin()
 
 Func _Main()
 

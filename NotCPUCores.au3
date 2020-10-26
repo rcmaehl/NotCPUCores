@@ -1473,7 +1473,7 @@ Func Main()
 					EndSwitch
 
 				Case Else
-					Sleep($iSleep /  10)
+					Sleep($iSleep / 10)
 
 			EndSelect
 		EndIf
