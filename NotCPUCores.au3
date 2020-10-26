@@ -48,12 +48,16 @@ Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
 
-; Set Core Count as Global to Reduce WMIC calls
-Global $bAdmin = IsAdmin()
-Global $iCores = _GetCPUInfo(0)
-Global $iThreads = _GetCPUInfo(1)
-Global $sSocket = _GetCPUInfo(3)
+PreFlightCheck()
+
+; Allow any function to set
 Global $bInterrupt = False
+
+; Reduce unneeded variable setting or function calls
+Global Static $bAdmin = IsAdmin()
+Global Static $iCores = _GetCPUInfo(0)
+Global Static $iThreads = _GetCPUInfo(1)
+Global Static $sSocket = _GetCPUInfo(3)
 
 _LoadLanguage()
 
@@ -1479,6 +1483,24 @@ EndFunc
 Func OnInterrupt()
 	If Not $bInterrupt Then $bInterrupt = True
 	Opt("GUIOnEventMode", 0)
+EndFunc
+
+Func PreFlightCheck()
+	Select
+
+		Case Not _Singleton("NotCPUCores", 1)
+			MsgBox($MB_ICONINFORMATION+$MB_OK, "Already Running", "NotCPUCores is already running. To prevent conflicts, this instance will now exit")
+			Exit 1
+
+		Case ProcessExists("CpuCores.exe")
+			MsgBox($MB_ICONERROR+$MB_OK, "Incompatible Program", "NotCPUCores has detected CPUCores is currently running. To prevent conflicts, NotCPUCores will now exit")
+			Exit 1
+
+		Case ProcessExists("ProcessLasso.exe")
+			MsgBox($MB_YESNO+$MB_DEFBUTTON2, "Incompatible Program", "NotCPUCores has detected ProcessLasso is currently running. To prevent conflicts, NotCPUCores will now exit")
+			Exit 1
+
+	EndSelect
 EndFunc
 
 Func _GetChildProcesses($i_pid) ; First level children processes only
