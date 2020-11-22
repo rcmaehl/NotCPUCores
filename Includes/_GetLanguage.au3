@@ -512,8 +512,8 @@ Func _LoadLanguage($sPath = @OSLang)
 
 	#Region ; Multi Line Tooltips
 	Global $_sLang_AssignTip1 = IniRead($sPath, "MultiTips", "Assign Line 1", "To run on a Single Core, enter the number of that core.")
-	Global $_sLang_AssignTip2 = IniRead($sPath, "MultiTips", "Assign Line 2", "To run on Multiple Cores, seperate them with commas."   )
-	Global $_sLang_AssignTip3 = IniRead($sPath, "MultiTips", "Assign Line 3", "Ranges seperated by a dash are supported."              )
+	Global $_sLang_AssignTip2 = IniRead($sPath, "MultiTips", "Assign Line 2", "To run on Multiple Cores, separate them with commas."   )
+	Global $_sLang_AssignTip3 = IniRead($sPath, "MultiTips", "Assign Line 3", "Ranges separated by a dash are supported."              )
 	Global $_sLang_AssignTip4 = IniRead($sPath, "MultiTips", "Assign Line 4", "Maximum Cores"                                          )
 	#EndRegion
 
