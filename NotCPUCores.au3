@@ -344,7 +344,7 @@ Func Main()
 						If StringReplace(FileGetVersion("C:\Program Files\NVIDIA Corporation\NVSMI\nvml.dll", $FV_FILEDESCRIPTION), "NVIDIA Management Library ", "") < 451.48 Then GUICtrlSetState(-1, $GUI_DISABLE)
 					Case FileExists("C:\Windows\System32\nvml.dll") ; Newer Drivers
 						If StringReplace(FileGetVersion("C:\Windows\System32\nvml.dll", $FV_FILEDESCRIPTION), "NVIDIA Management Library ", "") < 451.48 Then GUICtrlSetState(-1, $GUI_DISABLE)
-					Case FileExists ; May Fail if Nvidia Ever Stops using CUDA
+					Case FileExists(("C:\Windows\System32\nvcuda.dll") ; May Fail if Nvidia Ever Stops using CUDA
 						If StringReplace(FileGetVersion("C:\Windows\System32\nvcuda.dll", $FV_FILEDESCRIPTION), "NVIDIA CUDA Driver, Version ", "") < 451.48 Then GUICtrlSetState(-1, $GUI_DISABLE)
 				EndSelect
 			Else
