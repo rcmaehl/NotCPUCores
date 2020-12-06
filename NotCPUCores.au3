@@ -89,10 +89,6 @@ Func Main()
 	Local $iBroadcasterCores = 0
 	Local $iOtherProcessCores = 1
 
-	; Significant Bit Workaround
-	Local $PSBR = False ; Process Significant Bit Removed
-	Local $BSBR = False ; Broadcaster Significant Bit Removed
-
 	If $iThreads > 32 Then $iThreads = 32
 
 	For $iLoop = 0 To $iThreads - 1
@@ -1256,25 +1252,7 @@ Func Main()
 							$iOtherProcessCores = $iProcessCores
 
 						Case $aOAssign[2] ; Remaining Cores
-
 							$iOtherProcessCores = $iAllCores - _BitOR($iProcessCores, $iBroadcasterCores)
-
-							; $iOtherProcessCores = BitAND($iAllCores - $iProcessCores, $iAllCores - $iBroadcasterCores)
-
-						#cs
-							If $iProcessCores >= 2147483648 Then ; Remove Most Significant Bit
-								$PSBR = True
-								$iProcessCores = $iProcessCores - 2147483648
-							EndIf
-							If $iBroadcasterCores >= 2147483648 Then ; Remove Most Significant Bit
-								$BSBR = True
-								$iBroadcasterCores = $iBroadcasterCores - 2147483648
-							EndIf
-							$iOtherProcessCores = $iAllCores - BitOR($iProcessCores, $iBroadcasterCores)
-							ConsoleWrite($iOtherProcessCores & @CRLF)
-							If $PSBR Then $iProcessCores = $iProcessCores + 2147483648
-							If $BSBR Then $iBroadcasterCores = $iBroadcasterCores + 2147483648
-						#ce
 
 						Case Else
 							$iOtherProcessCores = 1

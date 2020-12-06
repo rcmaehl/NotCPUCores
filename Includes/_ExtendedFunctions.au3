@@ -3,6 +3,20 @@
 #include <Array.au3>
 #include <GUIEdit.au3>
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _BitOr
+; Description ...: 64 Bit Implementation of BitOr()
+; Syntax ........: _BitOr($iNum1, $iNum2)
+; Parameters ....: $iNum1               - an integer value.
+;                  $iNum2               - an integer value.
+; Return values .: BitOr of $iNum1 and $iNum2
+; Author ........: rcmaehl (Robert Maehl)
+; Modified ......: 12/06/2020
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func _BitOr($iNum1, $iNum2)
 
 	; Create Arrays of 64 bits
@@ -35,11 +49,12 @@ Func _BitOr($iNum1, $iNum2)
 		$iIndex += 1
 	Until $iTemp = 0
 
+	$iTemp = 0
 	For $iLoop = 0 To 63 Step 1
-		If $aNum1[$iLoop] Or $aNum2[$iLoop] Then $aNum3[$iLoop] = 1
+		If $aNum1[$iLoop] Or $aNum2[$iLoop] Then $iTemp += 2^$iLoop
 	Next
 
-	Return _ArrayToString(_ArrayReverse($aNum3), "")
+	Return $iTemp
 
 EndFunc
 
