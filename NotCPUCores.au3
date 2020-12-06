@@ -89,7 +89,7 @@ Func Main()
 	Local $iBroadcasterCores = 0
 	Local $iOtherProcessCores = 1
 
-	If $iThreads > 32 Then $iThreads = 32
+	If $iThreads > 62 Then $iThreads = 62
 
 	For $iLoop = 0 To $iThreads - 1
 		$iAllCores += 2^$iLoop
