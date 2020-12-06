@@ -1256,6 +1256,12 @@ Func Main()
 							$iOtherProcessCores = $iProcessCores
 
 						Case $aOAssign[2] ; Remaining Cores
+
+							$iOtherProcessCores = $iAllCores - _BitOR($iProcessCores, $iBroadcasterCores)
+
+							; $iOtherProcessCores = BitAND($iAllCores - $iProcessCores, $iAllCores - $iBroadcasterCores)
+
+						#cs
 							If $iProcessCores >= 2147483648 Then ; Remove Most Significant Bit
 								$PSBR = True
 								$iProcessCores = $iProcessCores - 2147483648
@@ -1268,6 +1274,7 @@ Func Main()
 							ConsoleWrite($iOtherProcessCores & @CRLF)
 							If $PSBR Then $iProcessCores = $iProcessCores + 2147483648
 							If $BSBR Then $iBroadcasterCores = $iBroadcasterCores + 2147483648
+						#ce
 
 						Case Else
 							$iOtherProcessCores = 1

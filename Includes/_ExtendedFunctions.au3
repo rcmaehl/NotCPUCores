@@ -3,6 +3,46 @@
 #include <Array.au3>
 #include <GUIEdit.au3>
 
+Func _BitOr($iNum1, $iNum2)
+
+	; Create Arrays of 64 bits
+	Local $aNum1[64]
+	Local $aNum2[64]
+	Local $aNum3[64]
+	Local $iTemp = -1
+	Local $iIndex = 63
+
+	; Fill Arrays with 0s
+	For $iLoop = 0 To 63 Step 1
+		$aNum1[$iLoop] = 0
+		$aNum2[$iLoop] = 0
+		$aNum3[$iLoop] = 0
+	Next
+
+	$iTemp = $iNum1
+	$iIndex = 0
+	Do
+		$aNum1[$iIndex] = Mod($iTemp, 2)
+		$iTemp = Floor($iTemp / 2)
+		$iIndex += 1
+	Until $iTemp = 0
+
+	$iTemp = $iNum2
+	$iIndex = 0
+	Do
+		$aNum2[$iIndex] = Mod($iTemp, 2)
+		$iTemp = Floor($iTemp / 2)
+		$iIndex += 1
+	Until $iTemp = 0
+
+	For $iLoop = 0 To 63 Step 1
+		If $aNum1[$iLoop] Or $aNum2[$iLoop] Then $aNum3[$iLoop] = 1
+	Next
+
+	Return _ArrayToString(_ArrayReverse($aNum3), "")
+
+EndFunc
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _ConsoleWrite
 ; Description ...: Writes data to the STDOUT stream or GUI handle.
