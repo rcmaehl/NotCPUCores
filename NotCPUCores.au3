@@ -574,7 +574,7 @@ Func Main()
 											Case 1
 												_ConsoleWrite("!> " & _ArrayToString($aProcesses[0], " & ") & " " & $_sLang_NotRunning & @CRLF, $hConsole)
 											Case 2
-												_ConsoleWrite("!> E601" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+												_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 											Case 3
 												_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 											Case 4
@@ -597,7 +597,7 @@ Func Main()
 								$iProcesses = 1
 								Switch @error
 									Case 1
-										_ConsoleWrite("!> E624" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+										_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 									Case 2
 										_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 								EndSwitch
@@ -1196,7 +1196,7 @@ Func Main()
 										$iProcessCores += 2^($iLoop)
 									Next
 								Case Else
-									_ConsoleWrite("!> E1229" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+									_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 									GUICtrlSetState($hOptimize, $GUI_DISABLE)
 									GUICtrlSetState($hCores, $GUI_DISABLE)
 							EndSwitch
@@ -1233,7 +1233,7 @@ Func Main()
 							EndIf
 
 						Case Else
-						_ConsoleWrite("!> E1266" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+						_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 						GUICtrlSetState($hOptimize, $GUI_DISABLE)
 						GUICtrlSetState($hCores, $GUI_DISABLE)
 
@@ -1347,7 +1347,7 @@ Func Main()
 										Case 1
 											_ConsoleWrite("!> " & _ArrayToString($aProcesses[0], " & ") & " " & $_sLang_NotRunning & @CRLF, $hConsole)
 										Case 2
-											_ConsoleWrite("!> E1380" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+											_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 										Case 3
 											_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 										Case 4
@@ -1370,7 +1370,7 @@ Func Main()
 							$iProcesses = 1
 							Switch @error
 								Case 1
-									_ConsoleWrite("!> E1403" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+									_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 								Case 2
 									_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 							EndSwitch
