@@ -12,3 +12,4 @@ cert-key-20190522-121211.p12
 *.exe
 NotCPUCores_stripped.au3
 *.zip
+Includes/Test.au3

@@ -4,61 +4,6 @@
 #include <GUIEdit.au3>
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: _BitOr
-; Description ...: 64 Bit Implementation of BitOr()
-; Syntax ........: _BitOr($iNum1, $iNum2)
-; Parameters ....: $iNum1               - an integer value.
-;                  $iNum2               - an integer value.
-; Return values .: BitOr of $iNum1 and $iNum2
-; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 12/06/2020
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func _BitOr($iNum1, $iNum2)
-
-	; Create Arrays of 64 bits
-	Local $aNum1[64]
-	Local $aNum2[64]
-	Local $aNum3[64]
-	Local $iTemp = -1
-	Local $iIndex = 63
-
-	; Fill Arrays with 0s
-	For $iLoop = 0 To 63 Step 1
-		$aNum1[$iLoop] = 0
-		$aNum2[$iLoop] = 0
-		$aNum3[$iLoop] = 0
-	Next
-
-	$iTemp = $iNum1
-	$iIndex = 0
-	Do
-		$aNum1[$iIndex] = Mod($iTemp, 2)
-		$iTemp = Floor($iTemp / 2)
-		$iIndex += 1
-	Until $iTemp = 0
-
-	$iTemp = $iNum2
-	$iIndex = 0
-	Do
-		$aNum2[$iIndex] = Mod($iTemp, 2)
-		$iTemp = Floor($iTemp / 2)
-		$iIndex += 1
-	Until $iTemp = 0
-
-	$iTemp = 0
-	For $iLoop = 0 To 63 Step 1
-		If $aNum1[$iLoop] Or $aNum2[$iLoop] Then $iTemp += 2^$iLoop
-	Next
-
-	Return $iTemp
-
-EndFunc
-
-; #FUNCTION# ====================================================================================================================
 ; Name ..........: _ConsoleWrite
 ; Description ...: Writes data to the STDOUT stream or GUI handle.
 ; Syntax ........: _ConsoleWrite($sMessage[, $hOutput = False])

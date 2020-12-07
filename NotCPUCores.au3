@@ -6,7 +6,7 @@
 #AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
-#AutoIt3Wrapper_Res_Comment=Compiled 10/22/2020 @ ~14:25 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 12/6/2020 @ ~14:25 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.7.2.2
 #AutoIt3Wrapper_Res_ProductVersion=1.7.2.2
@@ -37,6 +37,7 @@
 
 #include ".\Includes\_Core.au3"
 #include ".\Includes\_WMIC.au3"
+#include ".\Includes\_Bitwise.au3"
 #include ".\Includes\_GetSteam.au3"
 ;#include ".\Includes\_ModeSelect.au3"
 #include ".\Includes\_GetLanguage.au3"
@@ -89,7 +90,8 @@ Func Main()
 	Local $iBroadcasterCores = 0
 	Local $iOtherProcessCores = 1
 
-	If $iThreads > 62 Then $iThreads = 62
+	If $iThreads > 48 Then $iThreads = 48
+	_BitLimit($iThreads)
 
 	For $iLoop = 0 To $iThreads - 1
 		$iAllCores += 2^$iLoop
