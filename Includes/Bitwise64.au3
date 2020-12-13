@@ -26,7 +26,7 @@ Func _BitXOR64($iValue1, $iValue2)
   $iValue2 = __DecToBin64($iValue2)
   Local $aValueXORed[64]
   For $i = 0 To 63
-    $aValueXORed[$i] = (($iValue1[$i] And (Not $iValue2[$i])) Or ((Not $iValue1[$i]) And $iValue2)) ? 1 : 0
+    $aValueXORed[$i] = (($iValue1[$i] And (Not $iValue2[$i])) Or ((Not $iValue1[$i]) And $iValue2[$i])) ? 1 : 0
   Next
   Return __BinToDec64($aValueXORed)
 EndFunc   ;==>_BitXOR64
