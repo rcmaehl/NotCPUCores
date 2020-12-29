@@ -90,8 +90,7 @@ Func Main()
 	Local $iBroadcasterCores = 0
 	Local $iOtherProcessCores = 1
 
-	If $iThreads > 48 Then $iThreads = 48
-	_BitLimit($iThreads)
+	If $iThreads > 64 Then $iThreads = 64
 
 	For $iLoop = 0 To $iThreads - 1
 		$iAllCores += 2^$iLoop
