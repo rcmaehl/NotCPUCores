@@ -1,6 +1,6 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Version=Beta
-#AutoIt3Wrapper_Icon=icon.ico
+#AutoIt3Wrapper_Icon=Assets/icon.ico
 #AutoIt3Wrapper_Outfile=NotCPUCores_x86.exe
 #AutoIt3Wrapper_Outfile_x64=NotCPUCores.exe
 #AutoIt3Wrapper_Compression=4
