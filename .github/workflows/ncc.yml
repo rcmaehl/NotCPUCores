@@ -26,7 +26,7 @@ jobs:
            cd NotCPUCores
            $ver= git describe --tags
            mkdir build
-           ./Aut2exe.exe /in NotCPUCores.au3 /out build\NotCPUCores$ver.exe /x64 /comp 4 /nopack /icon Aseets\icon.ico
+           ./Aut2exe.exe /in NotCPUCores.au3 /out build\NotCPUCores$ver.exe /x64 /comp 4 /nopack /icon Assets\icon.ico
 
 
     - name: Upload
