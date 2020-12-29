@@ -19,7 +19,7 @@ All these "optimizers" do simple tweaks that you yourself can do, so probably no
 
 ## How does it work? / Getting the Benefits without Installing / Etc
 
-Visit the [FAQ Page](https://github.com/rcmaehl/NotCPUCores/blob/master/FAQ.md)
+Visit the [Wiki](https://github.com/rcmaehl/NotCPUCores/wiki)
 
 ## How to build from source code
 
