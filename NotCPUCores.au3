@@ -37,8 +37,8 @@
 
 #include ".\Includes\_Core.au3"
 #include ".\Includes\_WMIC.au3"
-#include ".\Includes\_Bitwise.au3"
 #include ".\Includes\_GetSteam.au3"
+#include ".\Includes\_Bitwise64.au3"
 ;#include ".\Includes\_ModeSelect.au3"
 #include ".\Includes\_GetLanguage.au3"
 #include ".\Includes\_ExtendedFunctions.au3"
@@ -1254,7 +1254,7 @@ Func Main()
 							$iOtherProcessCores = $iProcessCores
 
 						Case $aOAssign[2] ; Remaining Cores
-							$iOtherProcessCores = $iAllCores - _BitOR($iProcessCores, $iBroadcasterCores)
+							$iOtherProcessCores = $iAllCores - _BitOR64($iProcessCores, $iBroadcasterCores)
 
 						Case Else
 							$iOtherProcessCores = 1
