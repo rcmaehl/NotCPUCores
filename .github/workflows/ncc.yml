@@ -7,7 +7,7 @@ on:
      - '!.github/workflows/**'
      - '*.md'
      - 'GUI_Concepts/**'
-     - 'Lang'
+     - 'Lang/**'
 
 jobs:
   build:
