@@ -1,6 +1,13 @@
 name: ncc
 
-on: push
+on: 
+ push:
+   paths-ignore:
+     - '.github/**'
+     - '!.github/workflows/**'
+     - '*.md'
+     - 'GUI_Concepts/**'
+     - 'Lang/**'
 
 jobs:
   build:
