@@ -393,6 +393,14 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 	Local $iExtended = 0
 	Local $aTemp
 
+	Local $0 = "Success"
+	Local $1 = "Invalid Modification"
+	Local $2 = "No longer exists (File)"
+	Local $3 = "No longer exists (Path)"
+	Local $4 = "Too Many Handles Open"
+	Local $5 = "Access Denied (Modify)"
+	Local $6 = "Access Denied (Access)"
+
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
 
@@ -421,7 +429,7 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 				If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) = -1 Then
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1], $bAdmin)  ; Select the Process $PROCESS_SET_INFORMATION
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-						_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & " - " & _WinAPI_GetLastError() & @CRLF, $hOutput)
+						_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
 					EndIf
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				Else
