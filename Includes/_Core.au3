@@ -23,6 +23,14 @@
 
 If Not IsDeclared("bAdmin") Then Global Static $bAdmin = IsAdmin()
 
+Global $0 = "Success"
+Global $1 = "Invalid Modification"
+Global $2 = "No Longer Exists (File)"
+Global $3 = "No Longer Exists (Path)"
+Global $4 = "Too Many Handles Open"
+Global $5 = "Access Denied (Modify)"
+Global $6 = "Access Denied (Access)"
+
 Func _Main()
 
 	Local $aExclusions, $aInclusions, $aStatus
@@ -276,7 +284,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 					ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-						_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
+						_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
 					EndIf
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				EndIf
@@ -307,7 +315,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 						ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
 						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & @CRLF, $hOutput)
+							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
 						EndIf
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
@@ -392,14 +400,6 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 
 	Local $iExtended = 0
 	Local $aTemp
-
-	Local $0 = "Success"
-	Local $1 = "Invalid Modification"
-	Local $2 = "No longer exists (File)"
-	Local $3 = "No longer exists (Path)"
-	Local $4 = "Too Many Handles Open"
-	Local $5 = "Access Denied (Modify)"
-	Local $6 = "Access Denied (Access)"
 
 	If IsDeclared("iThreads") = 0 Then Local Static $iThreads = _GetCPUInfo(1)
 	Local $hAllCores = 0 ; Get Maxmimum Cores Magic Number
