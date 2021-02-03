@@ -80,7 +80,7 @@ Func _Main()
 										Case 1
 											_ConsoleWrite("!> " & _ArrayToString($aProcesses[0], " & ") & " " & $_sLang_NotRunning & @CRLF, $hConsole)
 										Case 2
-											_ConsoleWrite("!> E601" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+											_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 										Case 3
 											_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 										Case 4
@@ -103,7 +103,7 @@ Func _Main()
 							$iProcesses = 1
 							Switch @error
 								Case 1
-									_ConsoleWrite("!> E624" & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
+									_ConsoleWrite("!> " & $_sLang_InvalidProcessCores & @CRLF, $hConsole)
 								Case 2
 									_ConsoleWrite("!> " & $_sLang_TooManyCores & @CRLF, $hConsole)
 							EndSwitch
@@ -201,7 +201,7 @@ EndFunc
 ; Parameters ....: None
 ; Return values .: Returns an array containing modified processes
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 10/22/2020
+; Modified ......: 02/02/2021
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -215,7 +215,7 @@ Func _GetModifiedProcesses()
 
 	$aProcesses = ProcessList()
 	For $Loop = 5 To $aProcesses[0][0] ; Skip System
-		$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, False, $aProcesses[$Loop][1])
+		$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION, False, $aProcesses[$Loop][1], $bAdmin)
 		$aAffinity = _WinAPI_GetProcessAffinityMask($hCurProcess)
 		If @error Then ContinueLoop
 		Select
@@ -247,7 +247,7 @@ EndFunc
 ; Return values .: > 1                  - Success, Last Polled Process Count
 ;                  1                    - Optimization Exiting, Do not Continue
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 10/23/2020
+; Modified ......: 02/02/2021
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -282,7 +282,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 				Else
 ;					_ConsoleWrite("Optimizing " & $aRunning[$iLoop][0] & ", PID: " & $aRunning[$iLoop][1] & @CRLF, $hOutput)
 					ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
-					$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1], $bAdmin) ; Select the Process
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
 						_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
 					EndIf
@@ -313,7 +313,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 					Else
 ;						_ConsoleWrite("Optimizing " & $aRunning[$iLoop][0] & ", PID: " & $aRunning[$iLoop][1] & @CRLF, $hOutput)
 						ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
-						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1]) ; Select the Process
+						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1], $bAdmin) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
 							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
 						EndIf
@@ -338,7 +338,7 @@ EndFunc
 ; Return values .: 0                    - Success
 ;                  1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 10/23/2020
+; Modified ......: 02/02/2021
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -370,7 +370,7 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 					;;;
 				Else
 					ProcessSetPriority($aProcesses[$iLoop][0], $sPriority)
-					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1]) ; Select the Process
+					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1], $bAdmin) ; Select the Process
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
 						_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
 					EndIf
@@ -392,7 +392,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: 1                    - An error has occured
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 10/23/2020
+; Modified ......: 02/02/2021
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
@@ -452,7 +452,7 @@ EndFunc
 ;                  $hOutput             - [optional] Handle of the GUI Console. Default is False, for none.
 ; Return values .: None
 ; Author ........: rcmaehl (Robert Maehl)
-; Modified ......: 10/23/2020
+; Modified ......: 02/02/2021
 ; Remarks .......:
 ; Related .......:
 ; Link ..........:
