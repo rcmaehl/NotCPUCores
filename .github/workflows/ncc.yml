@@ -19,16 +19,16 @@ jobs:
            Invoke-WebRequest -Uri https://www.autoitscript.com/cgi-bin/getfile.pl?autoit3/autoit-v3-setup.exe -OutFile autoit-v3-setup.exe
            ./autoit-v3-setup.exe /S
 
+    - name: Checkout repo
+      run: |
+           cd C:\"Program Files (x86)"\AutoIt3\Aut2Exe
+           git clone https://github.com/rcmaehl/NotCPUCores
+
     - name: Install Autoit Code Stripper
       run: |
            Invoke-WebRequest -Uri https://www.autoitscript.com/autoit3/scite/download/Au3Stripper.zip -OutFile Au3Stripper.zip
            Expand-Archive -Force .\Au3Stripper.zip C:\"Program Files (x86)"\AutoIt3\Aut2Exe\NotCPUCores\
 
-    - name: Checkout repo
-      run: |
-           cd C:\"Program Files (x86)"\AutoIt3\Aut2Exe
-           git clone https://github.com/rcmaehl/NotCPUCores
-      
     - name: Compile
       run: |
            cd C:\"Program Files (x86)"\AutoIt3
