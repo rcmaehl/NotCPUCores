@@ -22,6 +22,9 @@ jobs:
     - name: Install Autoit Code Stripper
       run: |
            Invoke-WebRequest -Uri https://www.autoitscript.com/autoit3/scite/download/Au3Stripper.zip -OutFile Au3Stripper.zip
+           Expand-Archive -Force .\Au3Stripper.exe
+           Move-Item .\Au3Stripper\Au3Stripper.exe C:\"Program Files (x86)"\AutoIt3\Aut2Exe\NotCPUCores
+           Move-Item .\Au3Stripper\Au3Stripper.dat C:\"Program Files (x86)"\AutoIt3\Aut2Exe\NotCPUCores
 
     - name: Checkout repo
       run: |
@@ -35,9 +38,10 @@ jobs:
            cd Aut2Exe
            Move-Item aut2exe.exe NotCPUCores
            cd NotCPUCores
+           ./Au3Stripper.exe /PE /SO NotCPUCores.au3
            $ver= git describe --tags
            mkdir build
-           ./Aut2exe.exe /in NotCPUCores.au3 /out build\NotCPUCores$ver.exe /nopack /icon Assets\icon.ico /comp 4 /x64
+           ./Aut2exe.exe /in NotCPUCores_Stripped.au3 /out build\NotCPUCores$ver.exe /nopack /icon Assets\icon.ico /comp 4 /x64
 
 
     - name: Upload
