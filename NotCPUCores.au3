@@ -1423,13 +1423,13 @@ Func Main()
 					ShellExecute("ms-settings:display-advancedgraphics")
 
 				Case $hMsg = $hGithub
-					ShellExecute("https://www.github.com/rcmaehl/NotCPUCores")
+					ShellExecute("https://fcofix.org/NotCPUCores")
 
 				Case $hMsg = $hDiscord
 					ShellExecute("https://discord.gg/uBnBcBx")
 
 				Case $hMsg = $hHowTo
-					ShellExecute("https://github.com/rcmaehl/NotCPUCores/blob/master/FAQ.md#is-it-possible-to-get-the-benefits-of-notcpucores-without-installing-it")
+					ShellExecute("https://fcofix.org/NotCPUCores/wiki/Manually-Copying-NotCPUCores")
 
 				Case $hMsg = $hDonate
 					ShellExecute("https://www.paypal.me/rhsky")
@@ -1456,7 +1456,7 @@ Func Main()
 							EndSwitch
 						Case 1
 							_ConsoleWrite("!> " & $_sLang_NewVersion & @CRLF, $hConsole)
-							ShellExecute("https://github.com/rcmaehl/NotCPUCores/releases")
+							ShellExecute("https://fcofix.org/NotCPUCores/releases")
 					EndSwitch
 
 				Case Else
