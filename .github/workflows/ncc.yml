@@ -32,7 +32,6 @@ jobs:
     - name: Compile
       run: |
            cd C:\"Program Files (x86)"\AutoIt3
-           Copy-Item .\Include\* .\Aut2Exe\NotCPUCores\Include\
            cd Aut2Exe
            Move-Item aut2exe.exe NotCPUCores
            cd NotCPUCores
