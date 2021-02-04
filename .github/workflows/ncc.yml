@@ -22,9 +22,7 @@ jobs:
     - name: Install Autoit Code Stripper
       run: |
            Invoke-WebRequest -Uri https://www.autoitscript.com/autoit3/scite/download/Au3Stripper.zip -OutFile Au3Stripper.zip
-           Expand-Archive -Force .\Au3Stripper.zip
-           Move-Item Au3Stripper\Au3Stripper.exe C:\"Program Files (x86)"\AutoIt3\Aut2Exe\NotCPUCores
-           Move-Item Au3Stripper\Au3Stripper.dat C:\"Program Files (x86)"\AutoIt3\Aut2Exe\NotCPUCores
+           Expand-Archive -Force .\Au3Stripper.zip C:\"Program Files (x86)"\AutoIt3\Aut2Exe\NotCPUCores\
 
     - name: Checkout repo
       run: |
