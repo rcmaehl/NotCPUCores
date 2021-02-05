@@ -425,9 +425,10 @@ Func Main()
 	GUICtrlCreateTabItem($_sLang_AboutTab)
 
 	GUICtrlCreateLabel(@CRLF & "NotCPUCores" & @TAB & "v" & $sVersion & @CRLF & _
+	    $_sLang_AboutLicense & " LGPL-3.0" & @CRLF & _
 		$_sLang_AboutDeveloper & " Robert Maehl" & @CRLF & _
 		$_sLang_AboutIcon & " /u/ImRealNow" & @CRLF & _
-		$_sLang_AboutLanugage & " " & $_sLang_Translator, 5, 25, 270, 80, $SS_CENTER)
+		$_sLang_AboutLanguage & " " & $_sLang_Translator, 5, 25, 270, 80, $SS_CENTER)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	#EndRegion
