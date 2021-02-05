@@ -578,9 +578,10 @@ Func _LoadLanguage($sPath = @OSLang)
 
 	#Region ; About Tab
 	Global $_sLang_AboutTab       = IniRead($sPath, "About", "About Tab"     , "About"         )
+	Global $_sLang_AboutLicense	  = IniRead($sPath, "About", "License"       , "License"       )
 	Global $_sLang_AboutDeveloper = IniRead($sPath, "About", "Developer"     , "Developed by"  )
-	Global $_sLang_AboutIcon      = IniRead($sPath, "About", "Icon By"       , "Icon by"       )
-	Global $_sLang_AboutLanugage  = IniRead($sPath, "About", "Translation By", "Translation By")
+	Global $_sLang_AboutIcon      = IniRead($sPath, "About", "Icon by"       , "Icon by"       )
+	Global $_sLang_AboutLanguage  = IniRead($sPath, "About", "Translation by", "Translation by")
 	#EndRegion
 
 	#Region ; Drop Downs
