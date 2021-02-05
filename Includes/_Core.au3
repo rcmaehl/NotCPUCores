@@ -31,6 +31,9 @@ Global $WinAPIError[7] = ["Success",_
 							"Access Denied (Modify)",
 							"Access Denied (Access)"]
 
+; On the RARE occasion some other Error Code is thrown, don't crash
+ReDim $WinAPIError[15999]
+
 Func _Main()
 
 	Local $aExclusions, $aInclusions, $aStatus
