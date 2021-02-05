@@ -23,13 +23,13 @@
 
 If Not IsDeclared("bAdmin") Then Global Static $bAdmin = IsAdmin()
 
-Global $0 = "Success"
-Global $1 = "Invalid Modification"
-Global $2 = "No Longer Exists (File)"
-Global $3 = "No Longer Exists (Path)"
-Global $4 = "Too Many Handles Open"
-Global $5 = "Access Denied (Modify)"
-Global $6 = "Access Denied (Access)"
+Global $WinAPIError[7] = ["Success",_
+							"Invalid Modification",_
+							"No Longer Exists (File)",_
+							"No Longer Exists (Path)",_
+							"Too Many Handles Open",_
+							"Access Denied (Modify)",
+							"Access Denied (Access)"]
 
 Func _Main()
 
@@ -284,7 +284,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 					ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1], $bAdmin) ; Select the Process
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-						_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
+						_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & " - " & $WinAPIError[_WinAPI_GetLastError()] & @CRLF, $hOutput)
 					EndIf
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				EndIf
@@ -315,7 +315,7 @@ Func _Optimize($iProcesses, $aProcesses, $hCores, $iSleepTime = 100, $sPriority 
 						ProcessSetPriority($aRunning[$iLoop][0], $sPriority)
 						$hCurProcess = _WinAPI_OpenProcess($PROCESS_QUERY_LIMITED_INFORMATION+$PROCESS_SET_INFORMATION, False, $aRunning[$iLoop][1], $bAdmin) ; Select the Process
 						If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
+							_ConsoleWrite("Failed to adjust affinity of " & $aRunning[$iLoop][0] & " - " & $WinAPIError[_WinAPI_GetLastError()] & @CRLF, $hOutput)
 						EndIf
 						_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 					EndIf
@@ -372,7 +372,7 @@ Func _OptimizeBroadcaster($aProcessList, $hCores, $iSleepTime = 100, $sPriority 
 					ProcessSetPriority($aProcesses[$iLoop][0], $sPriority)
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_SET_INFORMATION, False, $aProcesses[$iLoop][1], $bAdmin) ; Select the Process
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-						_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
+						_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & " - " & $WinAPIError[_WinAPI_GetLastError()] & @CRLF, $hOutput)
 					EndIf
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				EndIf
@@ -431,7 +431,7 @@ Func _OptimizeOthers($aExclusions, $hCores, $iSleepTime = 100, $hOutput = False)
 				If _ArraySearch($aExclusions, $aProcesses[$iLoop][0]) = -1 Then
 					$hCurProcess = _WinAPI_OpenProcess($PROCESS_ALL_ACCESS, False, $aProcesses[$iLoop][1], $bAdmin)  ; Select the Process $PROCESS_SET_INFORMATION
 					If Not _WinAPI_SetProcessAffinityMask($hCurProcess, $hCores) Then ; Set Affinity (which cores it's assigned to)
-						_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & " - " & Eval(_WinAPI_GetLastError()) & @CRLF, $hOutput)
+						_ConsoleWrite("Failed to adjust affinity of " & $aProcesses[$iLoop][0] & " - " & $WinAPIError[_WinAPI_GetLastError()] & @CRLF, $hOutput)
 					EndIf
 					_WinAPI_CloseHandle($hCurProcess) ; I don't need to do anything else so tell the computer I'm done messing with it
 				Else
