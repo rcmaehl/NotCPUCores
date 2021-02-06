@@ -53,6 +53,9 @@ _LoadLanguage()
 
 PreFlightCheck()
 
+; GUIs
+Global $hGUI, $hQuickTabs
+
 ; Allow any function to set
 Global $bInterrupt = False
 
@@ -96,7 +99,7 @@ Func Main()
 		$iAllCores += 2^$iLoop
 	Next
 
-	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitOr($WS_MINIMIZEBOX, $WS_CAPTION, $WS_SYSMENU))
+	$hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitOr($WS_MINIMIZEBOX, $WS_CAPTION, $WS_SYSMENU))
 	GUISetOnEvent($GUI_EVENT_CLOSE, "OnInterrupt")
 
 	#Region ; Dummy Controls
@@ -439,6 +442,7 @@ Func Main()
 
 	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
 	GUISetAccelerators($aHotkeys)
+	GUIRegisterMsg($WM_ACTIVATE, "WM_ACTIVATE")
 
 	$hTabs = GUICtrlCreateTab(0, 0, 360, 300)
 
@@ -782,8 +786,8 @@ Func Main()
 						Else
 							GUICtrlSetData($hTask, $aTask[0])
 						EndIf
-						$aTask = ""
 					EndIf
+						$aTask = ""
 					GUICtrlSetState($hDToggle, $GUI_ENABLE)
 
 				Case $bInit = True
@@ -1490,6 +1494,16 @@ Func PreFlightCheck()
 
 	EndSelect
 EndFunc
+
+Func WM_ACTIVATE($hWnd, $msg, $wParam, $lParam)
+    Switch $hWnd
+        Case $hQuickTabs
+            If $wParam Then
+                WinActivate($hGUI)
+            EndIf
+    EndSwitch
+    Return $GUI_RUNDEFMSG
+EndFunc   ;==>WM_ACTIVATE
 
 Func _GetChildProcesses($i_pid) ; First level children processes only
     Local Const $TH32CS_SNAPPROCESS = 0x00000002
