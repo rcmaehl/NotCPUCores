@@ -23,12 +23,12 @@
 
 If Not IsDeclared("bAdmin") Then Global Static $bAdmin = IsAdmin()
 
-Global $WinAPIError[7] = ["Success",_
-							"Invalid Modification",_
-							"No Longer Exists (File)",_
-							"No Longer Exists (Path)",_
-							"Too Many Handles Open",_
-							"Access Denied (Modify)",_
+Global $WinAPIError[7] = ["Success", _
+							"Invalid Modification", _
+							"No Longer Exists (File)", _
+							"No Longer Exists (Path)", _
+							"Too Many Handles Open", _
+							"Access Denied (Modify)", _
 							"Access Denied (Access)"]
 
 ; On the RARE occasion some other Error Code is thrown, don't crash
