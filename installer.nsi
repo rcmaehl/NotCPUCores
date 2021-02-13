@@ -9,15 +9,25 @@ Name "NotCPUCores"
 ; The file to create
 OutFile "NCC.exe"
 
-; The default installation directory
-InstallDir $PROGRAMFILES64\NotCPUCores
+; Get if user is running as admin
+UserInfo::GetAccountType
+Pop $0
+
+${If} $0 = "Admin"
+  ; The default installation directory
+  InstallDir $PROGRAMFILES64\NotCPUCores
+${Else}
+  ; Install directory for non-Admins
+  InstallDir $LOCALAPPDATA\NotCPUCores
+${EndIf}
+ 
 
 ; Registry key to check for directory (so if you install again, it will
 ; overwrite the old one automatically)
 InstallDirRegKey HKLM "Software\NotCPUCores" "Install_Dir"
 
 ; Request application privileges for Windows Vista and later
-RequestExecutionLevel admin
+RequestExecutionLevel highest
 
 ;--------------------------------
 
