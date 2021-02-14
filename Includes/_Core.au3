@@ -32,7 +32,7 @@ Global $WinAPIError[7] = ["Success", _
 							"Access Denied (Access)"]
 
 ; On the RARE occasion some other Error Code is thrown, don't crash
-ReDim $WinAPIError[15999]
+ReDim $WinAPIError[16000]
 
 Func _Main()
 
