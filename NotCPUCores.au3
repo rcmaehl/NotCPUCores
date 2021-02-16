@@ -385,7 +385,11 @@ Func Main()
 		GUICtrlSetImage(-1, "shell32.dll", -208)
 
 	Local $hActions = GUICtrlCreateButton($_sLang_ActionCenter, 195, 85, 80, 40, $BS_MULTILINE)
-		GUICtrlSetImage(-1, "ActionCenter.dll", 1)
+		If @OSVersion = "Win_Vista" Then
+			GUICtrlSetImage(-1, "imageres.dll", -73)
+		Else
+			GUICtrlSetImage(-1, "ActionCenter.dll", 1)
+		EndIf
 
 	Local $hPower = GUICtrlCreateButton($_sLang_PowerOptions, 195, 130, 80, 40, $BS_MULTILINE)
 		GUICtrlSetImage(-1, "powercpl.dll", 1)
