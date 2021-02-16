@@ -399,7 +399,7 @@ Func Main()
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
 	GUICtrlCreateLabel($_sLang_SpecsOS & ":", 10, 45, 70, 15)
-		GUICtrlCreateLabel(_GetOSInfo(0) & " " & _GetOSInfo(1), 80, 45, 190, 20, $ES_RIGHT)
+		GUICtrlCreateLabel(_GetOSInfo(0) & " " & _GetOSInfo(1), 40, 45, 230, 20, $ES_RIGHT)
 
 	GUICtrlCreateLabel($_sLang_SpecsLanguage & ":", 10, 65, 70, 15)
 		GUICtrlCreateLabel(_GetLanguage(), 80, 65, 190, 20, $ES_RIGHT)
