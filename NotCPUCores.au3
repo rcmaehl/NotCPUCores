@@ -402,11 +402,11 @@ Func Main()
 	GUICtrlCreateLabel($_sLang_SpecsOSSection, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
 
-	GUICtrlCreateLabel($_sLang_SpecsOS & ":", 10, 45, 70, 15)
-		GUICtrlCreateLabel(_GetOSInfo(0) & " " & _GetOSInfo(1), 40, 45, 230, 20, $ES_RIGHT)
+;	GUICtrlCreateLabel($_sLang_SpecsOS & ":", 10, 45, 70, 15)
+		GUICtrlCreateLabel(_GetOSInfo(0) & " " & _GetOSInfo(1), 10, 45, 260, 20, $ES_CENTER)
 
-	GUICtrlCreateLabel($_sLang_SpecsLanguage & ":", 10, 65, 70, 15)
-		GUICtrlCreateLabel(_GetLanguage(), 80, 65, 190, 20, $ES_RIGHT)
+;	GUICtrlCreateLabel($_sLang_SpecsLanguage & ":", 10, 65, 70, 15)
+		GUICtrlCreateLabel(_GetLanguage(), 10, 65, 260, 20, $ES_CENTER)
 
 	GUICtrlCreateLabel($_sLang_SpecsHardwareSection, 5, 90, 270, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
