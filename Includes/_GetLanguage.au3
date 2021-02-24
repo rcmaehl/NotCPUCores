@@ -433,6 +433,11 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_Translator = IniRead($sPath, "File", "Translator", "Robert Maehl")
 	#EndRegion
 
+	#Region ; GUI Values
+	Global $_sLang_GUIFontSize   = IniRead($sPath, "Font", "Size"   , "8.5")
+	Global $_sLang_GUIFontWeight = IniRead($sPath, "Font", "Weight" , "400")
+	Global $_sLang_GUIFontName   = IniRead($sPath, "Font", "Name"   , ""   )
+
 	#Region ; Global Tips Usage
 	Global $_sLang_Example = IniRead($sPath, "Global Tips", "Example", "Example")
 	Global $_sLang_Usage   = IniRead($sPath, "Global Tips", "Usage"  , "Usage"  )

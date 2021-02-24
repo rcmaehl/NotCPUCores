@@ -98,6 +98,7 @@ Func Main()
 
 	Local $hGUI = GUICreate("NotCPUCores", 640, 480, -1, -1, BitOr($WS_MINIMIZEBOX, $WS_CAPTION, $WS_SYSMENU))
 	GUISetOnEvent($GUI_EVENT_CLOSE, "OnInterrupt")
+	GUISetFont($_sLang_GUIFontSize, $_sLang_GUIFontWeight, 0, $_sLang_GUIFontName)
 
 	#Region ; Dummy Controls
 	Local $hClear = GUICtrlCreateDummy()
@@ -443,6 +444,7 @@ Func Main()
 
 	$hQuickTabs = GUICreate("", 360, 300, 280, 0, $WS_POPUP, $WS_EX_MDICHILD, $hGUI)
 	GUISetAccelerators($aHotkeys)
+	GUISetFont($_sLang_GUIFontSize, $_sLang_GUIFontWeight, 0, $_sLang_GUIFontName)
 
 	$hTabs = GUICtrlCreateTab(0, 0, 360, 300)
 
@@ -496,6 +498,7 @@ Func Main()
 
 	#Region ; Sleep Timer GUI
 	$hTimerGUI = GUICreate($_sLang_SleepSet, 240, 120, -1, -1, $WS_POPUP + $WS_CAPTION, $WS_EX_TOOLWINDOW + $WS_EX_TOPMOST)
+	GUISetFont($_sLang_GUIFontSize, $_sLang_GUIFontWeight, 0, $_sLang_GUIFontName)
 
 	GUICtrlCreateLabel($_sLang_SleepText, 10, 5, 220, 45)
 	GUICtrlCreateLabel($_sLang_NewSleep & ":", 10, 60, 110, 20)
