@@ -1661,7 +1661,7 @@ Func _GetLatestRelease($sCurrent)
 	Local $dAPIBin
 	Local $sAPIJSON
 
-	$dAPIBin = InetRead("https://api.github.com/repos/rcmaehl/NotCPUCores/releases")
+	$dAPIBin = InetRead("https://api.fcofix.org/repos/rcmaehl/NotCPUCores/releases")
 	If @error Then Return SetError(1, 0, 0)
 	$sAPIJSON = BinaryToString($dAPIBin)
 	If @error Then Return SetError(2, 0, 0)
