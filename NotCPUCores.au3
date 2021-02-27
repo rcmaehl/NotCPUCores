@@ -126,6 +126,7 @@ Func Main()
 	GUICtrlSetState(-1, $GUI_DISABLE)
 	GUICtrlCreateMenuItem("", $hLang)
 	Local $hLoadLanguage = GUICtrlCreateMenuItem($_sLang_TextLoad, $hLang)
+	Local $hResetLanguage = GUICtrlCreateMenuItem("Reset to Default Language", $hLang)
 	Local $hTimer = GUICtrlCreateMenu($_sLang_SleepMenu, $hMenu2)
 	Local $hGetTimer = GUICtrlCreateMenuItem($_sLang_SleepCurrent & ": " & $iSleep & "ms", $hTimer)
 	GUICtrlSetState(-1, $GUI_DISABLE)
@@ -659,18 +660,18 @@ Func Main()
 
 				Case $hMsg = $hLoadLanguage ; LAZINESS... but saves a couple hundred lines of code
 					$hFile = FileOpenDialog($_sLang_LoadProfile, @WorkingDir, "Language File (*.ini)", $FD_FILEMUSTEXIST, StringRight(@OSLang,2) & ".ini", $hGUI)
-					If @error Then
-						;;;
-					Else
-						_LoadLanguage($hFile)
-						_GUICtrlListView_UnRegisterSortCallBack($hGames)
-						_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
-						_GUICtrlListView_UnRegisterSortCallBack($hExclusions)
-						GUIDelete($hQuickTabs)
-						GUIDelete($hTimerGUI)
-						GUIDelete($hGUI)
-						Main()
-					EndIf
+					If Not @error Then ContinueCase
+
+				Case $hMsg = $hResetLanguage
+					_LoadLanguage($hFile)
+					_GUICtrlListView_UnRegisterSortCallBack($hGames)
+					_GUICtrlListView_UnRegisterSortCallBack($hProcesses)
+					_GUICtrlListView_UnRegisterSortCallBack($hExclusions)
+					GUIDelete($hQuickTabs)
+					GUIDelete($hTimerGUI)
+					GUIDelete($hGUI)
+					$hFile = ""
+					Main()
 
 				Case $hMsg = $hDToggle
 					If $bCHidden Or $bPHidden Then
