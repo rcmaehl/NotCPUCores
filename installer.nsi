@@ -123,9 +123,9 @@ ${EndIf}
 
 ; Select file to be installed
 ${If} ${RunningX64}
-  File "/oname=${PRODUCT_NAME}.exe" ${PRODUCT_NAME}_x64.exe
+  File "/oname=${PRODUCT_NAME}.exe" ${PRODUCT_NAME}.exe
   ${If} ${DEBUGGING_ENABLED} == 1
-    MessageBox MB_OK "File that is used: ${PRODUCT_NAME}_x64.exe"
+    MessageBox MB_OK "File that is used: ${PRODUCT_NAME}.exe"
   ${EndIf}
 ${Else}
   File "/oname=${PRODUCT_NAME}.exe" ${PRODUCT_NAME}_x86.exe
