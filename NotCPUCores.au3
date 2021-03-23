@@ -727,16 +727,16 @@ Func Main()
 						;;;
 					Else
 						IniWrite($hFile, "General"  , "Process"    , GUICtrlRead($hTask       ))
-						IniWrite($hFile, "General"  , "SplitAs"    , GUICtrlRead($hAssignMode ))
+						IniWrite($hFile, "General"  , "SplitAs"    , _GUICtrlComboBox_GetCurSel($hAssignMode ))
 						IniWrite($hFile, "General"  , "Threads"    , GUICtrlRead($hCores      ))
 						IniWrite($hFile, "General"  , "Children"   , GUICtrlRead($hChildren   ))
-						IniWrite($hFile, "General"  , "Priority"   , GUICtrlRead($hPPriority  ))
-						IniWrite($hFile, "Streaming", "SplitAs"    , GUICtrlRead($hSplitMode  ))
+						IniWrite($hFile, "General"  , "Priority"   , _GUICtrlComboBox_GetCurSel($hPPriority  ))
+						IniWrite($hFile, "Streaming", "SplitAs"    , _GUICtrlComboBox_GetCurSel($hSplitMode  ))
 						IniWrite($hFile, "Streaming", "Threads"    , GUICtrlRead($hBCores     ))
 						IniWrite($hFile, "Streaming", "Software"   , GUICtrlRead($hBroadcaster))
 						IniWrite($hFile, "Streaming", "Children"   , GUICtrlRead($hBroChild   ))
-						IniWrite($hFile, "Streaming", "Priority"   , GUICtrlRead($hBPriority  ))
-						IniWrite($hFile, "Streaming", "Assignment" , GUICtrlRead($hOAssign    ))
+						IniWrite($hFile, "Streaming", "Priority"   , _GUICtrlComboBox_GetCurSel($hBPriority  ))
+						IniWrite($hFile, "Streaming", "Assignment" , _GUICtrlComboBox_GetCurSel($hOAssign    ))
 					EndIf
 
 				Case $hMsg = $hProcesses
