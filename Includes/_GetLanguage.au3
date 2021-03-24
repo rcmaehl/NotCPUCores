@@ -598,7 +598,7 @@ Func _LoadLanguage($sPath = @OSLang)
 	Global $_sLang_AllocFirstHalf   = IniRead($sPath, "Dropdowns", "First Half"           , "First Half"        )
 	Global $_sLang_AllocFirstAMD    = IniRead($sPath, "Dropdowns", "First AMD CCX"        , "First AMD CCX"     )
 	Global $_sLang_AllocEven        = IniRead($sPath, "Dropdowns", "Even Cores"           , "Even Cores"        )
-	;;; Keep following line to not break translations
+	;;; Keep following line to not break old translations
 	Global $_sLang_AllocPhysical    = IniRead($sPath, "Dropdowns", "Physcial Cores"       , "Physcial Cores"    )
 	;;; Overwrite value if a newer translation
 		   $_sLang_AllocPhysical    = IniRead($sPath, "Dropdowns", "Physical Cores"       , "Physical Cores"    )
