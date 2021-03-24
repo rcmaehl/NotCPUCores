@@ -726,15 +726,16 @@ Func Main()
 					If @error Then
 						;;;
 					Else
-						IniWrite($hFile, "General"  , "Process"    , GUICtrlRead($hTask       ))
+						IniWrite($hFile, "Meta"     , "Version"    ,                                       "1")
+						IniWrite($hFile, "General"  , "Process"    ,                GUICtrlRead($hTask       ))
 						IniWrite($hFile, "General"  , "SplitAs"    , _GUICtrlComboBox_GetCurSel($hAssignMode ))
-						IniWrite($hFile, "General"  , "Threads"    , GUICtrlRead($hCores      ))
-						IniWrite($hFile, "General"  , "Children"   , GUICtrlRead($hChildren   ))
+						IniWrite($hFile, "General"  , "Threads"    ,                GUICtrlRead($hCores      ))
+						IniWrite($hFile, "General"  , "Children"   ,                GUICtrlRead($hChildren   ))
 						IniWrite($hFile, "General"  , "Priority"   , _GUICtrlComboBox_GetCurSel($hPPriority  ))
 						IniWrite($hFile, "Streaming", "SplitAs"    , _GUICtrlComboBox_GetCurSel($hSplitMode  ))
-						IniWrite($hFile, "Streaming", "Threads"    , GUICtrlRead($hBCores     ))
-						IniWrite($hFile, "Streaming", "Software"   , GUICtrlRead($hBroadcaster))
-						IniWrite($hFile, "Streaming", "Children"   , GUICtrlRead($hBroChild   ))
+						IniWrite($hFile, "Streaming", "Threads"    ,                GUICtrlRead($hBCores     ))
+						IniWrite($hFile, "Streaming", "Software"   ,                GUICtrlRead($hBroadcaster))
+						IniWrite($hFile, "Streaming", "Children"   ,                GUICtrlRead($hBroChild   ))
 						IniWrite($hFile, "Streaming", "Priority"   , _GUICtrlComboBox_GetCurSel($hBPriority  ))
 						IniWrite($hFile, "Streaming", "Assignment" , _GUICtrlComboBox_GetCurSel($hOAssign    ))
 					EndIf
@@ -813,17 +814,18 @@ Func Main()
 					If Not FileExists($hFile) Then
 						ContinueCase
 					Else
-						GUICtrlSetData($hTask       , String(_IniRead($hFile, "General"  , "Process"   ,                                      "",                "")))
-						GUICtrlSetState($hChildren  , Number(_IniRead($hFile, "General"  , "Children"  ,                                      "",    $GUI_UNCHECKED)))
-						GUICtrlSetData($hAssignMode , String(_IniRead($hFile, "General"  , "SplitAs"   , _GUICtrlComboBox_GetList($hAssignMode ),          "Custom")))
-						GUICtrlSetData($hCores      , String(_IniRead($hFile, "General"  , "Threads"   ,                                      "",               "1")))
-						GUICtrlSetData($hPPriority  , String(_IniRead($hFile, "General"  , "Priority"  , _GUICtrlComboBox_GetList($hPPriority  ),            "High")))
-						GUICtrlSetData($hSplitMode  , String(_IniRead($hFile, "Streaming", "SplitAs"   , _GUICtrlComboBox_GetList($hSplitMode  ),             "OFF")))
-						GUICtrlSetData($hBCores     , String(_IniRead($hFile, "Streaming", "Threads"   ,                                      "",               "2")))
-						GUICtrlSetData($hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),               "-")))
-						GUICtrlSetState($hBroChild  , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "",    $GUI_UNCHECKED)))
-						GUICtrlSetData($hBPriority  , String(_IniRead($hFile, "Streaming", "Priority"  , _GUICtrlComboBox_GetList($hBPriority  ),            "High")))
-						GUICtrlSetData($hOAssign    , String(_IniRead($hFile, "Streaming", "Assignment", _GUICtrlComboBox_GetList($hOAssign    ), "Remaining Cores")))
+						_UpdateProfile($hFile)
+						GUICtrlSetData(            $hTask       , String(_IniRead($hFile, "General"  , "Process"   ,                                      "",             "")))
+						GUICtrlSetState(           $hChildren   , Number(_IniRead($hFile, "General"  , "Children"  ,                                      "", $GUI_UNCHECKED)))
+						_GUICtrlComboBox_SetCurSel($hAssignMode , Number(_IniRead($hFile, "General"  , "SplitAs"   ,                   "0|1|2|3|4|5|6|7|8|9",            "9")))
+						GUICtrlSetData(            $hCores      , String(_IniRead($hFile, "General"  , "Threads"   ,                                      "",            "1")))
+						_GUICtrlComboBox_SetCurSel($hPPriority  , Number(_IniRead($hFile, "General"  , "Priority"  ,                           "0|1|2|3|4|5",            "4")))
+						_GUICtrlComboBox_SetCurSel($hSplitMode  , Number(_IniRead($hFile, "Streaming", "SplitAs"   ,                   "0|1|2|3|4|5|6|7|8|9",            "9")))
+						GUICtrlSetData(            $hBCores     , String(_IniRead($hFile, "Streaming", "Threads"   ,                                      "",            "2")))
+						GUICtrlSetData(            $hBroadcaster, String(_IniRead($hFile, "Streaming", "Software"  , _GUICtrlComboBox_GetList($hBroadcaster),            "-")))
+						GUICtrlSetState(           $hBroChild   , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "", $GUI_UNCHECKED)))
+						_GUICtrlComboBox_SetCurSel($hBPriority  , Number(_IniRead($hFile, "Streaming", "Priority"  ,                           "0|1|2|3|4|5",            "4")))
+						_GUICtrlComboBox_SetCurSel($hOAssign    , Number(_IniRead($hFile, "Streaming", "Assignment",                                 "0|1|2",            "2")))
 					EndIf
 					ContinueCase
 
@@ -1689,6 +1691,33 @@ EndFunc
 Func _IsChecked($idControlID)
 	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
 EndFunc   ;==>_IsChecked
+
+Func _UpdateProfile($hFile)
+
+	Switch IniRead($hFile, "Meta", "Version", "0") = "0"
+
+		Case "0"
+
+			Local Enum $AllCores, $FirstCore, $First2Cores, $First4Cores, $FirstHalf, $EvenCores, $OddCores, $EveryOtherPair, $FirstAMDCCX, $Custom
+			Local Enum $PhyscialCores = 5, $NonPhysicalCores
+			Local Enum $LastCore = 1, $Last2Cores, $Last4Cores, $LastHalf, $LastAMDCCX = 8
+			Local Enum $Low, $BelowNormal, $Normal, $AboveNormal, $High, $RealTime
+			Local Enum $BroadcasterCores, $GameAppCores, $RemainingCores
+
+			IniWrite($hFile, "Meta", "Version", "1")
+
+			IniWrite($hFile, "General"  , "SplitAs"   , Eval(StringStripWS(StringReplace(IniRead($hFile, "General"  , "SplitAs"   , "Custom"), "-", ""), $STR_STRIPALL)))
+			IniWrite($hFile, "General"  , "Priority"  , Eval(StringStripWS(              IniRead($hFile, "General"  , "Priority"  , "Custom")          , $STR_STRIPALL)))
+			IniWrite($hFile, "Streaming", "SplitAs"   , Eval(StringStripWS(StringReplace(IniRead($hFile, "Streaming", "SplitAs"   , "Custom"), "-", ""), $STR_STRIPALL)))
+			IniWrite($hFile, "Streaming", "Priority"  , Eval(StringStripWS(              IniRead($hFile, "Streaming", "Priority"  , "Custom")          , $STR_STRIPALL)))
+			IniWrite($hFile, "Streaming", "Assignment", Eval(StringStripWS(StringReplace(IniRead($hFile, "Streaming", "Assignment", "Custom"), "/", ""), $STR_STRIPALL)))
+
+		Case Else
+			;;;
+
+	EndSwitch
+
+EndFunc
 
 #cs
 #include <StaticConstants.au3>
