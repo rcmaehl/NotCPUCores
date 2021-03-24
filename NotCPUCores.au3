@@ -148,9 +148,6 @@ Func Main()
 	Local $hUpdate = GUICtrlCreateMenuItem($_sLang_HelpUpdate, $hMenu3)
 	#EndRegion
 
-	Local $hDToggle = GUICtrlCreateButton("D", 260, 0, 20, 20)
-		GUICtrlSetTip($hDToggle, $_sLang_DebugTip)
-
 	GUICtrlCreateTab(0, 0, 280, 275)
 
 	#Region ; Work Tab
@@ -161,8 +158,12 @@ Func Main()
 	#Region ; Play Tab
 	GUICtrlCreateTabItem($_sLang_PlayTab)
 
-	GUICtrlCreateLabel($_sLang_PlayText, 5, 25, 270, 15, $SS_CENTER + $SS_SUNKEN)
+	GUICtrlCreateLabel($_sLang_PlayText, 5, 25, 250, 15, $SS_CENTER + $SS_SUNKEN)
 		GUICtrlSetBkColor(-1, 0xF0F0F0)
+
+	Local $hDToggle = GUICtrlCreateButton("D", 250, 25, 20, 15)
+		GUICtrlSetTip($hDToggle, $_sLang_DebugTip)
+
 
 	GUICtrlCreateLabel($_sLang_OptimizeProcess & ":", 10, 50, 140, 15)
 
