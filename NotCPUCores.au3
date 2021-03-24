@@ -1700,7 +1700,7 @@ Func _UpdateProfile($hFile)
 		Case "0"
 
 			Local Enum $AllCores, $FirstCore, $First2Cores, $First4Cores, $FirstHalf, $EvenCores, $OddCores, $EveryOtherPair, $FirstAMDCCX, $Custom
-			Local Enum $PhyscialCores = 5, $NonPhysicalCores
+			Local Enum $PhyscialCores = 5, $PhysicalCores = 5, $NonPhysicalCores
 			Local Enum $LastCore = 1, $Last2Cores, $Last4Cores, $LastHalf, $LastAMDCCX = 8
 			Local Enum $Low, $BelowNormal, $Normal, $AboveNormal, $High, $RealTime
 			Local Enum $BroadcasterCores, $GameAppCores, $RemainingCores
