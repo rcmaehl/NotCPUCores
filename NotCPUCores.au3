@@ -14,7 +14,7 @@
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=highestAvailable
 #AutoIt3Wrapper_Run_Au3Stripper=y
-#Au3Stripper_Parameters=/pe /so
+#Au3Stripper_Parameters=/pe /sf
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <Misc.au3>
@@ -80,7 +80,7 @@ Func Main()
 	Local $aUnload[0]
 	Local $hLibrary = ""
 	Local $hProfile = "Autoload.ncc"
-	Local $sVersion = "1.7.2.2"
+	Local $sVersion = "1.7.3.0"
 	Local $iAllCores
 	Local $sPriority = "High"
 	Local $sBPriority = "High"
