@@ -1479,6 +1479,8 @@ Func Main()
 	WEnd
 EndFunc
 
+OnInterrupt()
+
 Func OnInterrupt()
 	If Not $bInterrupt Then $bInterrupt = True
 	Opt("GUIOnEventMode", 0)
