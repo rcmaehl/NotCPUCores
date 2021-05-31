@@ -1,0 +1,29 @@
+﻿# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultlocale.1.0.0.schema.json
+PackageIdentifier: rcmaehl.NotCPUCores
+PackageVersion: 1.7.3.0
+PackageLocale: en-US
+Publisher: Robert Maehl
+PublisherUrl: https://fcofix.org
+PublisherSupportUrl: https://fcofix.org/NotCPUCores/issues
+#PrivacyUrl: 
+Author: Robert Maehl
+PackageName: NotCPUCores
+PackageUrl: https://fcofix.org/NotCPUCores/
+License: LGPL
+LicenseUrl: https://raw.githubusercontent.com/rcmaehl/NotCPUCores/master/LICENSE.md
+Copyright: Robert Maehl
+#CopyrightUrl: 
+ShortDescription: A GUI for quick CPU Resource Assignment and Priority Adjustments
+Description: NotCPUCores is a GUI for quick CPU Resource Assignment and Priority adjustment, along with other minor tweaks.
+Moniker: ncc
+Tags:
+  - performance
+  - task manager
+  - priority
+  - affinity
+  - gaming
+  - streaming
+  - optimization
+  - tweaks
+ManifestType: defaultLocale
+ManifestVersion: 1.0.0

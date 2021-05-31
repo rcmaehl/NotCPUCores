@@ -1,0 +1,22 @@
+﻿# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.0.0.schema.json
+PackageIdentifier: rcmaehl.NotCPUCores
+PackageVersion: 1.7.3.0
+MinimumOSVersion: 10.0.0.0
+InstallModes:
+  - interactive
+  - silent
+  - silentWithProgress
+Installers:
+  - Architecture: x64
+    InstallerType: exe
+    InstallerUrl: https://github.com/rcmaehl/NotCPUCores/releases/download/1.7.3.0/NotCPUCores.exe
+    InstallerSha256: F903D3CF2D8CEA51A27589B1494F93C5BFEDE1678F5EE7F12A611FF1B1964B16
+    InstallerSwitches:
+      Silent: /s
+      SilentWithProgress: /s
+#    ProductCode: 
+#    Scope: 
+    InstallerLocale: en-US
+    UpgradeBehavior: install
+ManifestType: installer
+ManifestVersion: 1.0.0
