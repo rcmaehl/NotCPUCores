@@ -63,7 +63,7 @@ Func _GetSteamLibraries($hPath = "None")
 		$sLine = StringReplace($sLine, "\\", "\")
 		$aLine = StringSplit($sLine, '?')
 
-		If $aLine[0] = 2 And StringIsInt($aLine[1]) Then
+		If $aLine[0] = 2 And $aLine[1] = "path" Then
 			ReDim $aLibraries[UBound($aLibraries) + 1]
 			$aLibraries[0] = UBound($aLibraries) - 1
 			$aLibraries[$aLine[1] + 1] = $aLine[2]
