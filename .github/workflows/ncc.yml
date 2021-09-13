@@ -11,39 +11,50 @@ on:
 
 jobs:
   build:
-
     runs-on: windows-latest
     steps:
-    - name: Install Autoit
-      run: |
-           Invoke-WebRequest -Uri https://www.autoitscript.com/cgi-bin/getfile.pl?autoit3/autoit-v3-setup.exe -OutFile autoit-v3-setup.exe
-           ./autoit-v3-setup.exe /S
-
-    - name: Checkout repo
-      run: |
-           cd C:\"Program Files (x86)"\AutoIt3\Aut2Exe
-           git clone https://github.com/rcmaehl/NotCPUCores
-
-    - name: Install Autoit Code Stripper
-      run: |
-           Invoke-WebRequest -Uri https://www.autoitscript.com/autoit3/scite/download/Au3Stripper.zip -OutFile Au3Stripper.zip
-           Expand-Archive -Force .\Au3Stripper.zip C:\"Program Files (x86)"\AutoIt3\Aut2Exe\NotCPUCores\
-
-    - name: Compile
-      run: |
-           cd C:\"Program Files (x86)"\AutoIt3
-           cd Aut2Exe
-           Move-Item aut2exe.exe NotCPUCores
-           cd NotCPUCores
-           ./Au3Stripper.exe .\NotCPUCores.au3 /PE /SO 
-           $ver= git describe --tags
-           mkdir build
-           ./Aut2exe.exe /in NotCPUCores_Stripped.au3 /out build\NotCPUCores$ver.exe /nopack /icon Assets\icon.ico /comp 4 /x64
-
-
-    - name: Upload
-      uses: actions/upload-artifact@v2
-      with:
-       name: NotCPUCores
-       path: C:\Program Files (x86)\AutoIt3\Aut2Exe\NotCPUCores\build
-       if-no-files-found: error
+      - uses: actions/checkout@v2
+      - name: Cache tools
+        uses: actions/cache@v2
+        id: cache
+        with:
+          path: |
+            autoit-v3-setup.exe
+            SciTE4AutoIt3.exe
+            C:\Program Files (x86)\AutoIt3\SciTE\Au3Stripper
+          key: v2
+      - name: Download tools
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          curl -sSfLO https://www.autoitscript.com/cgi-bin/getfile.pl?autoit3/autoit-v3-setup.exe `
+            -sSfLO https://www.autoitscript.com/cgi-bin/getfile.pl?../autoit3/scite/download/SciTE4AutoIt3.exe `
+            -sSfLO https://www.autoitscript.com/autoit3/scite/download/Au3Stripper.zip
+          Expand-Archive Au3Stripper.zip "${env:ProgramFiles(x86)}\AutoIt3\SciTE\Au3Stripper"
+      - name: Install tools
+        run: |
+          Start-Process autoit-v3-setup.exe -ArgumentList /S -NoNewWindow -Wait
+          Start-Process SciTE4AutoIt3.exe -ArgumentList /S -NoNewWindow -Wait
+      - name: Compile
+        run: |
+          Start-Process "${env:ProgramFiles(x86)}\AutoIt3\AutoIt3.exe" "`"${env:ProgramFiles(x86)}\AutoIt3\SciTE\AutoIt3Wrapper\AutoIt3Wrapper.au3`" /NoStatus /prod /in NotCPUCores.au3" -NoNewWindow -Wait
+          sha256sum -b NotCPUCores*.exe > checksums.sha256
+      - uses: actions/upload-artifact@v2
+        with:
+          name: NCC
+          path: |
+            NotCPUCores*.exe
+            checksums.sha256
+          if-no-files-found: error
+      - name: Zip package
+        if: startsWith(github.ref, 'refs/tags/')
+        run: 7z a NotCPUCores.zip NotCPUCores*.exe checksums.sha256
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            NotCPUCores*.exe
+            NotCPUCores.zip
+            checksums.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
