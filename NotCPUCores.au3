@@ -6,7 +6,7 @@
 #AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
-#AutoIt3Wrapper_Res_Comment=Compiled 9/13/2021 @ ~8:20 EST
+#AutoIt3Wrapper_Res_Comment=Compiled 10/3/2021 @ ~8:30 EST
 #AutoIt3Wrapper_Res_Description=NotCPUCores
 #AutoIt3Wrapper_Res_Fileversion=1.7.3.1
 #AutoIt3Wrapper_Res_ProductVersion=1.7.3.1
@@ -50,6 +50,9 @@ Opt("TrayMenuMode", 1)
 Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 Opt("GUIResizeMode", $GUI_DOCKALL)
+
+; Disable Scaling
+If @OSVersion = 'WIN_10' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
 
 _LoadLanguage()
 
