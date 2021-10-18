@@ -3,6 +3,38 @@
 #include <StringConstants.au3>
 
 ; #FUNCTION# ====================================================================================================================
+; Name ..........: _GetSteamPath
+; Description ...: Obtains the Steam install Path
+; Syntax ........: _GetSteamPath()
+; Parameters ....: none
+; Return values .: Success - Returns a string containing Steam install Path
+;                  Failure - Returns 0 and sets @error:
+;                  |1 - Steam Install Location Error, sets @extended: (1, Unable to read Registry; 2, Path Invalid)
+; Author ........: rcmaehl (Robert Maehl)
+; Modified ......: 10/17/21
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _GetSteamPath()
+
+	Local $hSteamDir = RegRead("HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath")
+	If @error Then
+		Return SetError(1,0,0)
+	Else
+		$hSteamDir = StringReplace($hSteamDir, "/", "\")
+	EndIf
+
+	If FileExists($hSteamDir) Then
+		Return $hSteamDir
+	Else
+		Return SetError(2,1,0)
+	EndIf
+
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name ..........: _GetSteamLibraries
 ; Description ...: Obtains a list of Steam Libraries
 ; Syntax ........: _GetSteamLibraries([$sPath = "None"])
@@ -25,11 +57,10 @@ Func _GetSteamLibraries($hPath = "None")
 
 	$aLibraries[0] = 1
 
-
 	If $hPath = "None" Then
-		Local $hSteamDir = RegRead("HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath")
+		Local $hSteamDir = _GetSteamPath()
 		If @error Then
-			SetError(1,0,0)
+			Return SetError(1,0,0)
 		Else
 			$hSteamDir = StringReplace($hSteamDir, "/", "\")
 		EndIf
@@ -39,7 +70,7 @@ Func _GetSteamLibraries($hPath = "None")
 			Local $hSteamDir = $hPath
 			$hSteamDir = StringReplace($hSteamDir, "/", "\")
 		Else
-			SetError(1,1,0)
+			Return SetError(1,1,0)
 		EndIf
 	EndIf
 
@@ -66,7 +97,7 @@ Func _GetSteamLibraries($hPath = "None")
 		If $aLine[0] = 2 And $aLine[1] = "path" Then
 			ReDim $aLibraries[UBound($aLibraries) + 1]
 			$aLibraries[0] = UBound($aLibraries) - 1
-			$aLibraries[$aLine[1] + 1] = $aLine[2]
+			$aLibraries[$aLibraries[0]] = $aLine[2]
 		EndIf
 	Next
 
