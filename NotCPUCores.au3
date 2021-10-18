@@ -473,7 +473,7 @@ Func Main()
 		_GUICtrlListView_RegisterSortCallBack($hGames)
 		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
-	_GetSteamGames($hGames, $hLibrary)
+	_AddSteamGames($hGames, $hLibrary)
 	_GUICtrlListView_SortItems($hGames, 1)
 	#EndRegion
 	$bPHidden = True
@@ -716,13 +716,13 @@ Func Main()
 						;;;
 					Else
 						$hLibrary = $hFile
-						_GetSteamGames($hGames, $hLibrary)
+						_AddSteamGames($hGames, $hLibrary)
 						_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
 					EndIf
 
 				Case $hMsg = $hRemLibrary
 					$hLibrary = ""
-					_GetSteamGames($hGames, $hLibrary)
+					_AddSteamGames($hGames, $hLibrary)
 					_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
 
 	;			Case $hMsg = $hSettingsOK
@@ -752,7 +752,7 @@ Func Main()
 					_GUICtrlListView_SortItems($hProcesses, GUICtrlGetState($hProcesses))
 
 				Case $hMsg = $hGames
-					_GetSteamGames($hGames, $hLibrary)
+					_AddSteamGames($hGames, $hLibrary)
 					_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
 
 				Case $hMsg = $hExclusions
@@ -765,7 +765,7 @@ Func Main()
 							_GetProcessList($hProcesses)
 							_GUICtrlListView_SortItems($hProcesses, 0)
 						Case 1
-							_GetSteamGames($hGames, $hLibrary)
+							_AddSteamGames($hGames, $hLibrary)
 							_GUICtrlListView_SortItems($hGames, 1)
 						Case 2
 							$aExclusions = _GetExclusionsList($hExclusions)
@@ -1637,34 +1637,14 @@ Func _GetProcessList($hControl)
 
 EndFunc
 
-Func _GetSteamGames($hControl, $hLibrary)
+Func _AddSteamGames($hControl, $hLibrary)
 
 	_GUICtrlListView_DeleteAllItems($hControl)
 
-	If $hLibrary = "" Then
-		Local $aSteamLibraries = _GetSteamLibraries()
-	Else
-		Local $aSteamLibraries = _GetSteamLibraries($hLibrary)
-	EndIf
-	Local $aSteamGames
-	For $iLoop1 = 1 To $aSteamLibraries[0] Step 1
-		$aSteamGames = _SteamGetGamesFromLibrary($aSteamLibraries[$iLoop1])
-		If $aSteamGames[0][0] = 0 Then ContinueLoop
-		$aSteamGames[0][1] = $aSteamGames[0][0]
-		Do
-			$iDelete = _ArraySearch($aSteamGames, "")
-			If $iDelete = -1 Then
-				;;;
-			Else
-				$aSteamGames[0][0] = $aSteamGames[0][0] - 1
-			EndIf
-			_ArrayDelete($aSteamGames, $iDelete)
-		Until _ArraySearch($aSteamGames, "") = -1
-		For $iLoop2 = 1 To $aSteamGames[0][0] Step 1
-			GUICtrlCreateListViewItem($aSteamGames[$iLoop2][0] & "|" & $aSteamGames[$iLoop2][1], $hControl)
-		Next
+	Local $aSteamGames = _GetSteamGames($hLibrary)
+	For $iLoop2 = 1 To UBound($aSteamGames) - 1 Step 1
+		GUICtrlCreateListViewItem($aSteamGames[$iLoop2][0] & "|" & $aSteamGames[$iLoop2][1], $hControl)
 	Next
-	_ArrayDelete($aSteamGames, 0)
 	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
 		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
 	Next
