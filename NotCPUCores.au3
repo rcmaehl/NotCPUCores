@@ -39,11 +39,12 @@ FileChangeDir(@SystemDir)
 
 #include ".\Includes\_Core.au3"
 #include ".\Includes\_WMIC.au3"
-#include ".\Includes\_GetSteam.au3"
 #include ".\Includes\_Bitwise64.au3"
 ;#include ".\Includes\_ModeSelect.au3"
 #include ".\Includes\_GetLanguage.au3"
 #include ".\Includes\_ExtendedFunctions.au3"
+
+#include ".\Includes\_GetSteam\_GetSteam.au3"
 
 Opt("TrayIconHide", 1)
 Opt("TrayMenuMode", 1)
