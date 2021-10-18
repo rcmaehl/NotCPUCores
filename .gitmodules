@@ -1,3 +1,4 @@
 [submodule "_GetSteam"]
 	path = Includes/_GetSteam
 	url = https://github.com/rcmaehl/_GetSteam
+	branch = main
