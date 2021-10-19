@@ -14,6 +14,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Cache tools
         uses: actions/cache@v2
         id: cache
@@ -34,10 +36,6 @@ jobs:
         run: |
           Start-Process autoit-v3-setup.exe -ArgumentList /S -NoNewWindow -Wait
           Start-Process SciTE4AutoIt3.exe -ArgumentList /S -NoNewWindow -Wait
-      - name: Submodule update
-        run: |
-          git submodule init
-          git submodule update --remote --merge
       - name: Compile
         run: |
           Start-Process "${env:ProgramFiles(x86)}\AutoIt3\AutoIt3.exe" "`"${env:ProgramFiles(x86)}\AutoIt3\SciTE\AutoIt3Wrapper\AutoIt3Wrapper.au3`" /NoStatus /prod /in NotCPUCores.au3" -NoNewWindow -Wait
