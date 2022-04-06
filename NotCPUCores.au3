@@ -1642,12 +1642,14 @@ Func _AddSteamGames($hControl, $hLibrary)
 	_GUICtrlListView_DeleteAllItems($hControl)
 
 	Local $aSteamGames = _GetSteamGames($hLibrary)
-	For $iLoop2 = 1 To UBound($aSteamGames) - 1 Step 1
-		GUICtrlCreateListViewItem($aSteamGames[$iLoop2][0] & "|" & $aSteamGames[$iLoop2][1], $hControl)
-	Next
-	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
-		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
-	Next
+	If IsArray($aSteamGames) Then
+		For $iLoop2 = 1 To UBound($aSteamGames) - 1 Step 1
+			GUICtrlCreateListViewItem($aSteamGames[$iLoop2][0] & "|" & $aSteamGames[$iLoop2][1], $hControl)
+		Next
+		For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
+			_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
+		Next
+	EndIf
 
 EndFunc
 
