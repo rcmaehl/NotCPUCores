@@ -877,36 +877,30 @@ Func Main()
 						If $iLoop = $hBroChild Then ContinueLoop
 						GUICtrlSetState($iLoop, $GUI_ENABLE)
 					Next
+					$aProcesses[0] = GUICtrlRead($hTask)
 					Switch GUICtrlRead($hBroadcaster)
 						Case "-"
 							ReDim $aProcesses[3]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = ""
-							$aProcesses[2] = $aExclusions
 							For $iLoop = $hSplitMode To $hOAssign Step 2
 								GUICtrlSetState($iLoop, $GUI_DISABLE)
 							Next
 							_GUICtrlComboBox_SetCurSel($hOAssign, 2)
 						Case "LightStream"
 							ReDim $aProcesses[7]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = "iexplore.exe"
 							$aProcesses[2] = "msedge.exe"
 							$aProcesses[3] = "chrome.exe"
 							$aProcesses[4] = "firefox.exe"
 							$aProcesses[5] = "opera.exe"
-							$aProcesses[6] = $aExclusions
 						Case "OBS"
 							ReDim $aProcesses[6]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = "obs.exe"
 							$aProcesses[2] = "obs32.exe"
 							$aProcesses[3] = "obs64.exe"
 							$aProcesses[4] = "obs-ffmpeg-mux.exe"
-							$aProcesses[5] = $aExclusions
 						Case "ReLive"
 							ReDim $aProcesses[13]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = "RadeonSoftware.exe"
 							$aProcesses[2] = "FacebookClient.exe"
 							$aProcesses[3] = "GfycatWrapper.exe"
@@ -918,54 +912,41 @@ Func Main()
 							$aProcesses[9] = "TwitterWrapperClient.exe"
 							$aProcesses[10] = "YoukuWrapper.exe"
 							$aProcesses[11] = "YoutubeAPIWrapper.exe"
-							$aProcesses[12] = $aExclusions
 						Case "StreamLabs"
 							ReDim $aProcesses[6]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = "Streamlabs OBS.exe"
 							$aProcesses[2] = "obs32.exe"
 							$aProcesses[3] = "obs64.exe"
 							$aProcesses[4] = "obs-ffmpeg-mux.exe"
-							$aProcesses[5] = $aExclusions
 						Case "ShadowPlay"
 							ReDim $aProcesses[7]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = "nvcontainer.exe"
 							$aProcesses[2] = "nvscaphelper.exe"
 							$aProcesses[3] = "nvsphelper.exe"
 							$aProcesses[4] = "nvsphelper64.exe"
 							$aProcesses[5] = "GFExperience.exe"
-							$aProcesses[6] = $aExclusions
 						Case "vMix"
 							ReDim $aProcesses[8]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = "vMixService.exe"
 							$aProcesses[2] = "vMix.exe"
 							$aProcesses[3] = "vMix64.exe"
 							$aProcesses[4] = "vMixDesktopCapture.exe"
 							$aProcesses[5] = "vMixNDIHelper.exe"
 							$aProcesses[6] = "ffmpeg.exe"
-							$aProcesses[7] = $aExclusions
 						Case "Wirecast"
 							ReDim $aProcesses[5]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = "CEFChildProcess.exe"
 							$aProcesses[2] = "Wirecast.exe"
 							$aProcesses[3] = "wirecastd.exe"
-							$aProcesses[4] = $aExclusions
 						Case "XSplit"
 							ReDim $aProcesses[6]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = "XGS32.exe"
 							$aProcesses[2] = "XGS64.exe"
 							$aProcesses[3] = "XSplit.Core.exe"
 							$aProcesses[4] = "XSplit.xbcbp.exe"
-							$aProcesses[5] = $aExclusions
 						Case Else
 							ReDim $aProcesses[3]
-							$aProcesses[0] = GUICtrlRead($hTask)
 							$aProcesses[1] = ""
-							$aProcesses[2] = $aExclusions
 							For $iLoop = $hSplitMode To $hOAssign Step 2
 								GUICtrlSetState($iLoop, $GUI_DISABLE)
 							Next
@@ -973,6 +954,7 @@ Func Main()
 							_ConsoleWrite("!> " & $_sLang_InvalidBroadcast & @CRLF, $hConsole)
 
 					EndSwitch
+					$aProcesses[UBound($aProcesses) - 1] = $aExclusions
 					ContinueCase
 
 				Case $hMsg = $hBPriority
