@@ -76,6 +76,7 @@ Func Main()
 	; One Time Variable Setting
 
 	Local $aExclusions[0]
+	Local $aExclusionsOverride[0]
 
 	Local $aCores
 	Local $bHPET = False
@@ -484,7 +485,7 @@ Func Main()
 		_GUICtrlListView_RegisterSortCallBack($hExclusions)
 		GUICtrlSetTip(-1, $_sLang_RefreshTip, $_sLang_Usage)
 
-	$aExclusions = _GetExclusionsList($hExclusions)
+	$aExclusions = _GetExclusionsList($hExclusions, $aExclusionsOverride)
 	_GUICtrlListView_SortItems($hExclusions, 0)
 	#EndRegion
 
@@ -756,7 +757,7 @@ Func Main()
 					_GUICtrlListView_SortItems($hGames, GUICtrlGetState($hGames))
 
 				Case $hMsg = $hExclusions
-					$aExclusions = _GetExclusionsList($hExclusions)
+					$aExclusions = _GetExclusionsList($hExclusions, $aExclusionsOverride)
 					_GUICtrlListView_SortItems($hExclusions, GUICtrlGetState($hExclusions))
 
 				Case $hMsg = $hRefresh
@@ -768,7 +769,7 @@ Func Main()
 							_AddSteamGames($hGames, $hLibrary)
 							_GUICtrlListView_SortItems($hGames, 1)
 						Case 2
-							$aExclusions = _GetExclusionsList($hExclusions)
+							$aExclusions = _GetExclusionsList($hExclusions, $aExclusionsOverride)
 					EndSwitch
 
 				Case $hMsg = $hSearch
@@ -833,6 +834,7 @@ Func Main()
 						GUICtrlSetState(           $hBroChild   , Number(_IniRead($hFile, "Streaming", "Children"  ,                                      "", $GUI_UNCHECKED)))
 						_GUICtrlComboBox_SetCurSel($hBPriority  , Number(_IniRead($hFile, "Streaming", "Priority"  ,                           "0|1|2|3|4|5",            "4")))
 						_GUICtrlComboBox_SetCurSel($hOAssign    , Number(_IniRead($hFile, "Streaming", "Assignment",                                 "0|1|2",            "2")))
+						$aExclusionsOverride = StringSplit(              _IniRead($hFile, "General"  , "Exclusions",                                      "",            ""), ",", $STR_NOCOUNT)
 					EndIf
 					ContinueCase
 
@@ -1291,7 +1293,7 @@ Func Main()
 					$iProcesses = 0
 					$aActive[0] = False
 					$aActive[1] = ""
-					$aExclusions = _GetExclusionsList($hExclusions)
+					$aExclusions = _GetExclusionsList($hExclusions, $aExclusionsOverride)
 					$bReset = True
 
 				Case $hMsg = $hOptimize
@@ -1561,7 +1563,7 @@ EndFunc
 Func _GetError($sFunction, $iError, $iExtended)
 EndFunc
 
-Func _GetExclusionsList($hControl)
+Func _GetExclusionsList($hControl, ByRef $aExclusionsOverride)
 
 	Local $aAffinity
 	Local $aProcesses
@@ -1589,6 +1591,8 @@ Func _GetExclusionsList($hControl)
 	For $i = 0 To _GUICtrlListView_GetColumnCount($hControl) Step 1
 		_GUICtrlListView_SetColumnWidth($hControl, $i, $LVSCW_AUTOSIZE_USEHEADER)
 	Next
+
+	_ArrayConcatenate($aExclusions, $aExclusionsOverride)
 
 	Return $aExclusions
 
